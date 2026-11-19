@@ -4,6 +4,7 @@
 
 *Au 19 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 et du 19/11.*
 
+- **Téléphone : tâches à la taille de Google Tasks (19/11)** : 16 px, graisse normale, lignes de 24 px, saisie identique. Vérifié : `tests/taches.cjs`. **Non vérifié** : de vrais téléphones.
 - **Liste verrouillée : contour gris en pointillés (19/11)**, en plus du cadenas et de la mention. Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.
 - **Ordinateur : tâches à la taille de Google Tasks (19/11)** : 10,5 px, graisse normale, lignes de 16 px, case de 14 px, mesuré sur les captures de François ; téléphone inchangé. Vérifié : `tests/taches.cjs`. **Non vérifié** : un vrai ordinateur.
 - **Liste verrouillée sans point noir (19/11)** : rien devant les tâches, le cadenas sous le titre suffit. Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.
