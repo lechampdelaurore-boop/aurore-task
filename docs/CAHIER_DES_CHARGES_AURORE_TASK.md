@@ -61,7 +61,7 @@ La maquette montre les quatre écrans ci-dessous (exemples inventés ou tirés d
 - **Sept listes « jour »** (Lundi à Dimanche), là dès le départ : elles servent chaque semaine, **sans date** (comme aujourd'hui). On ne peut pas les supprimer ; on peut les déplacer et, sur l'ordinateur, les cacher.
 - **Autant de listes simples qu'on veut** (S+1, side quests, à suivre, travaux d'hiver, check-list marché, courses, RETEX…) : créer, renommer, supprimer (avec confirmation, et seulement… voir 5.10), déplacer.
 - **Une liste « Astreintes »**, spéciale (5.8).
-- **Menu « ⋯ » d'une liste** : renommer, ajouter un encart (RDV, P1 ou P2), verrouiller / déverrouiller, supprimer la liste ; pour Astreintes, en plus : « Répartir les astreintes ».
+- **Menu « ⋯ » d'une liste** : renommer, ajouter un encart (RDV, P1 ou P2), supprimer un encart vide, verrouiller / déverrouiller, supprimer la liste ; pour Astreintes, en plus : « Répartir les astreintes ».
 
 ### 5.2 Les tâches
 
@@ -85,7 +85,7 @@ La maquette montre les quatre écrans ci-dessous (exemples inventés ou tirés d
 - Ce sont de **vrais encarts**, plus de fausses tâches « - P1 - ». Dans l'ordre : **RDV** (à heure fixe, l'heure est un champ et s'affiche devant le texte, tâches classées par heure), **P1** (en priorité), **P2** (après les P1).
 - **Par défaut, chaque jour a ses trois encarts.** Les autres listes n'en ont pas.
 - **Ajouter** un encart : menu « ⋯ » de la liste, « Ajouter un encart : RDV, P1 ou P2 », un à la fois. Marche aussi pour une liste simple (S+1, par exemple).
-- **Supprimer** un encart : **seulement s'il est vide, et seulement à la main** (bouton « Supprimer l'encart » sur un encart vide). Rien ne disparaît tout seul.
+- **Supprimer** un encart : **seulement s'il est vide, et seulement à la main** (menu « ⋯ » de la liste, « Supprimer l'encart … », proposé seulement pour un encart vide ; changé le 19/11, le lien sous l'encart partait d'un seul toucher). Rien ne disparaît tout seul.
 - Le « + » du titre d'un encart ajoute une tâche dedans ; le « + » du titre de la liste ajoute en haut de P1 (s'il n'y a pas de P1 : en haut de la liste).
 - Choix de Claude, à confirmer : si « Répartir les astreintes » ou Google Agenda doivent poser une tâche dans un encart supprimé, **l'encart revient** pour l'accueillir.
 - Les noms des encarts (RDV, P1, P2) sont un **réglage** (une autre ferme peut les appeler autrement) ; la ferme les garde tels quels.

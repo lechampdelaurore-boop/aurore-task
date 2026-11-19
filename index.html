@@ -119,8 +119,6 @@ li.t.vient{animation:vient 1.2s ease-out}
 .etiq{font-family:var(--f-ui);font-weight:600;font-size:11px;border-radius:99px;padding:2px 9px;-webkit-user-select:none;user-select:none}
 .etiq.info{background:#e1eaff;color:#2a3f8a} .etiq.warn{background:var(--orange-pale);color:var(--orange-txt)} .etiq.neutre{background:var(--gris);color:var(--anthracite)}
 .pt.mini svg.i{width:16px;height:16px}
-.suppr-encart{min-height:32px;border:0;background:transparent;color:var(--sec);border-radius:var(--r-btn);font-family:var(--f-ui);font-weight:500;font-size:11.5px;padding:0 8px;text-decoration:underline;text-underline-offset:2px}
-.suppr-encart:hover{color:var(--rouge-txt)}
 .encart ul.taches:empty{min-height:8px}
 .heure{font-weight:700;color:#2a3f8a}
 .pastille{width:22px;height:22px;flex-shrink:0;margin-top:1px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-ui);font-weight:600;font-size:11px}
@@ -1013,10 +1011,8 @@ function panneauHtml(l){
   return blocs.map(function(b){
     var tete = '';
     if(b.tete){
-      var vide = !b.lignes.some(function(x){ return x.id && D.t[x.id]; });
       tete = '<div class="encart-tete"><span class="etiq ' + CLASSES_ENCART[b.e] + '">' + esc(nomEncart(b.e)) + '</span>' +
-        (fige ? '' : (vide ? '<button class="suppr-encart" type="button" data-a="suppr-encart" data-e="' + b.e + '">Supprimer l\'encart</button>' : '') +
-        '<button class="pt mini" type="button" data-a="ajouter" data-e="' + b.e + '" aria-label="Ajouter une tâche dans ' + esc(nomEncart(b.e)) + '">' + ICO.plus + '</button>') + '</div>';
+        (fige ? '' : '<button class="pt mini" type="button" data-a="ajouter" data-e="' + b.e + '" aria-label="Ajouter une tâche dans ' + esc(nomEncart(b.e)) + '">' + ICO.plus + '</button>') + '</div>';
     }
     return '<div class="encart" data-e="' + b.e + '">' + tete + '<ul class="taches" data-e="' + b.e + '">' + b.lignes.map(ligneHtml).join('') + '</ul></div>';
   }).join('');
@@ -1321,6 +1317,8 @@ function ouvrirMenuListe(L){
   if(l.type === 'astreintes') a.push('<button class="act" type="button" data-a="repartir">' + ICO.astreinte + 'Répartir les astreintes dans les jours</button>');
   var v = verrou(L), e = encartsDe(L), manque = ENCARTS.filter(function(k){ return !e[k]; });
   if(l.type !== 'astreintes' && !v) manque.forEach(function(k){ a.push('<button class="act" type="button" data-a="ajouter-encart" data-e="' + k + '">' + ICO.encart + 'Ajouter l\'encart ' + esc(nomEncart(k)) + '</button>'); });
+  // Un encart vide se supprime ici (le petit lien collé au « + » partait d'un seul toucher, 19/11).
+  if(l.type !== 'astreintes' && !v) ENCARTS.filter(function(k){ return e[k] && !enfants(L, '', k).length; }).forEach(function(k){ a.push('<button class="act" type="button" data-a="supprimer-encart" data-e="' + k + '">' + ICO.poubelle + 'Supprimer l\'encart ' + esc(nomEncart(k)) + ' (vide)</button>'); });
   a.push(v ? '<button class="act" type="button" data-a="deverrouiller">' + ICO.ouvert + 'Déverrouiller la liste</button>'
            : '<button class="act" type="button" data-a="verrouiller">' + ICO.cadenas + 'Verrouiller la liste</button>');
   if(peutSupprimer(L)) a.push('<button class="act danger" type="button" data-a="supprimer-liste">' + ICO.poubelle + 'Supprimer la liste</button>');
@@ -1335,6 +1333,7 @@ $('#listeDlg').addEventListener('click', function(e){
   if(!L || !IX.ok[L]) return;
   if(a === 'repartir') repartirAstreintes();
   else if(a === 'ajouter-encart') ajouterEncart(L, b.dataset.e);
+  else if(a === 'supprimer-encart') supprimerEncart(L, b.dataset.e);
   else if(a === 'verrouiller') verrouiller(L, true);
   else if(a === 'deverrouiller') verrouiller(L, false);
   else if(a === 'renommer') demanderNom('Renommer la liste', IX.ok[L].nom, function(n){ renommerListe(L, n); });
@@ -1621,7 +1620,6 @@ document.addEventListener('click', function(e){
   else if(a === 'modifier' && li){ ouvrirModif(li.dataset.id); }
   else if(a === 'menu-tache' && li){ ouvrirMenuTache(li.dataset.id); }
   else if(a === 'ajouter' && L){ if(!PC.matches) allerA(L); ouvrirNouveau(L, '', null, b.dataset.e != null ? b.dataset.e : encartPlus(L)); }
-  else if(a === 'suppr-encart' && L){ supprimerEncart(L, b.dataset.e); }
   else if(a === 'menu-liste' && L){ ouvrirMenuListe(L); }
   else if(a === 'faites' && L){ ouvrirFaites(L); }
   else if(a === 'aller'){ allerA(b.dataset.l, true); }

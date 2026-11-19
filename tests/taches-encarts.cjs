@@ -144,8 +144,14 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await attendreQue(async () => (await encarts(A, LJ)).includes('p2: ')), 'P2 vide reste affiché (on ne le supprime qu\'à la main)');
 
   // ---------- Encart vide : supprimé à la main, rajouté par le menu de la liste ----------
-  verifie(await A.evaluate((L) => !!document.querySelector(`.pan[data-l="${L}"] .encart[data-e="p2"] [data-a="suppr-encart"]`) && !document.querySelector(`.pan[data-l="${L}"] .encart[data-e="p1"] [data-a="suppr-encart"]`), LJ), '« Supprimer l\'encart » seulement sur un encart vide');
-  await A.click(`.pan[data-l="${LJ}"] .encart[data-e="p2"] [data-a="suppr-encart"]`);
+  if (CAPTURES) { fs.mkdirSync(CAPTURES, { recursive: true }); await A.screenshot({ path: path.join(CAPTURES, 'telephone-encart-vide.png') }); }
+  // Plus de petit lien « Supprimer l'encart » sous l'encart (un toucher le supprimait) : il est dans le menu « ⋯ » de la liste (19/11).
+  verifie(await A.evaluate((L) => { const p = document.querySelector(`.pan[data-l="${L}"]`); return !p.querySelector('.encart-tete [data-a*="suppr"]') && !/Supprimer l'encart/.test(p.querySelector('.bloc').textContent); }, LJ), 'plus de « Supprimer l\'encart » collé au « + » de l\'encart');
+  await A.click(`.pan[data-l="${LJ}"] [data-a="menu-liste"]`); await A.waitForSelector('#listeDlg[open]');
+  verifie(await A.evaluate(() => { const d = document.getElementById('listeDlg'); return d.textContent.includes('Supprimer l\'encart P2') && !!d.querySelector('[data-a="supprimer-encart"][data-e="p2"]') && !d.querySelector('[data-a="supprimer-encart"][data-e="p1"]') && !d.querySelector('[data-a="supprimer-encart"][data-e="rdv"]'); }), 'menu « ⋯ » de la liste : « Supprimer l\'encart P2 » (vide), rien pour P1 ni RDV (pas vides)');
+  if (CAPTURES) { fs.mkdirSync(CAPTURES, { recursive: true }); await A.screenshot({ path: path.join(CAPTURES, 'telephone-menu-supprimer-encart.png') }); }
+  verifie(await A.evaluate((L) => !!document.querySelector(`.pan[data-l="${L}"] .encart[data-e="p2"]`), LJ), 'ouvrir le menu ne supprime rien');
+  await A.click('#listeDlg [data-a="supprimer-encart"][data-e="p2"]');
   verifie(await attendreQue(() => { const e = base.lire(`taches/listes/${LJ}/encarts`); return e && e.p2 === false && e.p1 === true && e.rdv === true; }), 'encart P2 supprimé (dans la base)');
   verifie(await attendreQue(() => A.evaluate((L) => !document.querySelector(`.pan[data-l="${L}"] .encart[data-e="p2"]`), LJ)), 'et plus affiché');
   await A.click(`.pan[data-l="${LJ}"] [data-a="menu-liste"]`); await A.waitForSelector('#listeDlg[open]');
@@ -183,7 +189,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await glisserDoigt(cdpB, v1.x, v1.y, v2.x, v2.y + 10);
   verifie(JSON.stringify(parTexte(base, 'Banque')[1]) === avant && !(await B.evaluate(() => !!document.querySelector('.vol'))), 'appui long sur une liste verrouillée : rien ne bouge');
   await A.click(`.pan[data-l="${LJ}"] [data-a="menu-liste"]`); await A.waitForSelector('#listeDlg[open]');
-  verifie(await A.evaluate(() => { const t = document.getElementById('listeDlg').textContent; return t.includes('Déverrouiller la liste') && !t.includes('Supprimer la liste') && !t.includes('Ajouter l\'encart'); }), 'menu d\'une liste verrouillée : « Déverrouiller », pas de suppression');
+  verifie(await A.evaluate(() => { const t = document.getElementById('listeDlg').textContent; return t.includes('Déverrouiller la liste') && !t.includes('Supprimer la liste') && !t.includes('Ajouter l\'encart') && !t.includes('Supprimer l\'encart'); }), 'menu d\'une liste verrouillée : « Déverrouiller », pas de suppression (ni liste, ni encart)');
   await A.click('#listeDlg [data-a="deverrouiller"]');
   if (await A.evaluate(() => document.getElementById('listeDlg').open)) await A.click('#listeDlg [data-a="fermer"]');
   verifie(await attendreQue(() => base.lire(`taches/listes/${LJ}/verrou`) === null), 'déverrouillée');
