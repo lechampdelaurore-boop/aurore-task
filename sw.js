@@ -1,7 +1,7 @@
 // Hors ligne : la page passe d'abord par le réseau, sinon la dernière copie gardée.
 // La base Firebase (autre domaine) n'est jamais mise en cache.
 // Après toute modification de index.html, config.js, des icônes ou du fichier de départ : changer CACHE.
-var CACHE = 'aurore-task-v1';
+var CACHE = 'aurore-task-v2';
 var SHELL = ['./', './index.html', './config.js', './cle-web.js', './manifest.webmanifest', './icons/taches.svg', './icons/taches-192.png', './referentiel/taches-depart.json', './polices/bricolage-grotesque.woff2', './polices/dm-sans.woff2', './polices/open-sans.woff2'];
 
 self.addEventListener('install', function (e) {
@@ -20,5 +20,36 @@ self.addEventListener('fetch', function (e) {
     return res;
   }).catch(function () {
     return caches.match(req, { ignoreSearch: req.mode === 'navigate' }).then(function (hit) { return hit || (req.mode === 'navigate' ? caches.match('./index.html') : undefined); });
+  }));
+});
+
+// Rappel du matin (étape 45B) : la notification envoyée par le programme du site (functions/rappel/[[chemin]].js).
+// Contenu chiffré par le programme : {titre, texte, tag, url}. Sur Android, bouton « J'ai lu ma liste » sous la
+// notification ; sur iPhone (pas de boutons), toucher la notification ouvre l'appli, qui montre le bandeau.
+self.addEventListener('push', function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = { texte: e.data ? e.data.text() : '' }; }
+  e.waitUntil(self.registration.showNotification(d.titre || 'Aurore Task', {
+    body: d.texte || 'La liste du jour vous attend.',
+    tag: d.tag || 'rappel', renotify: true, requireInteraction: true,
+    icon: 'icons/taches-192.png', badge: 'icons/taches-192.png', lang: 'fr',
+    data: { url: d.url || './?rappel=1' },
+    actions: d.essai ? [] : [{ action: 'lu', title: 'J\'ai lu ma liste' }]
+  }));
+});
+self.addEventListener('notificationclick', function (e) {
+  var n = e.notification, url = new URL((n.data && n.data.url) || './?rappel=1', self.registration.scope).href;
+  n.close();
+  if (e.action === 'lu') {
+    // Sans ouvrir l'appli : le programme du site note « lu » pour la personne de cet abonnement.
+    e.waitUntil(self.registration.pushManager.getSubscription().then(function (s) {
+      if (!s) return;
+      return fetch('rappel/lu', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: s.endpoint }) });
+    }).catch(function () {}));
+    return;
+  }
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (ws) {
+    for (var i = 0; i < ws.length; i++) { if (ws[i].url.indexOf(self.registration.scope) === 0 && 'focus' in ws[i]) { ws[i].navigate(url).catch(function () {}); return ws[i].focus(); } }
+    return self.clients.openWindow(url);
   }));
 });

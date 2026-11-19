@@ -189,6 +189,18 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 .poignee-f{width:40px;height:4px;border-radius:2px;background:var(--filet);margin:0 auto 10px}
 .champ{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
 #reglDlg{width:min(460px,calc(100vw - 32px))}
+/* Rappel du matin (étape 45) : bandeau « J'ai lu ma liste » et bloc des Réglages */
+.rappel-lu{flex-shrink:0;display:flex;align-items:center;gap:10px;margin:8px 10px 0;padding:8px 8px 8px 12px;background:var(--orange-pale);color:var(--orange-txt);border-radius:var(--r-bloc);font-family:var(--f-ui);font-weight:500;font-size:14px}
+.rappel-lu span{flex-grow:1}
+.rappel-lu .btn{flex:0 0 auto;min-height:44px;font-size:16px;white-space:nowrap}
+.rap-champs{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.rap-champs[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.rap-l{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.rap-l > span{min-width:7.5em;color:var(--sec)}
+.rap-l select{min-height:44px;border:1px solid rgba(0,0,0,.13);border-radius:var(--r-bloc);padding:0 8px;font:inherit;font-size:15px;background:#fff;max-width:100%}
+.rap-tel{margin-top:10px;padding:10px;border:1px solid var(--filet);border-radius:var(--r-bloc);background:var(--gris)}
+.rap-tel p{margin:0 0 8px;font-size:13px}
+.rap-tel .btns{justify-content:flex-start;flex-wrap:wrap;margin:0}
 .regl-h{margin:14px 0 4px;font-family:var(--f-ui);font-weight:600;font-size:13px}
 .regl-aide{margin:0 0 6px;font-size:12px;color:var(--sec)}
 .pers-l{display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -284,6 +296,7 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
       <button class="btn principal" type="button" data-a="nouvelle-liste">Nouvelle liste</button>
     </div>
     <p class="message" id="message" hidden></p>
+    <div class="rappel-lu" id="rappelLu" role="status" hidden><span>Avez-vous lu la liste du jour ?</span><button type="button" class="btn principal" data-a="lu">J'ai lu ma liste</button></div>
     <div class="piste" id="piste"></div>
   </main>
 </div>
@@ -360,6 +373,9 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
     <button type="button" class="btn outil" id="reglAjPers">Ajouter une personne</button>
     <h3 class="regl-h">Noms des encarts</h3>
     <div id="reglEnc"></div>
+    <h3 class="regl-h">Rappel du matin</h3>
+    <p class="regl-aide">Chacun règle le sien. À l'heure dite, une notification montre la liste du jour ; tant que « J'ai lu ma liste » n'est pas touché, elle revient.</p>
+    <div id="reglRap"></div>
     <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="submit" class="btn principal">Enregistrer</button></div>
   </form>
 </dialog>
@@ -441,6 +457,7 @@ var ed = null;                              // ligne en cours d'écriture : {mod
 var rendu = false, aRendre = false, sales = {};
 var annulable = null, bandeauMinuteur = 0;
 var ignoreClic = 0;
+var rapEdit = {}, rapPour = '';          // Réglages : rappels en cours de modification (par personne), personne affichée
 var COCHE_MS = 2800, coches = {};       // tâches qu'on vient de cocher, montrées le temps de l'animation : {id: {t, taches}}
 
 function setAt(o, chemin, v){
@@ -893,6 +910,8 @@ function apresPremier(){
   if(!IX.listes.length) listesDeDepart();
   var c = {}, lim = Date.now() - GARDE_FAITES;
   Object.keys(D.faites).forEach(function(id){ var f = D.faites[id]; if(!f || !(Number(f.at) > lim)) c['faites/' + id] = null; });
+  var vieux = dateLocale(new Date(Date.now() - 8 * 864e5));
+  Object.keys(D.lu || {}).forEach(function(pid){ Object.keys(D.lu[pid] || {}).forEach(function(j){ if(j < vieux) c['lu/' + pid + '/' + j] = null; }); });
   if(Object.keys(c).length) ecrire(c);
   if(!courante || !IX.ok[courante]) { courante = listeDuJour(); placerPiste(); }
 }
@@ -1063,7 +1082,7 @@ function rendre(force){
   }
   voulu.forEach(function(l){ rendrePanneau(l, force); });
   if(!courante || !IX.ok[courante]) courante = voulu.length ? listeDuJour() : null;
-  rendreBande(); rendreMenu();
+  rendreBande(); rendreMenu(); majRappelLu();
   if(change) placerPiste();
   refocaliser();
 }
@@ -1389,6 +1408,7 @@ function ouvrirReglages(){
   var r = reglages();
   $('#reglNom').value = r.nom;
   $('#reglPers').innerHTML = personnes().map(persLigne).join('');
+  rapEdit = {}; rapPour = personne(qui()) ? qui() : ((personnes()[0] || {}).id || qui()); rendreRappelRegl();
   $('#reglEnc').innerHTML = ENCARTS.map(function(k){ return '<label class="enc-l"><span>' + NOMS_ENCARTS[k] + '</span><input data-enc="' + k + '" maxlength="20" value="' + esc(nomEncart(k)) + '"></label>'; }).join('');
   var d = $('#reglDlg'); if(!d.open) d.showModal();
 }
@@ -1414,7 +1434,10 @@ $('#reglForm').addEventListener('submit', function(e){
     pers[l.dataset.p] = {nom:nom, initiale:ini, couleur:l.querySelector('.p-coul').value, ordre:i + 1};
   });
   Array.prototype.forEach.call(document.querySelectorAll('#reglEnc [data-enc]'), function(x){ enc[x.dataset.enc] = x.value.trim() || NOMS_ENCARTS[x.dataset.enc]; });
-  ecrire({reglages:{nom:$('#reglNom').value.trim(), personnes:pers, encarts:enc, by:qui(), at:Date.now()}});
+  var c = {reglages:{nom:$('#reglNom').value.trim(), personnes:pers, encarts:enc, by:qui(), at:Date.now()}};
+  lireRappelRegl();
+  Object.keys(rapEdit).forEach(function(pid){ var a = rappelDe(pid), n = rapEdit[pid]; if(['actif', 'heure', 'jours', 'repete', 'jusqua'].some(function(k){ return a[k] !== n[k]; }) || !(D.rappels || {})[pid] && n.actif) c['rappels/' + pid] = Object.assign({}, n, {by:qui(), at:Date.now()}); });
+  ecrire(c);
   $('#reglDlg').close();
   montrerBandeau('Réglages enregistrés', null);
 });
@@ -1426,6 +1449,146 @@ function chargerDepart(){
     DEPART = j; ls('taches.depart', j); recalculer(); rendre();
   }).catch(function(){});
 }
+
+/* ---------- Rappel du matin (étape 45) ----------
+   taches/rappels/<personne>   {actif, heure, jours, repete, jusqua, fuseau, by, at} : réglé dans Réglages, un par personne.
+   taches/lu/<personne>/<date> {at, par} : « J'ai lu ma liste » touché ce jour-là (date du téléphone, AAAA-MM-JJ).
+   taches/abonnements/<personne>/<n°> {endpoint, cles, at, appareil} : téléphones qui reçoivent la notification.
+   L'envoi, appli fermée, est fait par le petit programme du site (functions/rappel/[[chemin]].js), réveillé
+   toutes les 5 minutes par une horloge Cloudflare : à l'heure dite, puis tant que « J'ai lu ma liste » n'est pas
+   touché, toutes les « repete » minutes jusqu'à « jusqua ». Dans l'appli, le bandeau « J'ai lu ma liste » se montre
+   dès l'heure passée. Rien de propre à une ferme : personnes et heures viennent des réglages. */
+var RAPPEL_DEFAUT = {actif:false, heure:'07:30', jours:'012345', repete:10, jusqua:'09:00'};
+var REPETES = [[0, 'Une seule fois'], [5, 'Toutes les 5 minutes'], [10, 'Toutes les 10 minutes'], [15, 'Toutes les 15 minutes'], [30, 'Toutes les 30 minutes']];
+function hm(x, d){ return /^\d\d:\d\d$/.test(x || '') ? x : d; }
+function rappelDe(pid){
+  var r = (D.rappels || {})[pid] || {}, d = RAPPEL_DEFAUT;
+  var rep = Number(r.repete); if(!REPETES.some(function(x){ return x[0] === rep; })) rep = r.repete == null ? d.repete : 0;
+  return {actif:!!r.actif, heure:hm(r.heure, d.heure), jours:r.jours != null ? joursDe(r).join('') : d.jours, repete:rep, jusqua:hm(r.jusqua, d.jusqua),
+    fuseau:String(r.fuseau || fuseauIci())};
+}
+function fuseauIci(){ try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Paris'; }catch(e){ return 'Europe/Paris'; } }
+function deux(n){ return (n < 10 ? '0' : '') + n; }
+function dateLocale(d){ return d.getFullYear() + '-' + deux(d.getMonth() + 1) + '-' + deux(d.getDate()); }
+function luAujourdhui(pid){ var l = (D.lu || {})[pid]; return !!(l && l[dateLocale(new Date())]); }
+// Le bandeau : rappel actif pour la personne connectée, jour coché, heure passée, pas encore lu aujourd'hui.
+function doitLire(){
+  var pid = qui(); if(!pid || refuse || !profil) return false;
+  var r = rappelDe(pid), n = new Date();
+  if(!r.actif || r.jours.indexOf(String((n.getDay() + 6) % 7)) < 0) return false;
+  return deux(n.getHours()) + ':' + deux(n.getMinutes()) >= r.heure && !luAujourdhui(pid);
+}
+function majRappelLu(){ var b = $('#rappelLu'), v = doitLire(); if(b.hidden === v) b.hidden = !v; }
+function marquerLu(){
+  var pid = qui(); if(!pid) return;
+  var c = {}; c['lu/' + pid + '/' + dateLocale(new Date())] = {at:Date.now(), par:'appli'};
+  ecrire(c);
+  var L = listeDuJour(); if(L) allerA(L, true);
+  if(navigator.serviceWorker && navigator.serviceWorker.ready) navigator.serviceWorker.ready.then(function(reg){
+    return reg.getNotifications ? reg.getNotifications({tag:'rappel'}) : [];
+  }).then(function(ns){ (ns || []).forEach(function(n){ n.close(); }); }).catch(function(){});
+}
+
+// Réglages : la personne choisie (la personne connectée d'abord), ses heures et ses jours ; ce téléphone.
+function lireRappelRegl(){
+  var b = $('#reglRap'); if(!rapPour || !b.querySelector('#rapActif')) return;
+  var js = Array.prototype.filter.call(b.querySelectorAll('[data-rjour]'), function(x){ return x.getAttribute('aria-pressed') === 'true'; }).map(function(x){ return x.dataset.rjour; });
+  rapEdit[rapPour] = {actif:$('#rapActif').checked, heure:hm($('#rapHeure').value, RAPPEL_DEFAUT.heure), jours:js.sort().join(''),
+    repete:Number($('#rapRepete').value) || 0, jusqua:hm($('#rapJusqua').value, RAPPEL_DEFAUT.jusqua), fuseau:rappelDe(rapPour).fuseau};
+}
+function rendreRappelRegl(){
+  var pers = personnes(), pid = rapPour, r = rapEdit[pid] || rappelDe(pid), p = personne(pid), h = [];
+  if(pers.length > 1) h.push('<div class="menu-bloc"><span>Pour qui ?</span><div class="seg" role="group" aria-label="Rappel de">' +
+    pers.map(function(x){ return '<button type="button" data-rpour="' + esc(x.id) + '"' + (x.id === pid ? ' aria-pressed="true"' : '') + '><span class="pastille" style="background:' + PALETTE[x.couleur][0] + ';color:' + PALETTE[x.couleur][1] + '">' + esc(x.initiale) + '</span>' + esc(x.nom) + '</button>'; }).join('') + '</div></div>');
+  h.push('<label class="menu-bloc case-pause"><input type="checkbox" id="rapActif"' + (r.actif ? ' checked' : '') + '><span>Rappeler la liste du jour' + (p ? ' à ' + esc(p.nom) : '') + '</span></label>');
+  h.push('<div class="rap-champs" id="rapChamps"' + (r.actif ? '' : ' aria-disabled="true"') + '>');
+  h.push('<label class="rap-l"><span>À</span><input class="heure-champ" type="time" id="rapHeure" value="' + esc(r.heure) + '"></label>');
+  h.push('<div class="menu-bloc"><span>Les jours</span><div class="jours-choix" role="group" aria-label="Jours du rappel">' +
+    JOURS_COURTS.map(function(n, j){ return '<button type="button" data-rjour="' + j + '" aria-label="' + JOURS[j] + '"' + (String(r.jours).indexOf(String(j)) >= 0 ? ' aria-pressed="true"' : '') + '>' + n + '</button>'; }).join('') + '</div></div>');
+  h.push('<label class="rap-l"><span>Si « J\'ai lu ma liste » n\'est pas touché</span><select id="rapRepete">' +
+    REPETES.map(function(x){ return '<option value="' + x[0] + '"' + (x[0] === r.repete ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label>');
+  h.push('<label class="rap-l"><span>Jusqu\'à</span><input class="heure-champ" type="time" id="rapJusqua" value="' + esc(r.jusqua) + '"></label>');
+  h.push('</div>');
+  if(pid === qui()) h.push('<div class="rap-tel" id="rapTel"></div>');
+  $('#reglRap').innerHTML = h.join('');
+  majTelephone();
+}
+$('#reglRap').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.rpour !== undefined){ lireRappelRegl(); rapPour = b.dataset.rpour; rendreRappelRegl(); }
+  else if(b.dataset.rjour !== undefined){ b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); }
+  else if(b.id === 'rapAbonner'){ abonnerTelephone(); }
+  else if(b.id === 'rapEssai'){ essaiTelephone(); }
+  else if(b.id === 'rapRetirer'){ retirerTelephone(); }
+});
+$('#reglRap').addEventListener('change', function(e){
+  if(e.target.id === 'rapActif'){ var c = $('#rapChamps'); if(e.target.checked) c.removeAttribute('aria-disabled'); else c.setAttribute('aria-disabled', 'true'); }
+});
+
+// Ce téléphone : notification « Web Push » (Android, ordinateur ; iPhone seulement une fois Aurore Task ajoutée à l'écran d'accueil).
+var telAbo = null, telMsg = '';
+function pushPossible(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+function iPhone(){ return /iPhone|iPad|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function numAbo(endpoint){ var h = 2166136261; for(var i = 0; i < endpoint.length; i++){ h ^= endpoint.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return 'a' + h.toString(36); }
+function aboEnregistre(){ var a = telAbo && ((D.abonnements || {})[qui()] || {})[numAbo(telAbo.endpoint)]; return !!a && a.endpoint === telAbo.endpoint; }
+function majTelephone(){
+  var b = $('#rapTel'); if(!b) return;
+  var h = '';
+  if(!pushPossible()) h = '<p>Ce ' + (iPhone() ? 'iPhone' : 'navigateur') + ' ne reçoit pas encore les notifications d\'Aurore Task.' + (iPhone() ? ' Sur iPhone, il faut d\'abord l\'ajouter à l\'écran d\'accueil (Partager, puis « Sur l\'écran d\'accueil »), puis l\'ouvrir depuis son icône et revenir ici.' : '') + '</p>';
+  else if(Notification.permission === 'denied') h = '<p>Les notifications sont refusées pour Aurore Task sur ce téléphone. Les autoriser dans les réglages du téléphone (Notifications), puis revenir ici.</p>';
+  else if(aboEnregistre()) h = '<p>Ce téléphone reçoit le rappel.</p><div class="btns"><button type="button" class="btn outil" id="rapEssai">Envoyer un essai</button><button type="button" class="btn outil" id="rapRetirer">Ne plus recevoir ici</button></div>';
+  else h = '<p>Ce téléphone ne reçoit pas encore le rappel.</p><div class="btns"><button type="button" class="btn principal" id="rapAbonner">Recevoir sur ce téléphone</button></div>';
+  if(telMsg) h += '<p role="status">' + esc(telMsg) + '</p>';
+  b.innerHTML = h;
+}
+function lireAbo(){
+  if(!pushPossible()) return Promise.resolve(null);
+  return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription(); }).then(function(s){ telAbo = s; return s; }, function(){ return null; });
+}
+function b64url(s){ s = String(s).replace(/-/g, '+').replace(/_/g, '/'); while(s.length % 4) s += '='; var b = atob(s), u = new Uint8Array(b.length); for(var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+function erreurFr(m){ var e = new Error(m); e.fr = true; return e; }
+function abonnerTelephone(){
+  telMsg = 'Un instant…'; majTelephone();
+  var pid = qui(), reg;
+  Notification.requestPermission().then(function(p){
+    if(p !== 'granted') throw erreurFr('Notifications non autorisées sur ce téléphone.');
+    return navigator.serviceWorker.ready;
+  }).then(function(r){ reg = r; return fetch('rappel/cle', {cache:'no-store'}); }).then(function(r){
+    if(!r.ok) throw erreurFr('Le programme des rappels n\'est pas encore installé sur le site.');
+    return r.text();
+  }).then(function(cle){
+    cle = cle.trim();
+    var opts = {userVisibleOnly:true, applicationServerKey:b64url(cle)};
+    return reg.pushManager.getSubscription().then(function(s){
+      // Un abonnement fait avec une autre clé ne marche plus : on le refait.
+      if(s && s.options && s.options.applicationServerKey){
+        var k = new Uint8Array(s.options.applicationServerKey), n = b64url(cle), meme = k.length === n.length && k.every(function(x, i){ return x === n[i]; });
+        if(!meme) return s.unsubscribe().then(function(){ return reg.pushManager.subscribe(opts); });
+      }
+      return s || reg.pushManager.subscribe(opts);
+    });
+  }).then(function(s){
+    telAbo = s;
+    var j = s.toJSON(), c = {};
+    c['abonnements/' + pid + '/' + numAbo(j.endpoint)] = {endpoint:j.endpoint, cles:{p256dh:j.keys.p256dh, auth:j.keys.auth}, at:Date.now(), appareil:iPhone() ? 'iPhone' : (/Android/.test(navigator.userAgent) ? 'Android' : 'Ordinateur')};
+    ecrire(c);
+    telMsg = 'C\'est fait. Touchez « Envoyer un essai » pour vérifier.'; majTelephone();
+  }).catch(function(e){ telMsg = e && e.fr ? e.message : 'Le téléphone n\'a pas pu s\'abonner aux notifications. Réessayer plus tard, avec du réseau.'; majTelephone(); });
+}
+function essaiTelephone(){
+  if(!telAbo) return;
+  telMsg = 'Envoi…'; majTelephone();
+  fetch('rappel/essai', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({endpoint:telAbo.endpoint})})
+    .then(function(r){ return r.text(); }).then(function(t){ telMsg = t.trim().replace(/^(OK|ERREUR)\s*/, ''); majTelephone(); }, function(){ telMsg = 'Pas de réseau.'; majTelephone(); });
+}
+function retirerTelephone(){
+  if(!telAbo) return;
+  var c = {}; c['abonnements/' + qui() + '/' + numAbo(telAbo.endpoint)] = null; ecrire(c);
+  telAbo.unsubscribe().catch(function(){}).then(function(){ telAbo = null; telMsg = 'Ce téléphone ne recevra plus le rappel.'; majTelephone(); });
+}
+lireAbo().then(function(){ if($('#reglDlg').open) majTelephone(); });
+// Ouverte depuis la notification : la liste du jour.
+if(/[?&]rappel=/.test(location.search)){ try{ history.replaceState(null, '', location.pathname); }catch(e){} }
 
 /* ---------- Bandeau « Faite : … · Annuler » ---------- */
 function montrerBandeau(texte, annuler){
@@ -1463,6 +1626,7 @@ document.addEventListener('click', function(e){
   else if(a === 'compte'){ ouvrirCompte(); }
   else if(a === 'reglages'){ ouvrirReglages(); }
   else if(a === 'repartir'){ repartirAstreintes(); }
+  else if(a === 'lu'){ marquerLu(); }
 });
 document.addEventListener('change', function(e){
   var c = e.target.closest('[data-a="afficher"]'); if(!c) return;
@@ -1674,6 +1838,7 @@ rendre();
 placerPiste(false);
 demarrer();
 chargerDepart();
+setInterval(majRappelLu, 30000);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
 </script>
 </body>
