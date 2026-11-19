@@ -14,6 +14,7 @@
 // Étape 31 (commandes à valider) : agent/propositions lu par la ferme et le profil « agent », qui y écrit une proposition
 // une seule fois (jamais réécrite ni effacée) ; reglesAvantAgent : les règles d'avant l'étape 31 (ce chemin refusé).
 // Requête « orderBy="w"&startAt="<lundi>" » comprise.
+// Étape 45B (Aurore Task, rappel du matin) : profil « rappel » ; reglesAvantRappel : les règles d'avant (refusé).
 const http = require('http');
 const crypto = require('crypto');
 
@@ -34,7 +35,15 @@ module.exports = function fauxFirebase(port, options = {}) {
     const profil = root.profils && root.profils[uid];
     if (p[0] === 'listes') return profil === 'ferme';
     // Étape 36A (Aurore Task) : taches/ lu et écrit par les profils « ferme » et « equipe » ; reglesAvantTaches : refusé.
-    if (p[0] === 'taches') return !serveur.reglesAvantTaches && (profil === 'ferme' || profil === 'equipe');
+    if (p[0] === 'taches') {
+      if (serveur.reglesAvantTaches) return false;
+      if (profil === 'ferme' || profil === 'equipe') return true;
+      // Étape 45B (rappel du matin) : le profil « rappel » lit taches/, écrit taches/lu et taches/abonnements.
+      if (profil === 'rappel' && !serveur.reglesAvantRappel) return m === 'GET' || p[1] === 'lu' || p[1] === 'abonnements';
+      return false;
+    }
+    // Étape 45B : rappel/ (clés d'envoi, envois du jour) lu et écrit par le seul profil « rappel ».
+    if (p[0] === 'rappel') return !serveur.reglesAvantRappel && profil === 'rappel';
     if (serveur.reglesAvant13C) return false; // règles de l'étape 5 seules (avant la publication des nouvelles)
     if (p[0] === 'profils') return m === 'GET' && p.length === 2 && p[1] === uid;
     if (p[0] === 'notifs') {
@@ -185,5 +194,6 @@ module.exports = function fauxFirebase(port, options = {}) {
     for (const t of Object.values(jetons)) if (t.uid === u.uid) t.fin = 0;
   };
   serveur.lire = (chemin) => lire(chemin.split('/').filter(Boolean));
+  serveur.poser = (chemin, v) => ecrire(chemin.split('/').filter(Boolean), v);
   return new Promise((ok) => serveur.listen(port, () => ok(serveur)));
 };
