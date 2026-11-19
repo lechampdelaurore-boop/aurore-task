@@ -4,7 +4,7 @@
 // liste du jour, « + » puis Entrée en rafale, modification du texte, sous-tâches sur plusieurs niveaux, séparateur,
 // cocher avec « Annuler », « Faites récemment » (remettre, effacement après 7 jours), glisser au doigt (appui long, dans la
 // liste, en sous-tâche, d'une liste à l'autre par le bord de l'écran), glisser à la souris (d'une colonne à l'autre,
-// colonnes déplacées), balayage entre les listes, listes créées, renommées, supprimées, partage en direct, hors ligne,
+// colonnes déplacées, listes tirées dans le vide comme dans Google Tasks), balayage entre les listes, listes créées, renommées, supprimées, partage en direct, hors ligne,
 // installable (manifeste, icônes, service), compte de l'équipe, compte refusé, charte d'origine du module d'irrigation.
 // Lancement depuis la racine du dépôt : node tests/taches.cjs   (CAPTURES=dossier pour garder les captures)
 const http = require('http');
@@ -387,6 +387,49 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   await P.mouse.up(); await pause(300);
   verifie(await attendreQue(() => P.evaluate(() => document.querySelector('#piste .pan').dataset.l === 'astreintes')), 'ordinateur : une colonne se déplace en attrapant son titre');
   verifie(await attendreQue(() => A.evaluate(() => document.querySelector('#bande .pil[data-l]').dataset.l === 'astreintes')), 'nouvel ordre vu sur le téléphone');
+  // Tirer les listes dans le vide (comme Google Tasks) : une main, et toutes les listes défilent de côté.
+  await P.evaluate(() => { document.getElementById('piste').scrollLeft = 0; });
+  await pause(150);
+  const avantTirage = JSON.stringify([base.lire('taches/t'), base.lire('taches/listes')]);
+  const vide = await P.evaluate(() => { const p = document.querySelectorAll('#piste .pan:not(.cachee)'), r0 = p[0].getBoundingClientRect(), r1 = p[1].getBoundingClientRect(); return { x: (r0.right + r1.left) / 2, y: r0.top + 30 }; });
+  const curseurs = await P.evaluate((v) => ({ vide: document.elementFromPoint(v.x, v.y).id, main: getComputedStyle(document.getElementById('piste')).cursor, pan: getComputedStyle(document.querySelector('#piste .pan')).cursor, tache: getComputedStyle(document.querySelector('#piste li.t')).cursor, bouton: getComputedStyle(document.querySelector('#piste .pan-tete button')).cursor }), vide);
+  verifie(curseurs.vide === 'piste' && curseurs.main === 'grab' && curseurs.pan === 'auto' && curseurs.tache === 'grab' && curseurs.bouton === 'pointer', 'tirer les listes : dans le vide entre les colonnes, le curseur est une main ; dans une colonne, il reste normal (' + JSON.stringify(curseurs) + ')');
+  await P.mouse.move(vide.x, vide.y); await P.mouse.down();
+  for (let i = 1; i <= 10; i++) { await P.mouse.move(vide.x - 40 * i, vide.y + i); await pause(16); }
+  const pendant = await P.evaluate(() => ({ classe: document.body.classList.contains('tire-piste'), curseur: getComputedStyle(document.querySelector('#piste .pan')).cursor, gauche: document.getElementById('piste').scrollLeft }));
+  await P.mouse.up(); await pause(150);
+  const apresTir = await P.evaluate(() => ({ gauche: document.getElementById('piste').scrollLeft, classe: document.body.classList.contains('tire-piste'), selection: String(getSelection()), vol: !!document.querySelector('.vol'), dlg: !!document.querySelector('dialog[open]'), ed: !!document.querySelector('textarea.ed') }));
+  verifie(pendant.classe && pendant.curseur === 'grabbing' && Math.abs(apresTir.gauche - 400) <= 2, 'tirer vers la gauche de 400 px : les listes défilent de 400 px, main fermée pendant le geste (' + apresTir.gauche + ' px)');
+  verifie(!apresTir.classe && !apresTir.selection && !apresTir.vol && !apresTir.dlg && !apresTir.ed, 'au lâcher : main ouverte, aucun texte sélectionné, aucune tâche attrapée, rien d\'ouvert');
+  const vide2 = await P.evaluate(() => { const p = document.querySelectorAll('#piste .pan:not(.cachee)'), r = document.getElementById('piste').getBoundingClientRect(); for (let i = 0; i + 1 < p.length; i++) { const a = p[i].getBoundingClientRect(), b = p[i + 1].getBoundingClientRect(); const x = (a.right + b.left) / 2; if (x > r.left + 250 && x < r.right - 50) return { x, y: a.top + 30 }; } return null; });
+  await P.mouse.move(vide2.x, vide2.y); await P.mouse.down();
+  for (let i = 1; i <= 10; i++) { await P.mouse.move(vide2.x + 15 * i, vide2.y); await pause(16); }
+  await P.mouse.up(); await pause(150);
+  verifie(Math.abs(await P.evaluate(() => document.getElementById('piste').scrollLeft) - 250) <= 2, 'tirer vers la droite de 150 px : les listes reviennent de 150 px');
+  await P.mouse.move(vide2.x - 300, vide2.y); await pause(100);
+  verifie(Math.abs(await P.evaluate(() => document.getElementById('piste').scrollLeft) - 250) <= 2, 'bouton lâché : bouger la souris ne fait plus défiler');
+  // Sous une colonne courte (le vide du bas de la page) : même geste.
+  const bas = await P.evaluate(() => { const r = document.getElementById('piste'), rp = r.getBoundingClientRect(); const p = Array.from(document.querySelectorAll('#piste .pan:not(.cachee)')).map((x) => x.getBoundingClientRect()).find((b) => b.left > rp.left && b.right < rp.right && b.bottom < rp.top + r.clientHeight - 40); return p ? { x: p.left + p.width / 2, y: p.bottom + 20 } : null; });
+  if (bas) {
+    const g0 = await P.evaluate(() => document.getElementById('piste').scrollLeft);
+    await P.mouse.move(bas.x, bas.y); await P.mouse.down();
+    for (let i = 1; i <= 10; i++) { await P.mouse.move(bas.x - 10 * i, bas.y - 5 * i); await pause(16); }
+    await P.mouse.up(); await pause(150);
+    verifie(Math.abs(await P.evaluate(() => document.getElementById('piste').scrollLeft) - g0 - 100) <= 2, 'sous une colonne courte : tirer fait aussi défiler (de côté seulement)');
+  } else console.log('       (pas de colonne courte à l\'écran : vide du bas non essayé)');
+  verifie(JSON.stringify([base.lire('taches/t'), base.lire('taches/listes')]) === avantTirage, 'tirer les listes ne change aucune tâche ni l\'ordre des listes');
+  // Le glisser des tâches marche toujours après (attraper une tâche ne fait pas défiler la piste).
+  await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'center' }), autre);
+  await pause(150);
+  const ordreAvant = await textes(P, autre);
+  const tt = await centre(P, `.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`);
+  const gT = await P.evaluate(() => document.getElementById('piste').scrollLeft);
+  await P.mouse.move(tt.x, tt.y); await P.mouse.down();
+  await P.mouse.move(tt.x - 40, tt.y); await pause(50);
+  const tache = await P.evaluate(() => ({ vol: !!document.querySelector('.vol'), tire: document.body.classList.contains('tire-piste') }));
+  await P.keyboard.press('Escape'); await P.mouse.move(tt.x, tt.y); await pause(50); await P.mouse.up(); await pause(300);
+  verifie(tache.vol && !tache.tire && await P.evaluate(() => document.getElementById('piste').scrollLeft) === gT && (await textes(P, autre)) === ordreAvant, 'attraper une tâche : c\'est la tâche qui part, pas la page');
+  verifie(await A.evaluate(() => getComputedStyle(document.getElementById('piste')).cursor !== 'grab'), 'téléphone : pas de main (le doigt fait déjà défiler)');
   // Cacher une colonne (choix gardé sur l'ordinateur seulement).
   await P.uncheck('#affichees input[data-l="dimanche"]');
   verifie(await P.evaluate(() => getComputedStyle(document.querySelector('.pan[data-l="dimanche"]')).display === 'none'), '« Listes affichées » : décocher cache la colonne');
