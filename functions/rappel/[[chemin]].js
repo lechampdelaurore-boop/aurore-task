@@ -18,7 +18,8 @@
 // Réglages, saisis par la ferme dans Cloudflare (Paramètres du projet, Variables et secrets) ; jamais dans le dépôt :
 //   RAPPEL_MDP     (secret, obligatoire) mot de passe du compte « rappel » de Firebase.
 //   RAPPEL_COMPTE  (facultatif) identifiant du compte, « rappel » par défaut (complété par « @ferme.invalid »).
-//   CLE_WEB, DB_URL (facultatifs) : sinon lus dans cle-web.js et config.js du site, comme l'appli.
+//   CLE_WEB, DB_URL (facultatifs) : sinon lus dans cle-web.js et config.js du site, comme l'appli
+//   (clé vide dans ce dépôt : reprise de CLE_SOURCE, le cle-web.js du site du Cumul).
 //   AUTH_URL       (essais seulement) adresse de Firebase Authentication.
 //   PUSH_HTTP      (essais seulement) « oui » : accepte un service de notification en http (faux serveur local).
 // Appels :
@@ -157,6 +158,15 @@ export async function pousser(abo, contenu, vapid, sujet) {
 }
 
 // ---------- Base (compte « rappel ») ----------
+const CLE_SOURCE = 'https://liste-recolte.pages.dev/cle-web.js';
+async function fichierDistant(adresse) {
+  const m = memo.fichiers[adresse];
+  if (m && Date.now() - m.t < 10 * 60 * 1000) return m.v;
+  const r = await fetch(adresse).catch(() => null);
+  if (!r || !r.ok) return '';
+  const v = await r.text(); memo.fichiers[adresse] = { t: Date.now(), v };
+  return v;
+}
 async function fichier(env, url, chemin) {
   const m = memo.fichiers[chemin];
   if (m && Date.now() - m.t < 10 * 60 * 1000) return m.v;
@@ -173,7 +183,9 @@ function valeurDe(src, nom) {
   return v.trim();
 }
 async function base(env, url) {
-  const cleWeb = env.CLE_WEB || valeurDe(await fichier(env, url, '/cle-web.js'), 'RECOLTE_CLE_WEB');
+  let cleWeb = env.CLE_WEB || valeurDe(await fichier(env, url, '/cle-web.js'), 'RECOLTE_CLE_WEB');
+  // Clé absente de ce dépôt : reprise du site du Cumul (même base), comme le fait la page.
+  if (!cleWeb) cleWeb = valeurDe(await fichierDistant(env.CLE_SOURCE || CLE_SOURCE), 'RECOLTE_CLE_WEB');
   const db = (env.DB_URL || valeurDe(await fichier(env, url, '/config.js'), 'RECOLTE_DB_URL')).replace(/\/+$/, '');
   if (!cleWeb || !db) throw new Refus(503, 'ERREUR site pas encore relié à sa base (clé web ou adresse de la base absente)');
   if (!memo.jeton || memo.fin - Date.now() < 5 * 60 * 1000) {
