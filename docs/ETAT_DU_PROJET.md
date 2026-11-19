@@ -4,6 +4,7 @@
 
 *Au 19 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 et du 19/11.*
 
+- **Liste verrouillée sans point noir (19/11)** : rien devant les tâches, le cadenas sous le titre suffit. Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.
 - **Ordinateur : survol d'une tâche (19/11)** : ligne en surbrillance (elle seule), curseur flèche sur toute la tâche. Vérifié : `tests/taches.cjs`. **Non vérifié** : un vrai ordinateur.
 - **Ordinateur : texte en saisie à la même taille (19/11)** : 13 px pendant la saisie comme une fois enregistré ; téléphone inchangé (16 px, contre le zoom de l'iPhone). Vérifié : `tests/taches.cjs`. **Non vérifié** : un vrai ordinateur.
 - **« + » de la liste hors des encarts, « + » des encarts au même aspect (19/11)**, demande de François : la nouvelle tâche arrive en haut de la liste, au-dessus de RDV, puis se glisse où on veut ; les « + » des encarts sont verts comme celui de la liste. Vérifié : `tests/taches-encarts.cjs` (téléphone et ordinateur : ligne hors encart au-dessus de RDV, enregistrée sans encart, glissée au doigt dans P1, « + » d'encart toujours dans son encart, mêmes couleurs et taille). **Non vérifié** : de vrais appareils.

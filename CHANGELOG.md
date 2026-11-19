@@ -2,6 +2,8 @@
 
 ## 2026-11-19
 
+- **Liste verrouillée : plus de point noir devant les tâches** (demande de François du 19/11 : « le cadenas sous le titre suffit »). Les tâches d'une liste verrouillée n'ont plus rien devant elles ; le cadenas et « Liste verrouillée par … » restent sous le titre. CACHE `aurore-task-v9`. Test `tests/taches-encarts.cjs` mis à jour. **Non vérifié** : de vrais appareils.
+
 - **Ordinateur : survol d'une tâche comme Google Tasks** (demande de François du 19/11). La ligne survolée est en surbrillance (gris clair), elle seule, pas ses sous-tâches ; pas de surbrillance pendant un glisser. Sur une tâche, le curseur reste une flèche (avant : une main, et une barre de texte trompeuse sur le texte). Les gestes ne changent pas : clic court = modifier, clic tenu et tiré = déplacer. La zone cliquable n'a pas été réduite (la barre de texte était la gêne). CACHE `aurore-task-v8`. Test `tests/taches.cjs` (4 vérifications). **Non vérifié** : un vrai ordinateur.
 
 - **Ordinateur : le texte en saisie a la taille de la tâche enregistrée** (question de François du 19/11 : « pourquoi la police est plus grosse pendant la saisie ? »). La case de saisie était en 16 px pour éviter que l'iPhone zoome la page, la tâche enregistrée en 13 px. Sur l'ordinateur, la saisie passe en 13 px (même interligne et même graisse) ; le téléphone garde 16 px. CACHE `aurore-task-v7`. Test `tests/taches.cjs` (2 vérifications). **Non vérifié** : un vrai ordinateur.

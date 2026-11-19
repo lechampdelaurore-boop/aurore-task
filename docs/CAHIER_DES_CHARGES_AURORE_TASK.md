@@ -124,7 +124,7 @@ La maquette montre les quatre écrans ci-dessous (exemples inventés ou tirés d
 
 ### 5.10 Le verrou d'une liste
 
-- Menu « ⋯ » de la liste → « Verrouiller la liste » : plus rien ne se coche, ne se glisse, ne se modifie ni ne s'ajoute ; les cases sont remplacées par des puces ; un bandeau le rappelle. « Déverrouiller » dans le même menu. Pour les check-lists que l'on consulte (check-list marché).
+- Menu « ⋯ » de la liste → « Verrouiller la liste » : plus rien ne se coche, ne se glisse, ne se modifie ni ne s'ajoute ; les cases disparaissent, sans rien à leur place (plus de point noir, choix de François du 19/11) ; le cadenas et « Liste verrouillée » sous le titre le rappellent. « Déverrouiller » dans le même menu. Pour les check-lists que l'on consulte (check-list marché).
 - Une liste verrouillée ne peut pas être supprimée (choix de Claude : il faut d'abord la déverrouiller).
 
 ## 6. Ce que l'outil ne fait pas (décidé le 18/11)
