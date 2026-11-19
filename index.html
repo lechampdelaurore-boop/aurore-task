@@ -146,6 +146,8 @@ li.t.fige .tx{cursor:default}
 .pan.fige .plus,.pan.fige .ajout-ligne{display:none!important}
 .verrou-info{display:flex;align-items:center;gap:8px;margin:0 0 10px;background:var(--gris);color:var(--anthracite);border-radius:var(--r-bloc);padding:8px 12px;font-size:12px}
 .verrou-info[hidden]{display:none}
+/* Liste verrouillée : contour gris en pointillés autour de la liste (le gris du cadre « Liste verrouillée », foncé pour se voir sur le blanc). */
+.pan.fige .bloc{outline:2px dashed #c4c4cc;outline-offset:-1px}
 .seg{display:flex;flex-wrap:wrap;background:#eeeeee;border-radius:22px;padding:3px;gap:2px}
 .seg button{flex:1 1 auto;min-height:40px;border:0;border-radius:99px;background:transparent;font-family:var(--f-ui);font-weight:500;font-size:12px;color:var(--texte);display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 10px}
 .seg button[aria-pressed="true"]{background:var(--vert);color:#fff}
@@ -264,6 +266,8 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   .rond{width:34px;height:34px}
   .pan-corps{padding:0 14px 12px}
   .bloc{box-shadow:none;padding:0}
+  .pan.fige{outline:2px dashed #c4c4cc;outline-offset:-1px}
+  .pan.fige .bloc{outline:0}
   .ajout-ligne{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;border:0;background:transparent;color:var(--vert);font-family:var(--f-ui);font-weight:500;font-size:13px;padding:0 2px;text-align:left}
   .ajout-ligne:hover{background:var(--gris);border-radius:var(--r-bloc)}
   .pt.plus-e{background:transparent;color:var(--vert)}
