@@ -249,6 +249,10 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   .outils .btn{flex:0 0 auto}
   .piste{scroll-snap-type:none;gap:14px;padding:10px 18px 18px;align-items:flex-start;overflow-x:auto;scrollbar-width:thin}
   .piste::-webkit-scrollbar{display:block;height:8px}
+  /* Dans le vide entre ou sous les colonnes : une main ; cliquer et tirer fait défiler les listes (comme Google Tasks). */
+  .piste{cursor:grab}
+  .pan{cursor:auto}
+  body.tire-piste,body.tire-piste *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
   .pan{flex:0 0 300px;width:300px;max-height:100%;background:var(--bloc);border-radius:var(--r-bloc);box-shadow:var(--ombre)}
   .pan.cachee{display:none}
   .pan-tete{padding:10px 8px 4px 14px}
@@ -1833,6 +1837,29 @@ document.addEventListener('mousemove', function(e){ if(press && press.souris || 
 document.addEventListener('mouseup', function(){ if(press && press.souris) press = null; if(drag) finir(); });
 // Pendant un glisser, pas de sélection de texte.
 document.addEventListener('selectstart', function(e){ if(drag || press && press.souris) e.preventDefault(); });
+
+/* ---------- Ordinateur : tirer les listes à la souris (comme Google Tasks) ----------
+   Dans le vide entre ou sous les colonnes, le curseur est une main ; cliquer et tirer fait défiler toutes les listes de côté.
+   Les tâches, les titres, les boutons et les champs ne sont pas du vide : ils gardent leurs gestes. Téléphone : rien ne change. */
+var tirage = null;
+$('#piste').addEventListener('mousedown', function(e){
+  var piste = this;
+  if(!PC.matches || e.button !== 0 || e.target !== piste || drag || press || tirage) return;
+  // La barre de défilement du bas garde son comportement.
+  if(e.clientY >= piste.getBoundingClientRect().top + piste.clientTop + piste.clientHeight) return;
+  tirage = {x:e.clientX, left:piste.scrollLeft};
+  document.body.classList.add('tire-piste');
+});
+function finirTirage(){ if(!tirage) return; tirage = null; document.body.classList.remove('tire-piste'); }
+document.addEventListener('mousemove', function(e){
+  if(!tirage) return;
+  if(!(e.buttons & 1)){ finirTirage(); return; } // bouton lâché hors de la fenêtre
+  $('#piste').scrollLeft = tirage.left - (e.clientX - tirage.x);
+  e.preventDefault();
+});
+document.addEventListener('mouseup', finirTirage);
+addEventListener('blur', finirTirage);
+document.addEventListener('selectstart', function(e){ if(tirage) e.preventDefault(); });
 
 /* ---------- Départ ---------- */
 DEPART = ls('taches.depart') || null;
