@@ -188,7 +188,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   if (await A.evaluate(() => document.getElementById('listeDlg').open)) await A.click('#listeDlg [data-a="fermer"]');
   verifie(await attendreQue(() => { const v = base.lire(`taches/listes/${LJ}/verrou`); return v && v.by === 'francois'; }), 'verrou posé dans la base (qui et quand)');
   for (const [P, nom] of [[A, 'ce téléphone'], [B, 'l\'autre téléphone']]) {
-    verifie(await attendreQue(() => P.evaluate((L) => { const p = document.querySelector(`.pan[data-l="${L}"]`); return p.querySelectorAll('li.t.fige').length >= 5 && !p.querySelector('li.t .coche') && !p.querySelector('li.t .pt') && !p.querySelector('[data-a="suppr-encart"]') && !p.querySelector('.encart-tete [data-a="ajouter"]') && getComputedStyle(p.querySelector('.plus')).display === 'none' && !p.querySelector('.puce') && Array.from(p.querySelectorAll('li.t.fige:not(.sep)')).every((li) => li.firstElementChild.classList.contains('tx')) && (() => { const v = p.querySelector('.verrou-info'); return !v.hidden && !!v.querySelector('svg') && v.textContent.includes('Liste verrouillée'); })(); }, LJ)), `liste verrouillée sur ${nom} : ni case, ni menu, ni « + », rien devant les tâches (pas de point noir) ; le cadenas et « Liste verrouillée » sous le titre`);
+    verifie(await attendreQue(() => P.evaluate((L) => { const p = document.querySelector(`.pan[data-l="${L}"]`); return p.querySelectorAll('li.t.fige').length >= 5 && !p.querySelector('li.t .coche') && !p.querySelector('li.t .pt') && !p.querySelector('[data-a="suppr-encart"]') && !p.querySelector('.encart-tete [data-a="ajouter"]') && getComputedStyle(p.querySelector('.plus')).display === 'none' && !p.querySelector('.puce') && Array.from(p.querySelectorAll('li.t.fige:not(.sep)')).every((li) => li.firstElementChild.classList.contains('tx')) && (() => { const v = p.querySelector('.verrou-info'); return !v.hidden && !!v.querySelector('svg') && v.textContent.includes('Liste verrouillée'); })() && (() => { const o = getComputedStyle(p.querySelector('.bloc')); return o.outlineStyle === 'dashed' && o.outlineColor === 'rgb(196, 196, 204)'; })(); }, LJ)), `liste verrouillée sur ${nom} : ni case, ni menu, ni « + », rien devant les tâches (pas de point noir) ; le cadenas et « Liste verrouillée » sous le titre ; contour gris en pointillés autour de la liste`);
   }
   verifie(await B.evaluate((L) => { const v = document.querySelector(`.pan[data-l="${L}"] .verrou-info`); return v && !v.hidden && v.textContent.length > 0; }, LJ), 'un bandeau dit que la liste est verrouillée');
   await B.click(`${ligne(LJ, 'Véto')} .tx`); await pause(300);
@@ -242,11 +242,15 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), L2);
   await P.click(`${ligne(L2, 'Tâche figée')} .tx`, { button: 'right' }); await pause(300);
   verifie(await P.evaluate(() => !document.getElementById('tacheDlg').open), 'clic droit sur une tâche verrouillée : pas de menu');
+  verifie(await P.evaluate((L) => { const o = getComputedStyle(document.querySelector(`.pan[data-l="${L}"]`)); return o.outlineStyle === 'dashed' && o.outlineColor === 'rgb(196, 196, 204)' && o.outlineWidth === '2px'; }, L2), 'ordinateur : la colonne verrouillée a un contour gris en pointillés');
+  verifie(await P.evaluate((L) => getComputedStyle(document.querySelector(`.pan[data-l="${L}"]`)).outlineStyle === 'none', LJ), 'une colonne non verrouillée n\'en a pas');
+  if (CAPTURES) { fs.mkdirSync(CAPTURES, { recursive: true }); await P.screenshot({ path: path.join(CAPTURES, 'ordinateur-verrou.png') }); }
   await P.click(`.pan[data-l="${L2}"] [data-a="menu-liste"]`); await P.waitForSelector('#listeDlg[open]');
   await P.click('#listeDlg [data-a="deverrouiller"]');
   if (await P.evaluate(() => document.getElementById('listeDlg').open)) await P.click('#listeDlg [data-a="fermer"]');
   await P.click(`${ligne(L2, 'Tâche figée')} .tx`, { button: 'right' });
   verifie(await attendreQue(() => P.evaluate(() => document.getElementById('tacheDlg').open)), 'déverrouillée : le clic droit ouvre le menu');
+  verifie(await P.evaluate((L) => getComputedStyle(document.querySelector(`.pan[data-l="${L}"]`)).outlineStyle === 'none', L2), 'déverrouillée : le contour disparaît');
   await P.click('#tacheDlg [data-a="fermer"]');
   // « Ajouter une tâche » sur l'ordinateur : hors des encarts, au-dessus de RDV ; « + » des encarts au même aspect (vert).
   await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), L2);

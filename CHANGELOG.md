@@ -2,6 +2,8 @@
 
 ## 2026-11-19
 
+- **Liste verrouillée : contour gris en pointillés** (demande de François du 19/11). En plus du cadenas et de « Liste verrouillée » sous le titre, la liste est entourée d'un pointillé gris : toute la colonne sur l'ordinateur, le cadre blanc des tâches sur le téléphone. Gris du cadre « Liste verrouillée », en plus foncé (`#c4c4cc`) : le gris exact (`#f2f2f5`) ne se voit pas sur le blanc. Toujours pas de point noir devant les tâches. CACHE `aurore-task-v11`. Test `tests/taches-encarts.cjs` (4 vérifications). **Non vérifié** : de vrais appareils.
+
 - **Ordinateur : tâches à la taille de Google Tasks** (demande de François du 19/11, avec une capture de Google Tasks et une d'Aurore Task à la même échelle). Mesuré sur les captures : même largeur de « Plantation endive » (84 px contre 85 px), même hauteur des lettres (8 px), lignes de 16 px. Sur l'ordinateur : texte des tâches en 10,5 px, graisse normale (au lieu de 13 px en gras), lignes de 16 px, rangées serrées, case de 14 px (au lieu de 22 px) ; la saisie suit. Téléphone inchangé. Google Tasks était affiché en zoom réduit dans le navigateur de François : c'est ce qu'il voyait qui a servi de modèle. CACHE `aurore-task-v10`. Test `tests/taches.cjs` (2 vérifications). Captures : `/mnt/project-files/taille-taches-google/`. **Non vérifié** : un vrai ordinateur.
 
 - **Liste verrouillée : plus de point noir devant les tâches** (demande de François du 19/11 : « le cadenas sous le titre suffit »). Les tâches d'une liste verrouillée n'ont plus rien devant elles ; le cadenas et « Liste verrouillée par … » restent sous le titre. CACHE `aurore-task-v9`. Test `tests/taches-encarts.cjs` mis à jour. **Non vérifié** : de vrais appareils.
