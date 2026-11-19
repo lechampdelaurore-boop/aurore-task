@@ -391,7 +391,9 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const tailleTache = (page) => page.evaluate(() => { const tx = getComputedStyle(document.querySelector('#piste li.t[data-id] .tx')), c = document.querySelector('#piste li.t[data-id] .coche').getBoundingClientRect(); return tx.fontSize + '/' + tx.fontWeight + '/' + tx.lineHeight + '/' + Math.round(c.width); });
   const tPC = await tailleTache(P), tTel = await tailleTache(A);
   verifie(tPC === '10.5px/400/16px/14', 'ordinateur : tâches comme Google Tasks, texte 10,5 px en graisse normale, lignes de 16 px, case de 14 px (' + tPC + ')');
-  verifie(tTel === '13px/600/18.85px/22', 'téléphone : taille des tâches inchangée (' + tTel + ')');
+  verifie(tTel === '16px/400/24px/22', 'téléphone : tâches comme Google Tasks, texte 16 px en graisse normale, lignes de 24 px, case de 22 px (' + tTel + ')');
+  const saisieTel = await A.evaluate(() => { const li = document.querySelector('li.t'), t = document.createElement('textarea'); t.className = 'ed'; li.appendChild(t); const c = getComputedStyle(t), r = c.fontSize + '/' + c.fontWeight + '/' + c.lineHeight; t.remove(); return r; });
+  verifie(saisieTel === '16px/400/24px', 'téléphone : la saisie a la même taille que la tâche enregistrée (' + saisieTel + ')');
   await P.keyboard.press('Escape');
   // Clic droit : le menu de la tâche.
   await P.click(`.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`, { button: 'right' });
