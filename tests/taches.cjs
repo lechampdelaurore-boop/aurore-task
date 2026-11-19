@@ -364,6 +364,22 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   await pause(100); await P.mouse.up(); await pause(300);
   verifie(await attendreQue(async () => (await textes(P, autre)).startsWith('Écrite sans réseau')), 'souris : la tâche passe d\'une colonne à l\'autre (trait vert à l\'endroit du dépôt)');
   verifie(await attendreQue(async () => (await textes(B, autre)).startsWith('Écrite sans réseau')), 'vu sur le téléphone');
+  // Survol d'une tâche (comme Google Tasks) : la ligne seule en surbrillance, la flèche reste une flèche.
+  const mere = `.pan[data-l="${autre}"] ${ligneDe('Plantation endive')}`, fille = `.pan[data-l="${autre}"] ${ligneDe('Rang 1')}`;
+  await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), autre); await pause(150);
+  const fondDe = (sel) => P.locator(sel).first().evaluate((el) => getComputedStyle(el).backgroundColor);
+  const fondAvant = await fondDe(mere);
+  await P.hover(`${mere} .tx`); await pause(150);
+  const survol = { mere: await fondDe(mere), fille: await fondDe(fille), curseurTexte: await P.locator(`${mere} .tx`).first().evaluate((el) => getComputedStyle(el).cursor), curseurLigne: await P.locator(mere).first().evaluate((el) => getComputedStyle(el).cursor) };
+  verifie(fondAvant === 'rgba(0, 0, 0, 0)' && survol.mere === 'rgb(242, 242, 245)' && survol.fille === 'rgba(0, 0, 0, 0)', 'ordinateur : la tâche survolée est en surbrillance, ses sous-tâches non (' + JSON.stringify(survol) + ')');
+  verifie(survol.curseurTexte === 'default' && survol.curseurLigne === 'default', 'ordinateur : sur une tâche, le curseur reste une flèche (pas la barre de texte)');
+  // Pendant un glisser, pas de surbrillance sous la souris.
+  const pm = await centre(P, `${mere} .tx`), pf = await centre(P, `${fille} .tx`);
+  await P.mouse.move(pf.x, pf.y); await P.mouse.down(); await P.mouse.move(pf.x, pf.y - 12); await pause(50); await P.mouse.move(pm.x, pm.y); await pause(100);
+  const pendantGlisser = { vol: await P.evaluate(() => !!document.querySelector('.vol')), fond: await fondDe(mere) };
+  await P.mouse.move(pf.x, pf.y); await pause(80); await P.mouse.up(); await pause(300);
+  verifie(pendantGlisser.vol && pendantGlisser.fond === 'rgba(0, 0, 0, 0)', 'pendant un glisser à la souris, pas de surbrillance sous la souris');
+  verifie((await textes(P, autre)).includes('Plantation endive |   Rang 1 |   Rang 2'), 'et la tâche lâchée à sa place ne bouge pas');
   // Un simple clic (sans bouger) ouvre la modification, pas le glisser.
   await P.click(`.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`);
   verifie(await P.evaluate(() => !!document.querySelector('textarea.ed')), 'un clic sur le texte le modifie');
@@ -399,7 +415,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const avantTirage = JSON.stringify([base.lire('taches/t'), base.lire('taches/listes')]);
   const vide = await P.evaluate(() => { const p = document.querySelectorAll('#piste .pan:not(.cachee)'), r0 = p[0].getBoundingClientRect(), r1 = p[1].getBoundingClientRect(); return { x: (r0.right + r1.left) / 2, y: r0.top + 30 }; });
   const curseurs = await P.evaluate((v) => ({ vide: document.elementFromPoint(v.x, v.y).id, main: getComputedStyle(document.getElementById('piste')).cursor, pan: getComputedStyle(document.querySelector('#piste .pan')).cursor, tache: getComputedStyle(document.querySelector('#piste li.t')).cursor, bouton: getComputedStyle(document.querySelector('#piste .pan-tete button')).cursor }), vide);
-  verifie(curseurs.vide === 'piste' && curseurs.main === 'grab' && curseurs.pan === 'auto' && curseurs.tache === 'grab' && curseurs.bouton === 'pointer', 'tirer les listes : dans le vide entre les colonnes, le curseur est une main ; dans une colonne, il reste normal (' + JSON.stringify(curseurs) + ')');
+  verifie(curseurs.vide === 'piste' && curseurs.main === 'grab' && curseurs.pan === 'auto' && curseurs.tache === 'default' && curseurs.bouton === 'pointer', 'tirer les listes : dans le vide entre les colonnes, le curseur est une main ; dans une colonne, il reste normal (' + JSON.stringify(curseurs) + ')');
   await P.mouse.move(vide.x, vide.y); await P.mouse.down();
   for (let i = 1; i <= 10; i++) { await P.mouse.move(vide.x - 40 * i, vide.y + i); await pause(16); }
   const pendant = await P.evaluate(() => ({ classe: document.body.classList.contains('tire-piste'), curseur: getComputedStyle(document.querySelector('#piste .pan')).cursor, gauche: document.getElementById('piste').scrollLeft }));

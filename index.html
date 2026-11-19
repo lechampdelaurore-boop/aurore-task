@@ -269,7 +269,11 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   .ajout-ligne:hover{background:var(--gris);border-radius:var(--r-bloc)}
   .pt.plus-e{background:transparent;color:var(--vert)}
   .pt.plus-e:hover{background:var(--gris);color:var(--vert)}
-  li.t{min-height:36px;padding-top:6px;padding-bottom:6px;cursor:grab}
+  /* Comme Google Tasks : la flèche reste une flèche sur une tâche (clic court = modifier, clic tenu = déplacer) ;
+     la ligne survolée (elle seule, pas ses sous-tâches) est en surbrillance, sauf pendant un glisser. */
+  li.t{min-height:36px;padding-top:6px;padding-bottom:6px;cursor:default}
+  li.t .tx{cursor:default}
+  body:not(.glisse) #piste li.t[data-id]:hover{background:var(--gris)}
   /* Pendant la saisie, le texte a la taille de la tâche enregistrée (le 16 px ne sert qu'à empêcher le zoom de l'iPhone). */
   textarea.ed{font-size:13px;line-height:1.45;padding-top:2px}
   li.t .pt{opacity:0}
@@ -1713,6 +1717,7 @@ function commencer(p, x, y){
   document.body.appendChild(vol);
   var trait = document.createElement('div'); trait.className = 'trait-depot' + (drag.type === 'liste' ? ' vertical' : ''); trait.hidden = true;
   document.body.appendChild(trait);
+  document.body.classList.add('glisse');
   drag.vol = vol; drag.trait = trait; drag.dx = p.x - r.left; drag.dy = p.y - r.top; drag.x0 = p.x; drag.x = x; drag.y = y; drag.bord = 0;
   if(navigator.vibrate && !p.souris) try{ navigator.vibrate(30); }catch(e){}
   suivre();
@@ -1809,6 +1814,7 @@ function defiler(){
 function finir(){
   if(!drag) return;
   var d = drag; drag = null;
+  document.body.classList.remove('glisse');
   cancelAnimationFrame(d.raf);
   d.vol.remove(); d.trait.remove();
   document.querySelectorAll('li.t.en-vol').forEach(function(n){ n.classList.remove('en-vol'); });
