@@ -236,6 +236,8 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   await pause(500);
   verifie((await textes(B, LJ)) === avantRapide, 'un glisser rapide sans appui long ne déplace rien');
   // Glisser vers la droite sous une tâche : devient sa sous-tâche (avec ses sous-tâches à elle).
+  // (Les deux tâches bien visibles, pas cachées sous le titre de la liste.)
+  await B.evaluate((L) => { const p = document.querySelector(`.pan[data-l="${L}"] .pan-corps`); if (p) p.scrollTop = 0; }, LJ); await pause(150);
   a = await centre(B, `.pan[data-l="${LJ}"] ${ligneDe('Irrig plants')} .tx`);
   c = await centre(B, `.pan[data-l="${LJ}"] ${ligneDe('Contrôle et irrig Endives')}`);
   await glisserDoigt(B, cdpB, a.x, a.y, a.x + 30, c.b.y + c.b.height - 2);

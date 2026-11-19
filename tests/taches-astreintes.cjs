@@ -82,7 +82,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
 
   // Une tâche déjà là le lundi en P1 : la copie de l'astreinte doit venir après.
   await A.click('#bande .pil[data-l="lundi"]'); await pause(400);
-  await A.click('.pan[data-l="lundi"] .plus'); await A.waitForSelector('.pan[data-l="lundi"] textarea.ed');
+  await A.click('.pan[data-l="lundi"] .encart-tete [data-a="ajouter"][data-e="p1"]'); await A.waitForSelector('.pan[data-l="lundi"] textarea.ed');
   await A.keyboard.type('Déjà là'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
 
   // ---------- Les modèles dans la liste Astreintes ----------

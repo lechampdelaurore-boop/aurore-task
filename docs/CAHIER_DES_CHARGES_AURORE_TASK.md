@@ -86,7 +86,7 @@ La maquette montre les quatre écrans ci-dessous (exemples inventés ou tirés d
 - **Par défaut, chaque jour a ses trois encarts.** Les autres listes n'en ont pas.
 - **Ajouter** un encart : menu « ⋯ » de la liste, « Ajouter un encart : RDV, P1 ou P2 », un à la fois. Marche aussi pour une liste simple (S+1, par exemple).
 - **Supprimer** un encart : **seulement s'il est vide, et seulement à la main** (menu « ⋯ » de la liste, « Supprimer l'encart … », proposé seulement pour un encart vide ; changé le 19/11, le lien sous l'encart partait d'un seul toucher). Rien ne disparaît tout seul.
-- Le « + » du titre d'un encart ajoute une tâche dedans ; le « + » du titre de la liste ajoute en haut de P1 (s'il n'y a pas de P1 : en haut de la liste).
+- Le « + » du titre d'un encart ajoute une tâche dedans ; le « + » du titre de la liste ajoute une tâche hors des encarts, en haut de la liste, au-dessus de RDV, qu'on glisse ensuite où on veut (choix de François du 19/11, à la place de « en haut de P1 »). Les deux « + » ont le même aspect.
 - Choix de Claude, à confirmer : si « Répartir les astreintes » ou Google Agenda doivent poser une tâche dans un encart supprimé, **l'encart revient** pour l'accueillir.
 - Les noms des encarts (RDV, P1, P2) sont un **réglage** (une autre ferme peut les appeler autrement) ; la ferme les garde tels quels.
 
@@ -196,5 +196,5 @@ Le code se fait dans un seul fil à la fois, dans l'ordre. Chaque étape se term
 - **Non vérifié** : le délai avec lequel Google met à jour l'« adresse secrète au format iCal » après un changement dans l'agenda (de quelques minutes à quelques heures, selon des connaissances à revérifier à la source avant l'étape 36D). Quel agenda (ou quels agendas) lire : à demander à François au moment de l'étape 36D.
 - **Non vérifié** : que le balayage entre listes et l'appui long pour glisser ne se gênent pas sur les vrais téléphones (à l'essai de 36A).
 - **Non vérifié** : la lisibilité de la charte d'origine (texte secondaire 12 px, sans bordure) au soleil sur les vrais téléphones.
-- **À confirmer à l'essai** (choix de Claude) : le filet « Faites récemment » de 7 jours ; l'encart supprimé qui revient pour une astreinte ou un rendez-vous ; le « + » de la liste qui ajoute en haut de P1 ; le nœud `taches/` à part ; une liste verrouillée qu'on ne peut pas supprimer.
+- **À confirmer à l'essai** (choix de Claude) : le filet « Faites récemment » de 7 jours ; l'encart supprimé qui revient pour une astreinte ou un rendez-vous ; le nœud `taches/` à part ; une liste verrouillée qu'on ne peut pas supprimer.
 - La maquette est **privée** : seul François peut l'ouvrir tant qu'il ne la partage pas.
