@@ -367,6 +367,10 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   // Un simple clic (sans bouger) ouvre la modification, pas le glisser.
   await P.click(`.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`);
   verifie(await P.evaluate(() => !!document.querySelector('textarea.ed')), 'un clic sur le texte le modifie');
+  const tailles = await P.evaluate(() => { const ta = getComputedStyle(document.querySelector('textarea.ed')), tx = getComputedStyle(document.querySelector('li.t .tx')); return { ta: ta.fontSize + '/' + ta.lineHeight + '/' + ta.fontWeight, tx: tx.fontSize + '/' + tx.lineHeight + '/' + tx.fontWeight }; });
+  verifie(tailles.ta === tailles.tx, 'ordinateur : pendant la saisie, le texte a la même taille qu\'une fois enregistré (' + JSON.stringify(tailles) + ')');
+  const tailleTel = await A.evaluate(() => { const li = document.querySelector('li.t'), t = document.createElement('textarea'); t.className = 'ed'; li.appendChild(t); const f = getComputedStyle(t).fontSize; t.remove(); return f; });
+  verifie(tailleTel === '16px', 'téléphone : la saisie reste en 16 px (sinon l\'iPhone zoome la page)');
   await P.keyboard.press('Escape');
   // Clic droit : le menu de la tâche.
   await P.click(`.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`, { button: 'right' });
