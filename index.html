@@ -128,7 +128,6 @@ li.t.vient{animation:vient 1.2s ease-out}
 .pastille{width:22px;height:22px;flex-shrink:0;margin-top:1px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-ui);font-weight:600;font-size:11px}
 .origine{flex-shrink:0;color:var(--sec);margin-top:3px}
 .origine svg.i{width:15px;height:15px}
-.puce{width:7px;height:7px;border-radius:50%;background:var(--anthracite);flex-shrink:0;margin:9px 7px 0}
 li.t.ast{flex-wrap:wrap;row-gap:2px}
 li.t.ast > .tx,li.t.ast > textarea.ed{flex-basis:0}
 .ast-info{flex:0 0 calc(100% - 32px);margin-left:32px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-family:var(--f-ui);font-size:11px}
@@ -1003,7 +1002,7 @@ function ligneHtml(x){
   var pe = t.pour && personne(t.pour), pas = pe ? '<span class="pastille" style="background:' + PALETTE[pe.couleur][0] + ';color:' + PALETTE[pe.couleur][1] + '" title="Pour ' + esc(pe.nom) + '" aria-label="Pour ' + esc(pe.nom) + '">' + esc(pe.initiale) + '</span>' : '';
   var orig = t.origine ? '<span class="origine" title="' + (/^a:/.test(t.origine) ? 'Astreinte' : 'Agenda') + '" aria-label="' + (/^a:/.test(t.origine) ? 'Venue d\'une astreinte' : 'Venue de l\'agenda') + '">' + (/^a:/.test(t.origine) ? ICO.astreinte : ICO.agenda) + '</span>' : '';
   var ast = estAstreinte(x.id), info = ast ? astInfoHtml(t) : '', cl = ast ? ' ast' + (t.pause ? ' en-pause' : '') : '';
-  if(fige) return '<li class="t fige' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '><span class="puce" aria-hidden="true"></span>' + corps + orig + pas + info + '</li>';
+  if(fige) return '<li class="t fige' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '>' + corps + orig + pas + info + '</li>';
   return '<li class="t' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '><button class="coche" type="button" data-a="cocher" aria-label="Cocher « ' + esc(texte) + ' »"></button>' + corps + orig + pas +
     '<button class="pt" type="button" data-a="menu-tache" aria-label="Menu de la tâche « ' + esc(texte) + ' »">' + ICO.pt + '</button>' + info + '</li>';
 }
