@@ -119,6 +119,10 @@ li.t.vient{animation:vient 1.2s ease-out}
 .etiq{font-family:var(--f-ui);font-weight:600;font-size:11px;border-radius:99px;padding:2px 9px;-webkit-user-select:none;user-select:none}
 .etiq.info{background:#e1eaff;color:#2a3f8a} .etiq.warn{background:var(--orange-pale);color:var(--orange-txt)} .etiq.neutre{background:var(--gris);color:var(--anthracite)}
 .pt.mini svg.i{width:16px;height:16px}
+/* « + » d'un encart : même aspect que le « + » de la liste (rond vert plein sur le téléphone, « + » vert sur l'ordinateur). */
+.pt.plus-e{width:30px;height:30px;margin:0 -2px 0 0;background:var(--vert);color:#fff}
+.pt.plus-e:hover{background:var(--vert);color:#fff}
+.pt.plus-e svg.i{width:18px;height:18px}
 .encart ul.taches:empty{min-height:8px}
 .heure{font-weight:700;color:#2a3f8a}
 .pastille{width:22px;height:22px;flex-shrink:0;margin-top:1px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-ui);font-weight:600;font-size:11px}
@@ -263,6 +267,8 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   .bloc{box-shadow:none;padding:0}
   .ajout-ligne{display:flex;align-items:center;gap:10px;width:100%;min-height:36px;border:0;background:transparent;color:var(--vert);font-family:var(--f-ui);font-weight:500;font-size:13px;padding:0 2px;text-align:left}
   .ajout-ligne:hover{background:var(--gris);border-radius:var(--r-bloc)}
+  .pt.plus-e{background:transparent;color:var(--vert)}
+  .pt.plus-e:hover{background:var(--gris);color:var(--vert)}
   li.t{min-height:36px;padding-top:6px;padding-bottom:6px;cursor:grab}
   li.t .pt{opacity:0}
   li.t:hover .pt,li.t .pt:focus{opacity:1}
@@ -1016,7 +1022,7 @@ function panneauHtml(l){
     var tete = '';
     if(b.tete){
       tete = '<div class="encart-tete"><span class="etiq ' + CLASSES_ENCART[b.e] + '">' + esc(nomEncart(b.e)) + '</span>' +
-        (fige ? '' : '<button class="pt mini" type="button" data-a="ajouter" data-e="' + b.e + '" aria-label="Ajouter une tâche dans ' + esc(nomEncart(b.e)) + '">' + ICO.plus + '</button>') + '</div>';
+        (fige ? '' : '<button class="pt mini plus-e" type="button" data-a="ajouter" data-e="' + b.e + '" aria-label="Ajouter une tâche dans ' + esc(nomEncart(b.e)) + '">' + ICO.plus + '</button>') + '</div>';
     }
     return '<div class="encart" data-e="' + b.e + '">' + tete + '<ul class="taches" data-e="' + b.e + '">' + b.lignes.map(ligneHtml).join('') + '</ul></div>';
   }).join('');
@@ -1623,7 +1629,7 @@ document.addEventListener('click', function(e){
   else if(a === 'decocher'){ var la = b.closest('li[data-anim]'); if(la) remettre(la.dataset.anim); }
   else if(a === 'modifier' && li){ ouvrirModif(li.dataset.id); }
   else if(a === 'menu-tache' && li){ ouvrirMenuTache(li.dataset.id); }
-  else if(a === 'ajouter' && L){ if(!PC.matches) allerA(L); ouvrirNouveau(L, '', null, b.dataset.e != null ? b.dataset.e : encartPlus(L)); }
+  else if(a === 'ajouter' && L){ if(!PC.matches) allerA(L); ouvrirNouveau(L, '', null, b.dataset.e != null ? b.dataset.e : ''); } // « + » de la liste : hors des encarts, au-dessus de RDV (19/11)
   else if(a === 'menu-liste' && L){ ouvrirMenuListe(L); }
   else if(a === 'faites' && L){ ouvrirFaites(L); }
   else if(a === 'aller'){ allerA(b.dataset.l, true); }

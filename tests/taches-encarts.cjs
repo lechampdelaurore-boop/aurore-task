@@ -92,12 +92,22 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await attendreQue(() => A.evaluate(() => document.getElementById('nomFerme').textContent === "Le Champ de l'Aurore")), 'nom de la ferme en haut, lu dans le fichier de départ');
   verifie(await A.evaluate(() => { const a = document.getElementById('avatar'); return a.textContent === 'F' && getComputedStyle(a).backgroundColor === 'rgb(251, 224, 227)'; }), 'pastille du compte : initiale et couleur de la personne (rouge)');
 
-  // ---------- « + » du haut : dans P1 ; « + » d'un encart : dans cet encart ----------
+  // ---------- « + » du haut : hors des encarts, au-dessus de RDV (19/11) ; « + » d'un encart : dans cet encart ----------
   await A.click(`.pan[data-l="${LJ}"] .plus`);
   await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
   await A.keyboard.type('Désherber carottes'); await A.keyboard.press('Enter');
   await A.keyboard.type('Commander terreau'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
-  verifie(await attendreQue(() => { const a = parTexte(base, 'Désherber carottes'), b = parTexte(base, 'Commander terreau'); return a && b && a[1].encart === 'p1' && b[1].encart === 'p1'; }), '« + » du haut : les tâches vont dans P1 (en rafale)');
+  verifie(await attendreQue(() => { const a = parTexte(base, 'Désherber carottes'), b = parTexte(base, 'Commander terreau'); return a && b && a[1].encart === '' && b[1].encart === ''; }), '« + » du haut : les tâches vont hors des encarts (en rafale)');
+  verifie(await attendreQue(async () => (await encarts(A, LJ)).startsWith(': Désherber carottes, Commander terreau | rdv:  | p1:  | p2: ')), 'affichées en haut de la liste, au-dessus de RDV, sans étiquette');
+  // Puis on la glisse où on veut : « Désherber carottes » dans P1, au doigt.
+  const dh = await centre(A, `${ligne(LJ, 'Désherber carottes')} .tx`), p1t = await centre(A, `.pan[data-l="${LJ}"] .encart[data-e="p1"] .encart-tete`);
+  await glisserDoigt(cdpA, dh.x, dh.y, dh.x, p1t.b.y); // la ligne soulevée laisse sa place : P1 remonte d'une ligne
+  verifie(await attendreQue(() => parTexte(base, 'Désherber carottes')[1].encart === 'p1'), 'puis glissée au doigt dans P1');
+  // « + » des encarts : même aspect que le « + » de la liste (rond vert plein sur le téléphone).
+  verifie(await A.evaluate((L) => { const a = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .plus`)), b = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`)); return a.backgroundColor === b.backgroundColor && a.color === b.color && b.backgroundColor === 'rgb(11, 105, 77)' && b.borderRadius === '50%'; }, LJ), 'téléphone : le « + » des encarts a le même aspect que le « + » de la liste (rond vert plein, « + » blanc)');
+  await A.click(`${ligne(LJ, 'Commander terreau')} .pt`); await A.waitForSelector('#tacheDlg[open]');
+  await A.click('#tacheDlg [data-zone="p1"]'); await A.click('#tacheDlg [data-a="fermer"]'); await pause(200);
+  verifie(await attendreQue(() => parTexte(base, 'Commander terreau')[1].encart === 'p1'), 'ou rangée par « Zone du jour » (menu de la tâche) : P1');
   await A.click(`.pan[data-l="${LJ}"] .encart-tete [data-a="ajouter"][data-e="rdv"]`);
   await A.waitForSelector(`.pan[data-l="${LJ}"] .encart[data-e="rdv"] textarea.ed`);
   await A.keyboard.type('Véto'); await A.keyboard.press('Enter');
@@ -238,10 +248,22 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await P.click(`${ligne(L2, 'Tâche figée')} .tx`, { button: 'right' });
   verifie(await attendreQue(() => P.evaluate(() => document.getElementById('tacheDlg').open)), 'déverrouillée : le clic droit ouvre le menu');
   await P.click('#tacheDlg [data-a="fermer"]');
+  // « Ajouter une tâche » sur l'ordinateur : hors des encarts, au-dessus de RDV ; « + » des encarts au même aspect (vert).
+  await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), L2);
+  await P.click(`.pan[data-l="${L2}"] .ajout-ligne`);
+  verifie(await P.evaluate((L) => { const t = document.querySelector(`.pan[data-l="${L}"] textarea.ed`), e = t && t.closest('.encart'); return !!e && e.dataset.e === '' && !e.previousElementSibling && !!e.nextElementSibling && e.nextElementSibling.dataset.e === 'rdv'; }, L2), 'ordinateur : « Ajouter une tâche » ouvre la ligne hors des encarts, au-dessus de RDV');
+  await P.keyboard.type('Tâche du haut'); await P.keyboard.press('Enter'); await P.keyboard.press('Escape');
+  verifie(await attendreQue(() => { const x = parTexte(base, 'Tâche du haut'); return x && x[1].encart === '' && x[1].liste === L2; }), 'enregistrée sans encart');
+  const plusPC = await P.evaluate((L) => { const a = document.querySelector(`.pan[data-l="${L}"] .ajout-ligne`), b = document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`); const ia = a.querySelector('svg').getBoundingClientRect(), ib = b.querySelector('svg').getBoundingClientRect(); return { ca: getComputedStyle(a).color, cb: getComputedStyle(b).color, fond: getComputedStyle(b).backgroundColor, ta: ia.width, tb: ib.width }; }, L2);
+  verifie(plusPC.ca === plusPC.cb && plusPC.cb === 'rgb(11, 105, 77)' && plusPC.fond === 'rgba(0, 0, 0, 0)' && plusPC.ta === plusPC.tb, 'ordinateur : le « + » des encarts a le même aspect que celui de « Ajouter une tâche » (vert, même taille) ' + JSON.stringify(plusPC));
+  await P.click(`.pan[data-l="${L2}"] .encart-tete [data-a="ajouter"][data-e="p2"]`);
+  verifie(await P.evaluate((L) => { const t = document.querySelector(`.pan[data-l="${L}"] textarea.ed`); return !!t && t.closest('.encart').dataset.e === 'p2'; }, L2), 'le « + » d\'un encart écrit toujours dans cet encart (P2)');
+  await P.keyboard.press('Escape');
 
   if (CAPTURES) {
     fs.mkdirSync(CAPTURES, { recursive: true });
     await A.screenshot({ path: path.join(CAPTURES, 'telephone-encarts.png') });
+    await P.screenshot({ path: path.join(CAPTURES, 'ordinateur-encarts.png') });
     await A.click(`${ligne(LJ, 'Désherber carottes')} .pt`); await A.waitForSelector('#tacheDlg[open]'); await pause(300);
     await A.screenshot({ path: path.join(CAPTURES, 'telephone-menu-tache.png') });
     await A.click('#tacheDlg [data-a="fermer"]');
