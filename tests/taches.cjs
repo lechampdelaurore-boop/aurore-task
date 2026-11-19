@@ -387,6 +387,11 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   verifie(tailles.ta === tailles.tx, 'ordinateur : pendant la saisie, le texte a la même taille qu\'une fois enregistré (' + JSON.stringify(tailles) + ')');
   const tailleTel = await A.evaluate(() => { const li = document.querySelector('li.t'), t = document.createElement('textarea'); t.className = 'ed'; li.appendChild(t); const f = getComputedStyle(t).fontSize; t.remove(); return f; });
   verifie(tailleTel === '16px', 'téléphone : la saisie reste en 16 px (sinon l\'iPhone zoome la page)');
+  // Taille des tâches calée sur Google Tasks (capture de François du 19/11) : ordinateur seulement.
+  const tailleTache = (page) => page.evaluate(() => { const tx = getComputedStyle(document.querySelector('#piste li.t[data-id] .tx')), c = document.querySelector('#piste li.t[data-id] .coche').getBoundingClientRect(); return tx.fontSize + '/' + tx.fontWeight + '/' + tx.lineHeight + '/' + Math.round(c.width); });
+  const tPC = await tailleTache(P), tTel = await tailleTache(A);
+  verifie(tPC === '10.5px/400/16px/14', 'ordinateur : tâches comme Google Tasks, texte 10,5 px en graisse normale, lignes de 16 px, case de 14 px (' + tPC + ')');
+  verifie(tTel === '13px/600/18.85px/22', 'téléphone : taille des tâches inchangée (' + tTel + ')');
   await P.keyboard.press('Escape');
   // Clic droit : le menu de la tâche.
   await P.click(`.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`, { button: 'right' });
