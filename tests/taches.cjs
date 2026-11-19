@@ -87,7 +87,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const sw = fs.readFileSync(path.join(RACINE, 'sw.js'), 'utf8');
   verifie(/'\.\/index\.html'/.test(sw) && /register\('sw\.js'\)/.test(html), 'le service hors ligne garde la page des tâches');
   // La règle « taches » de la base est dans le dépôt liste-recolte (docs/regles-base/fermees.json) : la base est commune.
-  verifie(!/fonts\.googleapis|fonts\.gstatic|https?:\/\/(?!localhost)/.test(html.replace(/https:\/\/(identitytoolkit|securetoken)\.googleapis\.com\/v1/g, '')), 'aucune ressource chargée depuis un autre site');
+  verifie(!/fonts\.googleapis|fonts\.gstatic|https?:\/\/(?!localhost)/.test(html.replace(/https:\/\/(identitytoolkit|securetoken)\.googleapis\.com\/v1/g, '').replace("'https://liste-recolte.pages.dev/cle-web.js'", '')), 'aucune ressource chargée depuis un autre site (sauf la clé web, reprise du site du Cumul)');
   verifie(!/Champ de l'Aurore|Tronget|François|Aurore'|Martin/.test(html.replace(/Aurore Task/g, '')), 'rien de propre à la ferme dans le code (ni prénom ni nom de ferme)');
 
   const navigateur = await chromium.launch();

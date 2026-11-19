@@ -1,11 +1,13 @@
 // Hors ligne : la page passe d'abord par le réseau, sinon la dernière copie gardée.
 // La base Firebase (autre domaine) n'est jamais mise en cache.
 // Après toute modification de index.html, config.js, des icônes ou du fichier de départ : changer CACHE.
-var CACHE = 'aurore-task-v2';
+var CACHE = 'aurore-task-v3';
+// Clé web reprise du site du Cumul (voir index.html) : gardée aussi pour l'ouverture hors ligne.
+var CLE_SOURCE = 'https://liste-recolte.pages.dev/cle-web.js';
 var SHELL = ['./', './index.html', './config.js', './cle-web.js', './manifest.webmanifest', './icons/taches.svg', './icons/taches-192.png', './referentiel/taches-depart.json', './polices/bricolage-grotesque.woff2', './polices/dm-sans.woff2', './polices/open-sans.woff2'];
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL).then(function () { return c.add(new Request(CLE_SOURCE, { mode: 'no-cors' })).catch(function () {}); }); }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (keys) {
@@ -14,6 +16,12 @@ self.addEventListener('activate', function (e) {
 });
 self.addEventListener('fetch', function (e) {
   var req = e.request, url = new URL(req.url);
+  if (req.method === 'GET' && req.url === CLE_SOURCE) {
+    e.respondWith(fetch(req).then(function (res) {
+      var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(CLE_SOURCE, copy); }); return res;
+    }).catch(function () { return caches.match(CLE_SOURCE); }));
+    return;
+  }
   if (req.method !== 'GET' || url.origin !== location.origin) return;
   e.respondWith(fetch(req).then(function (res) {
     if (res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }

@@ -16,9 +16,9 @@
    - **Build output directory** : `/`.
 6. **Save and Deploy**. Attendre « Success ». Donner l'adresse obtenue à Claude.
 
-## 2. Coller la clé web (vous seul)
+## 2. Clé web : rien à faire
 
-La clé web est la même que celle du Cumul. Claude ne la voit jamais.
+Depuis le 19/11, la page reprend toute seule la clé web déjà en ligne sur le site du Cumul (`https://liste-recolte.pages.dev/cle-web.js`, même base Firebase) quand `cle-web.js` est vide ici. Claude ne la voit jamais. Les étapes ci-dessous ne servent que si l'on veut un jour qu'Aurore Task ne dépende plus du site du Cumul.
 
 1. Sur GitHub, ouvrir le dépôt **liste-recolte**, puis le fichier `cle-web.js`, et copier la valeur entre apostrophes de la dernière ligne (`window.RECOLTE_CLE_WEB = '…';`).
 2. Ouvrir le dépôt **aurore-task**, le fichier `cle-web.js`, le crayon (« Edit »), coller la valeur entre les deux apostrophes de la dernière ligne.
