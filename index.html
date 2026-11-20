@@ -270,30 +270,33 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 }
 @media (min-width:1000px){
   body{font-size:13px}
-  .menu{display:flex;flex-direction:column;gap:2px;width:184px;flex-shrink:0;background:var(--menu);padding:12px 8px;overflow-y:auto}
-  .menu-nom{font-family:var(--f-titre);font-weight:300;font-size:20px;padding:4px 10px 12px}
-  .nav{min-height:33px;display:flex;align-items:center;gap:8px;border:0;border-radius:var(--r-bloc);background:transparent;padding:0 10px;font-family:var(--f-ui);font-weight:500;font-size:13px;color:var(--texte);text-align:left}
+  /* Menu de gauche resserré et colonnes à largeur calculée (demande du 20/11) : sur un écran de 1920 px,
+     les sept listes des jours tiennent entières, sans défiler de côté ; jamais moins de 230 px ni plus de 300 px par liste. */
+  :root{--menu-l:152px;--piste-m:12px;--piste-g:10px}
+  .menu{display:flex;flex-direction:column;gap:2px;width:var(--menu-l);flex-shrink:0;background:var(--menu);padding:10px 6px;overflow-y:auto}
+  .menu-nom{font-family:var(--f-titre);font-weight:300;font-size:18px;padding:4px 8px 10px}
+  .nav{min-height:30px;display:flex;align-items:center;gap:8px;border:0;border-radius:var(--r-bloc);background:transparent;padding:0 8px;font-family:var(--f-ui);font-weight:500;font-size:12.5px;color:var(--texte);text-align:left}
   .nav.on{background:var(--vert);color:#fff}
   .nav:not(.on):hover{background:#d8e9e3}
-  .menu h3{margin:16px 10px 4px;font-family:var(--f-ui);font-weight:500;font-size:11.7px;color:var(--sec);text-transform:uppercase;letter-spacing:.04em}
-  .menu label{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 10px;font-family:var(--f-ui);font-weight:500;font-size:12.5px;cursor:pointer}
-  .menu label input{width:16px;height:16px;accent-color:var(--vert);margin:0}
-  .outils{display:flex;align-items:center;gap:10px;padding:14px 18px 4px}
+  .menu h3{margin:14px 8px 4px;font-family:var(--f-ui);font-weight:500;font-size:11px;color:var(--sec);text-transform:uppercase;letter-spacing:.04em}
+  .menu label{display:flex;align-items:center;gap:7px;min-height:27px;padding:0 8px;font-family:var(--f-ui);font-weight:500;font-size:12px;cursor:pointer}
+  .menu label input{width:15px;height:15px;accent-color:var(--vert);margin:0}
+  .outils{display:flex;align-items:center;gap:10px;padding:12px var(--piste-m) 4px}
   .outils h1{flex-grow:1;margin:0;font-family:var(--f-titre);font-weight:300;font-size:26px}
   .outils .btn{flex:0 0 auto}
-  .piste{scroll-snap-type:none;gap:14px;padding:10px 18px 18px;align-items:flex-start;overflow-x:auto;scrollbar-width:thin}
+  .piste{scroll-snap-type:none;gap:var(--piste-g);padding:10px var(--piste-m) 18px;align-items:flex-start;overflow-x:auto;scrollbar-width:thin}
   .piste::-webkit-scrollbar{display:block;height:8px}
   /* Dans le vide entre ou sous les colonnes : une main ; cliquer et tirer fait défiler les listes (comme Google Tasks). */
   .piste{cursor:grab}
   .pan{cursor:auto}
   body.tire-piste,body.tire-piste *{cursor:grabbing!important;-webkit-user-select:none;user-select:none}
-  .pan{flex:0 0 300px;width:300px;max-height:100%;background:var(--bloc);border-radius:var(--r-bloc);box-shadow:var(--ombre)}
+  .pan{--pan-l:clamp(230px,calc((100vw - var(--menu-l) - 2 * var(--piste-m) - 6 * var(--piste-g) - 2px) / 7),300px);flex:0 0 var(--pan-l);width:var(--pan-l);max-height:100%;background:var(--bloc);border-radius:var(--r-bloc);box-shadow:var(--ombre)}
   .pan.cachee{display:none}
-  .pan-tete{padding:10px 8px 4px 14px}
+  .pan-tete{padding:10px 6px 4px 12px}
   .pan-titre{font-size:19px;cursor:grab}
   .pan-tete .plus{display:none}
   .rond{width:34px;height:34px}
-  .pan-corps{padding:0 14px 12px}
+  .pan-corps{padding:0 10px 12px}
   .bloc{box-shadow:none;padding:0}
   .pan.fige{outline:2px dashed #c4c4cc;outline-offset:-1px}
   .pan.fige .bloc{outline:0}
