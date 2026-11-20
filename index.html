@@ -240,6 +240,31 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 .message{margin:24px auto;max-width:440px;padding:0 16px;text-align:center;color:var(--sec)}
 
 /* Ordinateur (fenêtre d'au moins 1000 px) */
+/* Téléphone : le menu « ⋯ » d'une tâche tient entier dans l'écran, « Fermer » compris, sans défiler (demande du 20/11).
+   Titres à gauche de leurs boutons, actions sur deux colonnes, marges resserrées. L'ordinateur garde la fenêtre d'avant. */
+@media (max-width:999.98px){
+  #tacheDlg{max-height:calc(100dvh - 4px);padding:6px 12px calc(10px + env(safe-area-inset-bottom))}
+  #tacheDlg .poignee-f{margin-bottom:6px}
+  #tacheChamp{margin-bottom:8px}
+  #tacheChamp > span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  #tacheTexte{min-height:44px;max-height:7.5em;padding:9px 10px;line-height:1.5;field-sizing:content;resize:none}
+  #tacheRegl .menu-bloc{flex-direction:row;align-items:center;gap:8px;margin-bottom:8px}
+  #tacheRegl .menu-bloc > span{flex:0 0 auto;max-width:6.4em;font-size:12.5px;line-height:1.2}
+  #tacheRegl .menu-bloc > :not(span){flex:1 1 auto;min-width:0}
+  #tacheRegl .menu-bloc.case-pause{gap:10px!important;min-height:40px}
+  #tacheRegl .menu-bloc.case-pause > span{max-width:none}
+  #tacheRegl .menu-bloc.case-pause input{flex:0 0 auto}
+  #tacheRegl .seg button{min-height:40px;padding:0 7px}
+  #tacheRegl .jours-choix{gap:3px;flex-wrap:nowrap}
+  #tacheRegl .jours-choix button{min-width:0;min-height:40px;padding:0;font-size:11.5px}
+  #tacheRegl .couleurs{gap:4px;flex-wrap:nowrap}
+  #tacheRegl .couleurs button{flex:1 1 0;width:auto;min-width:0;height:40px}
+  #tacheRegl .heure-champ{flex:0 1 150px;min-height:40px;margin-left:auto}
+  #tacheActions{display:grid;grid-template-columns:1fr 1fr;column-gap:8px}
+  #tacheActions .act{min-height:44px;font-size:12.5px;line-height:1.2;gap:6px}
+  #tacheActions .act svg{flex-shrink:0}
+  #tacheDlg .btns{position:sticky;bottom:calc(-10px - env(safe-area-inset-bottom));margin:8px -12px calc(-10px - env(safe-area-inset-bottom));padding:0 12px calc(10px + env(safe-area-inset-bottom));background:#fff}
+}
 @media (min-width:1000px){
   body{font-size:13px}
   .menu{display:flex;flex-direction:column;gap:2px;width:184px;flex-shrink:0;background:var(--menu);padding:12px 8px;overflow-y:auto}

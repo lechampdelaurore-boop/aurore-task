@@ -1,5 +1,9 @@
 # Historique des changements
 
+## 2026-11-20
+
+- **Téléphone : le menu « ⋯ » d'une tâche tient dans l'écran** (demande de François du 20/11 : « on est obligé de scroller pour valider »). Mesuré avant sur un écran de 360×640 : le menu dépassait de 226 px pour une tâche en RDV et de 364 px pour une astreinte en RDV ; « Fermer » était hors de l'écran. Sur le téléphone seulement : titre « Tâche » masqué (le texte de la tâche suffit), case du texte d'une ligne qui grandit avec le texte, titres (« Pour qui ? », « Zone », « Jours », « Heure du rendez-vous », « Couleur du texte ») à gauche de leurs boutons, les cinq actions sur deux colonnes, marges resserrées, menu jusqu'en haut de l'écran si besoin. Boutons d'au moins 40 px de haut. Si un texte très long fait quand même dépasser le menu, « Supprimer » et « Fermer » restent collés en bas, visibles. Ordinateur inchangé. CACHE `aurore-task-v13`. Nouveau test `tests/menu-tache.cjs` (360×640, 375×667, Pixel 5 et ordinateur). Captures : `/mnt/project-files/menu-tache-telephone/`. **Non vérifié** : de vrais téléphones.
+
 ## 2026-11-19
 
 - **Téléphone : tâches à la taille de Google Tasks** (demande de François du 19/11, deux captures d'Android à la même échelle). Mesuré : « Plantation endive » fait 342 pixels d'écran chez Google contre 304 chez Aurore Task, lettres hautes de 36 contre 27 pixels ; lignes d'une tâche longue espacées de 68 contre 54 pixels. Sur le téléphone : texte des tâches en 16 px, graisse normale (au lieu de 13 px en gras), lignes de 24 px ; la saisie, déjà en 16 px (contre le zoom de l'iPhone), passe aussi en graisse normale : même taille pendant et après. Ordinateur inchangé. CACHE `aurore-task-v12`. Test `tests/taches.cjs` (2 vérifications). Capture : `/mnt/project-files/taille-taches-google/3-telephone-avant-apres.png`. **Non vérifié** : de vrais téléphones.
