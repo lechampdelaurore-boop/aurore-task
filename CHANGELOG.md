@@ -2,6 +2,8 @@
 
 ## 2026-11-20
 
+- **Ordinateur : plus d'ascenseur de côté dans les listes** (retour de François du 20/11 sur son écran après la PR #19 : un ascenseur horizontal sous chaque liste). Cause : la zone de clic invisible du « ⋯ » d'une tâche dépassait de 2 px dans les colonnes resserrées. Corrigé (zone de clic raccourcie de ce côté) et, par sécurité, aucune liste ne peut plus défiler de côté ; l'ascenseur vertical reste. CACHE `aurore-task-v17`. Test `tests/taches.cjs` (vérification ajoutée aux deux écrans, en échec avant la correction). **Non vérifié** : le vrai écran de François.
+
 - **Ordinateur : les sept listes des jours tiennent entières sur un écran de 1920 px** (demande de François du 20/11, capture à l'appui : 5 listes et demie visibles). Menu de gauche resserré (184 → 152 px, titre et lignes un peu plus petits), marges et écarts entre colonnes resserrés, largeur des listes calculée sur la largeur de l'écran (240 px sur 1920 px au lieu de 300 px ; jamais moins de 230 px ni plus de 300 px). Taille du texte des tâches inchangée (10,5 px, comme Google Tasks) ; téléphone inchangé. CACHE `aurore-task-v16`. Test `tests/taches.cjs` (3 vérifications). **Non vérifié** : le vrai écran de François.
 
 - **Registres remis d'accord** : étapes 36, 36D, 44 et 45B de la feuille de route (faites, en service) ; Aurore n'utilisera pas le rappel du matin ; essais sur vrais téléphones laissés « non testés » par François. Registres seulement.

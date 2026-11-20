@@ -361,9 +361,10 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
     const m = await G.evaluate(() => { const pi = document.getElementById('piste'), r = pi.getBoundingClientRect(); const pans = Array.from(pi.querySelectorAll('.pan:not(.cachee)'));
       return { menu: document.querySelector('.menu').getBoundingClientRect().width, larg: pans[0].getBoundingClientRect().width,
         entieres: pans.filter((p) => { const b = p.getBoundingClientRect(); return b.left >= r.left - 0.5 && b.right <= r.right + 0.5; }).map((p) => p.querySelector('.pan-titre').textContent),
-        tx: getComputedStyle(document.querySelector('#piste .tx')).fontSize }; });
-    verifie(m.menu === 152 && m.tx === '10.5px' && m.entieres.length === attendu && m.entieres.join() === JOURS.slice(0, attendu).join() && m.larg >= 230 && m.larg <= 300,
-      `ordinateur ${w} px : ${attendu} listes entières (${m.entieres.join(', ')}), colonnes de ${Math.round(m.larg)} px, menu de ${m.menu} px, tâches à ${m.tx}`);
+        tx: getComputedStyle(document.querySelector('#piste .tx')).fontSize,
+        cote: pans.filter((p) => { const c = p.querySelector('.pan-corps'); return c.scrollWidth > c.clientWidth || getComputedStyle(c).overflowX !== 'hidden'; }).map((p) => p.querySelector('.pan-titre').textContent + ' +' + (p.querySelector('.pan-corps').scrollWidth - p.querySelector('.pan-corps').clientWidth)) }; });
+    verifie(m.menu === 152 && m.tx === '10.5px' && m.entieres.length === attendu && m.entieres.join() === JOURS.slice(0, attendu).join() && m.larg >= 230 && m.larg <= 300 && m.cote.length === 0,
+      `ordinateur ${w} px : ${attendu} listes entières (${m.entieres.join(', ')}), colonnes de ${Math.round(m.larg)} px, menu de ${m.menu} px, tâches à ${m.tx}, aucun ascenseur de côté dans les listes${m.cote.length ? ' (sauf ' + m.cote.join(', ') + ')' : ''}`);
     if (CAPTURES) await G.screenshot({ path: path.join(CAPTURES, `ordinateur-${w}.png`) });
     await ctxG.close();
   }

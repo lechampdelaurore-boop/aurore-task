@@ -1,7 +1,7 @@
 // Hors ligne : la page passe d'abord par le réseau, sinon la dernière copie gardée.
 // La base Firebase (autre domaine) n'est jamais mise en cache.
 // Après toute modification de index.html, config.js, des icônes ou du fichier de départ : changer CACHE.
-var CACHE = 'aurore-task-v16';
+var CACHE = 'aurore-task-v17';
 // Clé web reprise du site du Cumul (voir index.html) : gardée aussi pour l'ouverture hors ligne.
 var CLE_SOURCE = 'https://liste-recolte.pages.dev/cle-web.js';
 var SHELL = ['./', './index.html', './config.js', './cle-web.js', './manifest.webmanifest', './icons/taches.svg', './icons/taches-192.png', './referentiel/taches-depart.json', './polices/bricolage-grotesque.woff2', './polices/dm-sans.woff2', './polices/open-sans.woff2'];
