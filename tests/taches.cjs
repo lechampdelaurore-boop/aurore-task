@@ -348,15 +348,33 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const erreursP = []; P.on('pageerror', (e) => erreursP.push(String(e)));
   await connecter(P, 'aurore');
   await P.waitForSelector(`.pan[data-l="${LJ}"] li.t`);
-  verifie(await P.evaluate(() => { const m = document.querySelector('.menu'); return getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().width === 184 && getComputedStyle(m).backgroundColor === 'rgb(231, 241, 238)'; }), 'ordinateur : menu à gauche vert très pâle (Planning, Astreintes, Réglages)');
+  verifie(await P.evaluate(() => { const m = document.querySelector('.menu'); return getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().width === 152 && getComputedStyle(m).backgroundColor === 'rgb(231, 241, 238)'; }), 'ordinateur : menu à gauche vert très pâle (Planning, Astreintes, Réglages)');
   verifie(await P.evaluate(() => { const p = Array.from(document.querySelectorAll('#piste .pan')).slice(0, 3).map((x) => x.getBoundingClientRect()); return p[0].top === p[1].top && p[1].left > p[0].right; }), 'les listes en colonnes côte à côte');
   verifie(await P.evaluate(() => getComputedStyle(document.querySelector('.bande')).display === 'none'), 'pas de bande du bas sur l\'ordinateur');
+  // Écran de 1920 px (celui de François, 20/11) : menu resserré, les sept listes des jours entières sans défiler de côté ;
+  // tâches toujours à 10,5 px. Sur 1600 px, les colonnes ne descendent pas sous 230 px (on tire pour voir la suite).
+  for (const [w, h, attendu] of [[1920, 937, 7], [1600, 789, 6]]) {
+    const ctxG = await navigateur.newContext({ viewport: { width: w, height: h }, locale: 'fr-FR' });
+    const G = await ctxG.newPage();
+    await connecter(G, 'aurore');
+    await G.waitForSelector(`.pan[data-l="${LJ}"] li.t`);
+    const m = await G.evaluate(() => { const pi = document.getElementById('piste'), r = pi.getBoundingClientRect(); const pans = Array.from(pi.querySelectorAll('.pan:not(.cachee)'));
+      return { menu: document.querySelector('.menu').getBoundingClientRect().width, larg: pans[0].getBoundingClientRect().width,
+        entieres: pans.filter((p) => { const b = p.getBoundingClientRect(); return b.left >= r.left - 0.5 && b.right <= r.right + 0.5; }).map((p) => p.querySelector('.pan-titre').textContent),
+        tx: getComputedStyle(document.querySelector('#piste .tx')).fontSize }; });
+    verifie(m.menu === 152 && m.tx === '10.5px' && m.entieres.length === attendu && m.entieres.join() === JOURS.slice(0, attendu).join() && m.larg >= 230 && m.larg <= 300,
+      `ordinateur ${w} px : ${attendu} listes entières (${m.entieres.join(', ')}), colonnes de ${Math.round(m.larg)} px, menu de ${m.menu} px, tâches à ${m.tx}`);
+    if (CAPTURES) await G.screenshot({ path: path.join(CAPTURES, `ordinateur-${w}.png`) });
+    await ctxG.close();
+  }
+  verifie(await A.evaluate(() => getComputedStyle(document.querySelector('.menu')).display === 'none' && Math.abs(document.querySelector('#piste .pan').getBoundingClientRect().width - innerWidth) < 1), 'téléphone inchangé : pas de menu, une liste pleine largeur');
   // Glisser « Écrite sans réseau » à la souris dans la colonne Astreintes, sous « Contrôle et irrig Endives » (au même niveau).
   await P.evaluate(() => { const p = document.querySelector('.pan[data-l="astreintes"]'); p.scrollIntoView({ inline: 'nearest' }); });
   await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), LJ);
   await pause(200);
   const visibles = await P.evaluate(() => { const r = document.getElementById('piste').getBoundingClientRect(); return Array.from(document.querySelectorAll('#piste .pan')).filter((p) => { const b = p.getBoundingClientRect(); return b.left >= r.left - 1 && b.right <= r.right + 1; }).map((p) => p.dataset.l); });
-  const autre = visibles.find((x) => x !== LJ) || 'astreintes';
+  // La colonne voisine (LS, celle où « Plantation endive » est passée) si elle est visible : la suite y survole « Plantation endive ».
+  const autre = visibles.includes(LS) ? LS : (visibles.find((x) => x !== LJ) || 'astreintes');
   a = await centre(P, `.pan[data-l="${LJ}"] ${ligneDe('Écrite sans réseau')} .tx`);
   const col = await centre(P, `.pan[data-l="${autre}"] .pan-corps`);
   await P.mouse.move(a.x, a.y); await P.mouse.down();
