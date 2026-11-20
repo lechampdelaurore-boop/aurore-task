@@ -471,7 +471,9 @@ var ENCARTS = ['rdv', 'p1', 'p2'];
 var JOURS_COURTS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 var NOMS_ENCARTS = {rdv:'RDV', p1:'P1', p2:'P2'};
 var PALETTE = {rouge:['#fbe0e3', '#8f1d2a', 'Rouge'], rose:['#fbe3ef', '#9c2257', 'Rose'], bleu:['#e1eaff', '#2a3f8a', 'Bleu'], vert:['#d6ecdf', '#0f4d2b', 'Vert'], orange:['#fbe6cf', '#8a4302', 'Orange'], violet:['#efe3f7', '#6a2f8f', 'Violet'], gris:['#eeeeee', '#373737', 'Gris']};
-var COULEURS_TEXTE = [['', '#111111', 'Noir'], ['rouge', '#b02a37', 'Rouge'], ['orange', '#a14d06', 'Orange'], ['vert', '#0b694d', 'Vert'], ['violet', '#6a2f8f', 'Violet'], ['gris', '#5f5f5f', 'Gris']];
+var COULEURS_TEXTE = [['', '#111111', 'Noir'], ['rouge', '#b02a37', 'Rouge'], ['orange', '#a14d06', 'Orange'], ['vert', '#0b694d', 'Vert'], ['violet', '#6a2f8f', 'Violet'], ['bleu', '#1a5fb4', 'Bleu']];
+// Le gris n'est plus proposé (remplacé par le bleu le 20/11) ; une tâche déjà en gris reste affichée en gris.
+var COULEURS_ANCIENNES = [['gris', '#5f5f5f', 'Gris']];
 var DEPART = null;
 
 function $(s){ return document.querySelector(s); }
@@ -1031,7 +1033,7 @@ function ligneHtml(x){
   }
   var fige = !!verrou(t.liste);
   if(t.sep) return '<li class="t sep" data-id="' + id + '" data-n="' + n + '"' + st + '><span class="trait" role="separator" aria-label="Séparateur"></span>' + (fige ? '' : '<button class="pt" type="button" data-a="menu-tache" aria-label="Menu du séparateur">' + ICO.pt + '</button>') + '</li>';
-  var texte = String(t.texte || ''), coul = COULEURS_TEXTE.filter(function(c){ return c[0] && c[0] === t.couleur; })[0];
+  var texte = String(t.texte || ''), coul = COULEURS_TEXTE.concat(COULEURS_ANCIENNES).filter(function(c){ return c[0] && c[0] === t.couleur; })[0];
   var heure = /^\d\d:\d\d$/.test(t.heure || '') && IX.enc[x.id] === 'rdv' && !IX.par[x.id] ? '<b class="heure">' + esc(t.heure) + '</b> ' : '';
   var corps = ed && ed.mode === 'modif' && ed.id === x.id
     ? '<textarea class="ed" rows="1" enterkeyhint="enter" aria-label="Texte de la tâche"></textarea>'
