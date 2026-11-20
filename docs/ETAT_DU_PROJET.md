@@ -24,6 +24,6 @@
 - **Encarts, personnes, couleur du texte, verrou, Réglages (36B)**.
 - **Astreintes (36C)** : jours, zone, heure, « En pause », « Répartir les astreintes » à la main.
 - **Compte de Martin (36E)** : profil `equipe`, tâches seulement.
-- Reste du cahier : **36D** (Google Agenda), qui attend l'adresse secrète de l'agenda, à saisir par François dans Cloudflare.
+- **Google Agenda (36D), codé le 20/11** (« vas-y » de François du 20/11 ; agenda commun « Le Champ de l'Aurore »). Bouton agenda dans la barre du haut (téléphone et ordinateur) et « Rendez-vous de l'agenda » sur l'ordinateur : les rendez-vous des 7 jours à partir de demain vont dans l'encart RDV de leur jour, avec l'heure et le signe « agenda ». Programme `functions/agenda/…` (lecture seule de l'adresse secrète iCal, réglage Cloudflare `AGENDA_ICAL`, seulement pour un compte qui ouvre les tâches). Mémoire `taches/agenda/<clé>`. Vérifié : `tests/agenda.cjs` (faux agenda, faux Firebase, téléphone simulé). **Mise en service** : `docs/PAS_A_PAS_AGENDA.md`. **Non vérifié** : le vrai agenda Google, le délai de Google pour mettre à jour l'adresse iCal après un changement.
 
 **Non vérifié** depuis le début : les vrais téléphones.

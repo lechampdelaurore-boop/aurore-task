@@ -50,6 +50,9 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .statut{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#e8e8e8;white-space:nowrap}
 .statut i{width:8px;height:8px;border-radius:50%;background:#aaa;display:inline-block}
 .statut.ok i{background:#5fc28f} .statut.attente i{background:#f0a35a} .statut.err i{background:#ff7b86}
+.barre-btn{width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:#fff;display:flex;align-items:center;justify-content:center;padding:0}
+.barre-btn svg.i{width:19px;height:19px}
+.barre-btn:disabled{opacity:.5}
 .avatar{width:28px;height:28px;border-radius:50%;border:0;background:#ffffff;color:var(--anthracite);font-family:var(--f-ui);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0}
 
 /* Corps : menu à gauche (ordinateur) + listes */
@@ -326,6 +329,7 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   <div class="barre-in">
     <span class="barre-nom" id="nomFerme">Aurore Task</span>
     <span class="statut" id="statut" role="status"><i></i><span>Connexion…</span></span>
+    <button class="barre-btn" id="agendaBtn" type="button" data-a="agenda" aria-label="Mettre à jour les rendez-vous de l'agenda" title="Mettre à jour les rendez-vous de l'agenda" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
     <button class="avatar" id="avatar" type="button" aria-label="Compte" hidden></button>
   </div>
 </header>
@@ -342,6 +346,7 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   <main>
     <div class="outils">
       <h1>Planning</h1>
+      <button class="btn secondaire" type="button" data-a="agenda">Rendez-vous de l'agenda</button>
       <button class="btn secondaire" type="button" data-a="repartir">Répartir les astreintes</button>
       <button class="btn principal" type="button" data-a="nouvelle-liste">Nouvelle liste</button>
     </div>
@@ -451,6 +456,7 @@ if (!String(window.RECOLTE_CLE_WEB || '').trim()) document.write('<script src="'
      taches/t/<id>       {liste, parent ('' = pas de tâche mère), ordre, texte, sep (séparateur), by, at}
      taches/faites/<id>  {at, by, liste, texte, t: {<id>: tâche, …}} : tâche cochée (ou supprimée) et ses sous-tâches,
                          gardée 7 jours dans « Faites récemment », puis effacée par le premier appareil qui l'ouvre.
+     taches/agenda/<k>   {t, date, titre, heure, at} : rendez-vous de Google Agenda déjà posé (étape 36D), oublié après 8 jours.
    Un seul flux en direct pour tout taches/. Chaque action part dans l'ordre (gardée sur l'appareil sans réseau) :
    la dernière action gagne. Rien de propre à une ferme dans le code : listes de départ = les sept jours et Astreintes.
    ========================================================================================================== */
@@ -699,6 +705,88 @@ function repartirAstreintes(){
   if(fige) m.push(fige + ' dans une liste verrouillée');
   montrerBandeau(m.join(', '), null);
   return {pose:pose, deja:deja, pause:pause, sansJour:sansJour, fige:fige};
+}
+/* ---------- Google Agenda (étape 36D) : rendez-vous des 7 jours qui suivent, rangés dans l'encart RDV de leur jour ----------
+   Jamais tout seul : seulement quand on touche « Mettre à jour les rendez-vous ». Lecture seule (l'agenda vers ici).
+   Le programme du site (functions/agenda/…) lit l'adresse secrète de l'agenda et renvoie {de, a, rdv: [{k, date, jour,
+   heure, titre}]}. Mémoire de ce qui a été posé : taches/agenda/<k> {t: id de la tâche, date, titre, heure, at}.
+   Rappuyer : ajoute les nouveaux, met à jour titre et heure de ceux qui ont changé DANS L'AGENDA (une retouche à la main
+   reste tant que l'agenda ne change pas), retire ceux annulés (pas cochés : ils vont dans « Faites récemment »).
+   Un rendez-vous coché ou supprimé à la main ne revient pas. Les tâches écrites à la main ne sont jamais touchées. */
+var agendaEnCours = false;
+function majAgenda(){
+  if(agendaEnCours || !compte) return;
+  if(!navigator.onLine){ montrerBandeau('Pas de réseau : l\'agenda ne peut pas être lu.', null); return; }
+  agendaEnCours = true; $('#agendaBtn').disabled = true;
+  montrerBandeau('Lecture de l\'agenda…', null);
+  var fuseau = 'Europe/Paris'; try{ fuseau = Intl.DateTimeFormat().resolvedOptions().timeZone || fuseau; }catch(e){}
+  jetonFrais().then(function(){
+    return fetch('agenda/semaine?fuseau=' + encodeURIComponent(fuseau), {cache:'no-store', headers:{Authorization:'Bearer ' + compte.jeton}});
+  }).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(j){ if(!r.ok) throw new Error(j && j.erreur ? j.erreur : 'réponse ' + r.status); return j; });
+  }).then(function(j){
+    var n = rangerAgenda(j);
+    var m = [];
+    if(n.ajoutes) m.push(n.ajoutes + ' rendez-vous ajouté' + (n.ajoutes > 1 ? 's' : ''));
+    if(n.changes) m.push(n.changes + ' mis à jour');
+    if(n.retires) m.push(n.retires + ' retiré' + (n.retires > 1 ? 's' : '') + ' (annulé' + (n.retires > 1 ? 's' : '') + ' dans l\'agenda)');
+    if(n.deja) m.push(n.deja + ' déjà là');
+    if(n.fige) m.push(n.fige + ' dans une liste verrouillée');
+    montrerBandeau('Agenda : ' + (m.length ? m.join(', ') : 'aucun rendez-vous dans les 7 jours qui viennent') + '.', null);
+  }).catch(function(e){
+    montrerBandeau('Agenda non lu : ' + (e && e.message && !/fetch|network/i.test(e.message) ? e.message : 'pas de réseau ou site injoignable') + '.', null);
+  }).then(function(){ agendaEnCours = false; $('#agendaBtn').disabled = false; });
+}
+function rangerAgenda(j){
+  var n = {ajoutes:0, changes:0, retires:0, deja:0, fige:0}, c = {}, t0 = Date.now(), vus = {}, fins = {}, encs = {};
+  var memo = D.agenda || {}, rdv = (j && Array.isArray(j.rdv)) ? j.rdv : [];
+  var de = String(j && j.de || ''), a = String(j && j.a || '');
+  rdv.forEach(function(r){
+    if(!r || !/^g[a-z0-9_]+$/.test(String(r.k || '')) || !/^\d{4}-\d\d-\d\d$/.test(String(r.date || ''))) return;
+    var k = r.k, heure = /^\d\d:\d\d$/.test(r.heure || '') ? r.heure : '', titre = String(r.titre || '').slice(0, 200) || '(Sans titre)';
+    vus[k] = true;
+    var m = memo[k];
+    if(m){
+      var id = m.t, t = id && D.t[id];
+      if(!t){ n.deja++; return; } // cochée ou supprimée à la main : ne revient pas
+      if(verrou(t.liste)){ n.fige++; return; }
+      var ch = false;
+      if(titre !== String(m.titre || '')){ c['t/' + id + '/texte'] = titre; ch = true; }
+      if(heure !== String(m.heure || '')){ c['t/' + id + '/heure'] = heure || null; ch = true; }
+      if(ch){ c['agenda/' + k + '/titre'] = titre; c['agenda/' + k + '/heure'] = heure || null; c['agenda/' + k + '/at'] = t0; n.changes++; }
+      else n.deja++;
+      return;
+    }
+    var Lj = listeDuJourN(Number(r.jour)); if(!Lj) return;
+    if(verrou(Lj.id)){ n.fige++; return; }
+    if(!encs[Lj.id]) encs[Lj.id] = encartsDe(Lj.id);
+    if(!encs[Lj.id].rdv){ encs[Lj.id].rdv = true; c['listes/' + Lj.id + '/encarts'] = encs[Lj.id]; } // l'encart revient pour l'accueillir
+    var kf = Lj.id + '#rdv';
+    if(fins[kf] == null){ var f = enfants(Lj.id, '', 'rdv'), der = f[f.length - 1]; fins[kf] = der ? Number(D.t[der].ordre) || 0 : 0; }
+    fins[kf] += 1;
+    var nid = nouvelId(), tache = {liste:Lj.id, parent:'', encart:'rdv', ordre:fins[kf], texte:titre, origine:'g:' + k, by:qui(), at:t0};
+    if(heure) tache.heure = heure;
+    c['t/' + nid] = tache;
+    c['agenda/' + k] = {t:nid, date:r.date, titre:titre, heure:heure || null, at:t0};
+    n.ajoutes++;
+  });
+  // Annulés dans l'agenda : posés pour un jour de la fenêtre lue, plus renvoyés.
+  if(de && a) Object.keys(memo).forEach(function(k){
+    var m = memo[k]; if(!m || vus[k] || !(m.date >= de && m.date < a)) return;
+    var id = m.t, t = id && D.t[id];
+    if(t && !verrou(t.liste)){
+      var ids = [id].concat(descendants(id)), rec = {at:t0, by:qui(), liste:t.liste, texte:String(t.texte || ''), supprime:true, t:{}};
+      ids.forEach(function(x){ rec.t[x] = copie(D.t[x]); c['t/' + x] = null; });
+      c['faites/' + id] = rec;
+      n.retires++;
+    } else if(t){ n.fige++; return; }
+    c['agenda/' + k] = null;
+  });
+  // Mémoire : on oublie les rendez-vous passés depuis plus de 8 jours.
+  var vieux = dateLocale(new Date(Date.now() - 8 * 864e5));
+  Object.keys(memo).forEach(function(k){ var m = memo[k]; if(m && m.date && m.date < vieux && !vus[k]) c['agenda/' + k] = null; });
+  ecrire(c);
+  return n;
 }
 function listeDuJour(){
   var j = (new Date().getDay() + 6) % 7;
@@ -1119,7 +1207,7 @@ function rendre(force){
   majStatut();
   var msg = $('#message');
   if(refuse){ msg.textContent = refuse; msg.hidden = false; } else msg.hidden = true;
-  $('#avatar').hidden = !compte;
+  $('#avatar').hidden = !compte; $('#agendaBtn').hidden = !compte;
   $('#nomFerme').textContent = reglages().nom || 'Aurore Task';
   if(compte){
     var moi = personne(qui()), av = $('#avatar');
@@ -1684,6 +1772,7 @@ document.addEventListener('click', function(e){
   else if(a === 'compte'){ ouvrirCompte(); }
   else if(a === 'reglages'){ ouvrirReglages(); }
   else if(a === 'repartir'){ repartirAstreintes(); }
+  else if(a === 'agenda'){ majAgenda(); }
   else if(a === 'lu'){ marquerLu(); }
 });
 document.addEventListener('change', function(e){
