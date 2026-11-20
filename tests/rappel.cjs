@@ -265,7 +265,7 @@ function serveurSite(mod) {
   verifie(await A.evaluate(() => document.querySelector('.pil.on').textContent === JOURS[(new Date().getDay() + 6) % 7]), 'la liste du jour est à l\'écran');
   await B.reload(); await attendreQue(() => B.evaluate(() => document.querySelector('#statut').textContent.includes('Partagé')));
   await pause(500);
-  verifie(await B.evaluate(() => !document.querySelector('#rappelLu').hidden) === ((new Date().getHours() * 60 + new Date().getMinutes()) >= 6 * 60 + 45), 'chez Aurore : bandeau selon son heure à elle (6 h 45), indépendant de la lecture de François');
+  verifie(await B.evaluate(() => !document.querySelector('#rappelLu').hidden === ((new Date().getHours() * 60 + new Date().getMinutes()) >= 6 * 60 + 45)), 'chez Aurore : bandeau selon son heure à elle (6 h 45), indépendant de la lecture de François');
   await A.reload(); await attendreQue(() => A.evaluate(() => document.querySelector('#statut').textContent.includes('Partagé')));
   await pause(500);
   verifie(await A.locator('#rappelLu').isHidden(), 'après rechargement : toujours lu aujourd\'hui, pas de bandeau');
@@ -276,7 +276,7 @@ function serveurSite(mod) {
   await A.waitForSelector('#reglDlg[open] #rapTel');
   // Chromium sans écran refuse toujours les notifications : c'est le cas « refusées » ; on simule ensuite « pas encore demandé ».
   const refusees = await A.$eval('#rapTel', (x) => x.textContent);
-  verifie(await A.evaluate(() => Notification.permission) !== 'denied' || /refusées pour Aurore Task.*réglages du téléphone/.test(refusees), 'notifications refusées sur le téléphone : explique où les autoriser');
+  verifie(await A.evaluate(() => Notification.permission) !== 'denied' || /refusées pour Farm tasks.*réglages du téléphone/.test(refusees), 'notifications refusées sur le téléphone : explique où les autoriser');
   await A.evaluate(() => {
     Object.defineProperty(Notification, 'permission', { get: () => 'default', configurable: true });
     Notification.requestPermission = () => Promise.resolve('granted');

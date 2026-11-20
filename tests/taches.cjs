@@ -81,14 +81,16 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   // ---------- Fichiers : page, manifeste, icônes, service, règle ----------
   const html = fs.readFileSync(path.join(RACINE, 'index.html'), 'utf8');
   const man = JSON.parse(fs.readFileSync(path.join(RACINE, 'manifest.webmanifest'), 'utf8'));
-  verifie(man.name === 'Aurore Task' && man.short_name === 'Aurore Task' && man.display === 'standalone' && man.start_url === './' && man.id === './' && man.scope === './', 'manifeste : « Aurore Task », plein écran, tout le site (adresse à part du Cumul)');
+  verifie(man.name === 'Farm tasks' && man.short_name === 'Farm tasks' && man.display === 'standalone' && man.start_url === './' && man.id === './' && man.scope === './', 'manifeste : « Farm tasks », plein écran, tout le site (adresse à part du Cumul)');
+  verifie(/<title>Farm tasks<\/title>/.test(html) && /apple-mobile-web-app-title" content="Farm tasks"/.test(html) && /class="menu-nom">Farm tasks</.test(html) && /d\.titre \|\| 'Farm tasks'/.test(fs.readFileSync(path.join(RACINE, 'sw.js'), 'utf8')), 'nom affiché « Farm tasks » : onglet, écran d\'accueil de l\'iPhone, menu de gauche, notification par défaut');
+  verifie(!/Aurore/.test(html) && !/Aurore/.test(JSON.stringify(man)), 'plus aucun « Aurore » dans la page ni dans le manifeste (nom d\'appli valable pour toute ferme)');
   verifie(man.icons.length === 3 && man.icons.every((i) => fs.existsSync(path.join(RACINE, i.src))) && man.icons.some((i) => i.purpose === 'maskable'), 'icônes de l\'appli présentes (dont l\'icône « maskable » d\'Android)');
   verifie(/rel="manifest" href="manifest\.webmanifest"/.test(html) && /apple-touch-icon" href="icons\/taches-180\.png"/.test(html) && fs.existsSync(path.join(RACINE, 'icons/taches-180.png')), 'la page déclare son manifeste et son icône pour l\'iPhone');
   const sw = fs.readFileSync(path.join(RACINE, 'sw.js'), 'utf8');
   verifie(/'\.\/index\.html'/.test(sw) && /register\('sw\.js'\)/.test(html), 'le service hors ligne garde la page des tâches');
   // La règle « taches » de la base est dans le dépôt liste-recolte (docs/regles-base/fermees.json) : la base est commune.
   verifie(!/fonts\.googleapis|fonts\.gstatic|https?:\/\/(?!localhost)/.test(html.replace(/https:\/\/(identitytoolkit|securetoken)\.googleapis\.com\/v1/g, '').replace("'https://liste-recolte.pages.dev/cle-web.js'", '')), 'aucune ressource chargée depuis un autre site (sauf la clé web, reprise du site du Cumul)');
-  verifie(!/Champ de l'Aurore|Tronget|François|Aurore'|Martin/.test(html.replace(/Aurore Task/g, '')), 'rien de propre à la ferme dans le code (ni prénom ni nom de ferme)');
+  verifie(!/Champ de l'Aurore|Tronget|François|Aurore'|Martin/.test(html), 'rien de propre à la ferme dans le code (ni prénom ni nom de ferme)');
 
   const navigateur = await chromium.launch();
   const tel = devices['Pixel 5'];
@@ -518,7 +520,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const sw2 = await A.evaluate(async () => { const r = await navigator.serviceWorker.ready; return !!(r && r.active); });
   verifie(sw2, 'service hors ligne actif sur la page des tâches (condition pour l\'installer comme une appli)');
   const manifeste = await A.evaluate(async () => { const l = document.querySelector('link[rel="manifest"]'); return fetch(l.href).then((r) => r.json()); });
-  verifie(manifeste.name === 'Aurore Task', 'manifeste servi avec la page');
+  verifie(manifeste.name === 'Farm tasks', 'manifeste servi avec la page');
 
   // ---------- Charte d'origine ----------
   const charte = await A.evaluate(() => {

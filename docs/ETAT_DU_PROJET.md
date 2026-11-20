@@ -1,9 +1,10 @@
-# État du projet : Aurore Task
+# État du projet : Farm tasks (ex-Aurore Task)
 
 ## Où on en est
 
 *Au 20 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 au 20/11.*
 
+- **L'appli s'appelle « Farm tasks » (20/11)**, demande de François (« renomme l'app Aurore Task en Farm tasks ») : onglet du navigateur, menu de gauche, nom sous l'icône (manifeste, et iPhone), notification par défaut, textes des Réglages. **Inchangés** : l'adresse https://aurore-task.pages.dev, le dépôt `aurore-task`, le projet Cloudflare (les changer demande le « vas-y » de François et casserait les icônes installées), le nom de la ferme en haut de l'écran (réglage de la base), les données. Vérifié : `tests/taches.cjs` (nom à chaque endroit, plus aucun « Aurore » dans la page ni le manifeste). Icône déjà installée : sur Android et l'ordinateur, Chrome reprend en principe le nouveau nom tout seul dans les jours qui suivent (il peut demander d'accepter) ; sur iPhone, il faut supprimer l'icône et la rajouter. **Non vérifié** : de vrais appareils.
 - **Ordinateur : sept listes entières sur un écran de 1920 px (20/11)** : menu de gauche resserré (152 px), listes de 240 px (largeur calculée sur l'écran, entre 230 et 300 px), texte des tâches inchangé (10,5 px) ; sur 1600 px, six listes entières et on tire pour la suite ; téléphone inchangé. Aucun ascenseur de côté dans les listes (corrigé le soir même après la capture de François), l'ascenseur vertical reste. Vérifié : `tests/taches.cjs`. **Non vérifié** : le vrai écran de François.
 - **Couleur du texte : le bleu remplace le gris (20/11)** ; les tâches déjà grises restent grises (rien de modifié dans la base). Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.
 - **Téléphone : le menu « ⋯ » d'une tâche tient dans l'écran (20/11)**, « Fermer » compris, sans défiler, même pour une astreinte en RDV sur un écran de 360×640 : titres à gauche des boutons, actions sur deux colonnes, marges resserrées ; ordinateur inchangé. Vérifié : `tests/menu-tache.cjs`. **Non vérifié** : de vrais téléphones.
