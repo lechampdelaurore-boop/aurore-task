@@ -41,9 +41,11 @@ Née le 18/11/2026 dans le dépôt `liste-recolte` (le Cumul), sortie dans ce d�
 - Garder les gestes de Google Tasks (cahier des charges, partie 3) : si une nouveauté les gêne, les gestes gagnent.
 - Charte **d'origine** du module d'irrigation (demande de François du 18/11) ; trois polices hébergées dans `polices/` (licence OFL), jamais chargées d'un autre site.
 - Après toute modification de `index.html`, `config.js`, des icônes ou de `referentiel/` : changer `CACHE` dans `sw.js`.
-- Lancer `node tests/taches.cjs`, `node tests/taches-encarts.cjs` `node tests/taches-astreintes.cjs`, `node tests/menu-tache.cjs` et `node tests/rappel.cjs` avant d'ouvrir la PR et coller la sortie réelle dans la PR. Un contrôle omis l'est avec sa raison.
+- Lancer `node tests/taches.cjs`, `node tests/taches-encarts.cjs` `node tests/taches-astreintes.cjs`, `node tests/menu-tache.cjs`, `node tests/rappel.cjs` et `node tests/agenda.cjs` avant d'ouvrir la PR et coller la sortie réelle dans la PR. Un contrôle omis l'est avec sa raison.
 - Textes en français, phrases courtes, gros éléments tactiles.
 - Rappel du matin (étape 45, 19/11/2026) : réglages `taches/rappels/<personne>`, lecture `taches/lu/<personne>/<date>`, téléphones `taches/abonnements/<personne>/<n°>`. Envoi par `functions/rappel/[[chemin]].js` (un seul fichier, sans dépendance ni import), réveillé par `cloudflare/horloge-rappel.js` ; compte `rappel` (profil `rappel`) ; secret `RAPPEL_MDP` saisi par François dans Cloudflare, jamais dans le dépôt ni dans un fichier `.dev.vars`. Les clés d'envoi sont sous `rappel/vapid` dans la base : ne jamais les lire, les afficher ni les recopier. Mise en service : `docs/PAS_A_PAS_RAPPEL.md`.
+
+- Google Agenda (étape 36D, 20/11/2026) : `functions/agenda/[[chemin]].js` (un seul fichier, sans dépendance) lit l'adresse secrète iCal du secret Cloudflare `AGENDA_ICAL`, saisi par François seul, jamais dans le dépôt ni dans un fichier `.dev.vars`, jamais affiché ni renvoyé par le programme. L'appli range (`rangerAgenda`) ; mémoire `taches/agenda/<clé>`. Test : `node tests/agenda.cjs`. Mise en service : `docs/PAS_A_PAS_AGENDA.md`.
 
 ## Accord de François nécessaire
 

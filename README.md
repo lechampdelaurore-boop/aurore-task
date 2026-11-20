@@ -23,7 +23,8 @@ Les listes de tâches partagées de la ferme, sur le téléphone et l'ordinateur
 | `referentiel/taches-depart.json` | Réglages de départ propres à une ferme (nom, personnes, encarts), lus tant que la base n'a pas les siens. |
 | `functions/rappel/` | Programme du rappel du matin (notifications), servi sous `/rappel/…`. |
 | `cloudflare/horloge-rappel.js` | Horloge Cloudflare qui réveille ce programme toutes les 5 minutes. |
-| `tests/` | Essais automatiques (navigateur simulé, faux Firebase) : `node tests/taches.cjs`, `node tests/taches-encarts.cjs`, `node tests/taches-astreintes.cjs`, `node tests/rappel.cjs`. |
+| `functions/agenda/` | Lecture de Google Agenda (adresse secrète iCal, réglage `AGENDA_ICAL`), servie sous `/agenda/…`. |
+| `tests/` | Essais automatiques (navigateur simulé, faux Firebase) : `node tests/taches.cjs`, `node tests/taches-encarts.cjs`, `node tests/taches-astreintes.cjs`, `node tests/rappel.cjs`, `node tests/agenda.cjs`. |
 | `docs/` | Cahier des charges, registres, pas-à-pas. |
 
 Pour une autre ferme : remplacer `referentiel/taches-depart.json`, `config.js` et `cle-web.js`, et publier la règle `taches` de sa base (modèle dans le dépôt `liste-recolte`, `docs/regles-base/fermees.json`).
