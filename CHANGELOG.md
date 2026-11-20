@@ -2,6 +2,8 @@
 
 ## 2026-11-20
 
+- **Couleur du texte : le bleu remplace le gris** (demande de François du 20/11). Le sixième choix du menu « ⋯ » d'une tâche est maintenant le bleu (`#1a5fb4`, enregistré « bleu »). Les tâches déjà mises en gris ne sont pas modifiées dans la base : elles restent affichées en gris, sans choix allumé dans le menu ; un toucher sur une couleur les change. CACHE `aurore-task-v14`. Test `tests/taches-encarts.cjs` (4 vérifications). **Non vérifié** : de vrais appareils.
+
 - **Téléphone : le menu « ⋯ » d'une tâche tient dans l'écran** (demande de François du 20/11 : « on est obligé de scroller pour valider »). Mesuré avant sur un écran de 360×640 : le menu dépassait de 226 px pour une tâche en RDV et de 364 px pour une astreinte en RDV ; « Fermer » était hors de l'écran. Sur le téléphone seulement : titre « Tâche » masqué (le texte de la tâche suffit), case du texte d'une ligne qui grandit avec le texte, titres (« Pour qui ? », « Zone », « Jours », « Heure du rendez-vous », « Couleur du texte ») à gauche de leurs boutons, les cinq actions sur deux colonnes, marges resserrées, menu jusqu'en haut de l'écran si besoin. Boutons d'au moins 40 px de haut. Si un texte très long fait quand même dépasser le menu, « Supprimer » et « Fermer » restent collés en bas, visibles. Ordinateur inchangé. CACHE `aurore-task-v13`. Nouveau test `tests/menu-tache.cjs` (360×640, 375×667, Pixel 5 et ordinateur). Captures : `/mnt/project-files/menu-tache-telephone/`. **Non vérifié** : de vrais téléphones.
 
 ## 2026-11-19

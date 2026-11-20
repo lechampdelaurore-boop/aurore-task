@@ -4,6 +4,7 @@
 
 *Au 20 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 au 20/11.*
 
+- **Couleur du texte : le bleu remplace le gris (20/11)** ; les tâches déjà grises restent grises (rien de modifié dans la base). Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.
 - **Téléphone : le menu « ⋯ » d'une tâche tient dans l'écran (20/11)**, « Fermer » compris, sans défiler, même pour une astreinte en RDV sur un écran de 360×640 : titres à gauche des boutons, actions sur deux colonnes, marges resserrées ; ordinateur inchangé. Vérifié : `tests/menu-tache.cjs`. **Non vérifié** : de vrais téléphones.
 - **Téléphone : tâches à la taille de Google Tasks (19/11)** : 16 px, graisse normale, lignes de 24 px, saisie identique. Vérifié : `tests/taches.cjs`. **Non vérifié** : de vrais téléphones.
 - **Liste verrouillée : contour gris en pointillés (19/11)**, en plus du cadenas et de la mention. Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.

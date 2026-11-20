@@ -132,6 +132,17 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await A.click('#tacheDlg [data-coul="rouge"]');
   await fermer();
   verifie(await attendreQue(() => parTexte(base, 'Désherber carottes')[1].pour === 'aurore' && parTexte(base, 'Désherber carottes')[1].couleur === 'rouge'), 'pour Aurore, texte rouge : dans la base');
+  // Couleurs proposées : le gris remplacé par le bleu (demande du 20/11) ; une tâche déjà grise reste affichée en gris.
+  verifie(await A.evaluate(() => { const b = Array.from(document.querySelectorAll('#tacheDlg [data-coul]')); return b.length === 6 && b.map((x) => x.getAttribute('aria-label')).join(',') === 'Noir,Rouge,Orange,Vert,Violet,Bleu' && !document.querySelector('#tacheDlg [data-coul="gris"]') && getComputedStyle(document.querySelector('#tacheDlg [data-coul="bleu"]')).color === 'rgb(26, 95, 180)'; }), 'couleurs du texte : six choix, le dernier est le bleu (plus de gris)');
+  const tx = async () => A.evaluate((id) => getComputedStyle(document.querySelector(`li.t[data-id="${id}"] .tx`)).color, parTexte(base, 'Désherber carottes')[0]);
+  await menu('Désherber carottes'); await A.click('#tacheDlg [data-coul="bleu"]'); await fermer();
+  verifie(await attendreQue(() => parTexte(base, 'Désherber carottes')[1].couleur === 'bleu') && await tx() === 'rgb(26, 95, 180)', 'texte bleu : « bleu » dans la base, affiché en bleu');
+  await A.evaluate((id) => changerTache(id, 'couleur', 'gris'), parTexte(base, 'Désherber carottes')[0]);
+  verifie(await attendreQue(() => parTexte(base, 'Désherber carottes')[1].couleur === 'gris') && await attendreQue(async () => await tx() === 'rgb(95, 95, 95)'), 'tâche déjà en gris (avant le 20/11) : toujours affichée en gris');
+  await menu('Désherber carottes');
+  verifie(await A.evaluate(() => !document.querySelector('#tacheDlg [data-coul][aria-pressed="true"]')), 'tâche grise : aucun choix allumé dans le menu, un toucher la passe dans une autre couleur');
+  await A.click('#tacheDlg [data-coul="rouge"]'); await fermer();
+  await attendreQue(() => parTexte(base, 'Désherber carottes')[1].couleur === 'rouge');
   verifie(await A.evaluate((s) => { const li = document.querySelector(s); const p = li.querySelector('.pastille'); return p && p.textContent === 'A' && getComputedStyle(p).borderRadius === '50%' && getComputedStyle(p).backgroundColor === 'rgb(251, 227, 239)' && getComputedStyle(li.querySelector('.tx')).color === 'rgb(176, 42, 55)'; }, `li.t[data-id="${parTexte(base, 'Désherber carottes')[0]}"]`), 'pastille ronde « A » rose à droite, texte en rouge');
 
   await menu('Commander terreau');
