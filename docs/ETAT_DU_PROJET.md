@@ -2,8 +2,9 @@
 
 ## Où on en est
 
-*Au 19 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 et du 19/11.*
+*Au 20 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 au 20/11.*
 
+- **Téléphone : le menu « ⋯ » d'une tâche tient dans l'écran (20/11)**, « Fermer » compris, sans défiler, même pour une astreinte en RDV sur un écran de 360×640 : titres à gauche des boutons, actions sur deux colonnes, marges resserrées ; ordinateur inchangé. Vérifié : `tests/menu-tache.cjs`. **Non vérifié** : de vrais téléphones.
 - **Téléphone : tâches à la taille de Google Tasks (19/11)** : 16 px, graisse normale, lignes de 24 px, saisie identique. Vérifié : `tests/taches.cjs`. **Non vérifié** : de vrais téléphones.
 - **Liste verrouillée : contour gris en pointillés (19/11)**, en plus du cadenas et de la mention. Vérifié : `tests/taches-encarts.cjs`. **Non vérifié** : de vrais appareils.
 - **Ordinateur : tâches à la taille de Google Tasks (19/11)** : 10,5 px, graisse normale, lignes de 16 px, case de 14 px, mesuré sur les captures de François ; téléphone inchangé. Vérifié : `tests/taches.cjs`. **Non vérifié** : un vrai ordinateur.
