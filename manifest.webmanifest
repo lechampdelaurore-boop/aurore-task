@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "Aurore Task",
-  "short_name": "Aurore Task",
+  "name": "Farm tasks",
+  "short_name": "Farm tasks",
   "description": "Les listes de tâches de la ferme, partagées entre les téléphones et l'ordinateur.",
   "lang": "fr",
   "start_url": "./",

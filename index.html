@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aurore Task</title>
+<title>Farm tasks</title>
 <meta name="description" content="Les listes de tâches de la ferme, partagées entre les téléphones et l'ordinateur.">
 <meta name="theme-color" content="#373737">
 <meta name="color-scheme" content="only light">
 <meta name="robots" content="noindex">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Aurore Task">
+<meta name="apple-mobile-web-app-title" content="Farm tasks">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/taches.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/taches-180.png">
 <style>
-/* Aurore Task (étape 36A, 18/11/2026). Charte D'ORIGINE du module d'irrigation d'Ouvre ta ferme (demande du 18/11, 21 h 37 :
+/* Farm tasks (étape 36A, 18/11/2026). Charte D'ORIGINE du module d'irrigation d'Ouvre ta ferme (demande du 18/11, 21 h 37 :
    pas la version ajustée pour le cumul) : feuille #f8f8f8, blocs blancs sans bordure avec ombre douce,
    texte #111, secondaire #5f5f5f, filets #ddd, vert #0b694d, rayons 9,75 px (blocs) et 14,6 px (boutons) ; titres
    Bricolage Grotesque 300, interface DM Sans 500, texte Open Sans ; icônes au trait 1,7 px ; pas de bleu sur un bouton ;
@@ -332,7 +332,7 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 <body>
 <header class="barre">
   <div class="barre-in">
-    <span class="barre-nom" id="nomFerme">Aurore Task</span>
+    <span class="barre-nom" id="nomFerme">Farm tasks</span>
     <span class="statut" id="statut" role="status"><i></i><span>Connexion…</span></span>
     <button class="barre-btn" id="agendaBtn" type="button" data-a="agenda" aria-label="Mettre à jour les rendez-vous de l'agenda" title="Mettre à jour les rendez-vous de l'agenda" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></button>
     <button class="avatar" id="avatar" type="button" aria-label="Compte" hidden></button>
@@ -341,7 +341,7 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 
 <div class="app">
   <nav class="menu" aria-label="Menu">
-    <div class="menu-nom">Aurore Task</div>
+    <div class="menu-nom">Farm tasks</div>
     <button class="nav on" type="button" data-a="planning">Planning</button>
     <button class="nav" type="button" data-a="aller-astreintes">Astreintes</button>
     <button class="nav" type="button" data-a="reglages">Réglages</button>
@@ -451,7 +451,7 @@ if (!String(window.RECOLTE_CLE_WEB || '').trim()) document.write('<script src="'
 <script>
 'use strict';
 /* ==========================================================================================================
-   Aurore Task : les listes de tâches de la ferme (remplace Google Tasks). Cahier des charges :
+   Farm tasks : les listes de tâches de la ferme (remplace Google Tasks). Cahier des charges :
    docs/CAHIER_DES_CHARGES_AURORE_TASK.md. Étapes 36A (le socle), 36B (encarts, personnes, verrou, Réglages) et 36C (astreintes).
    Outil à part depuis le 19/11/2026 (son dépôt, son adresse), né dans le dépôt liste-recolte (le Cumul) : même base
    Firebase et mêmes comptes que le Cumul, mais connexion gardée à part sur l'appareil (clé taches.compte). Page autonome,
@@ -966,7 +966,7 @@ function renouveler(){
 }
 function jetonFrais(){
   if(!compte) return Promise.reject(new Error('compte'));
-  // Un autre onglet d'Aurore Task a peut-être déjà renouvelé le jeton : on reprend le plus récent.
+  // Un autre onglet de Farm tasks a peut-être déjà renouvelé le jeton : on reprend le plus récent.
   var c2 = ls('taches.compte');
   if(c2 && c2.uid === compte.uid && c2.fin > compte.fin){ compte = c2; }
   if(compte.fin - Date.now() > 5 * 60 * 1000) return Promise.resolve(false);
@@ -1213,7 +1213,7 @@ function rendre(force){
   var msg = $('#message');
   if(refuse){ msg.textContent = refuse; msg.hidden = false; } else msg.hidden = true;
   $('#avatar').hidden = !compte; $('#agendaBtn').hidden = !compte;
-  $('#nomFerme').textContent = reglages().nom || 'Aurore Task';
+  $('#nomFerme').textContent = reglages().nom || 'Farm tasks';
   if(compte){
     var moi = personne(qui()), av = $('#avatar');
     av.textContent = moi ? moi.initiale : qui().slice(0, 1).toUpperCase(); av.setAttribute('aria-label', 'Compte : ' + (moi ? moi.nom : qui()));
@@ -1677,7 +1677,7 @@ $('#reglRap').addEventListener('change', function(e){
   if(e.target.id === 'rapActif'){ var c = $('#rapChamps'); if(e.target.checked) c.removeAttribute('aria-disabled'); else c.setAttribute('aria-disabled', 'true'); }
 });
 
-// Ce téléphone : notification « Web Push » (Android, ordinateur ; iPhone seulement une fois Aurore Task ajoutée à l'écran d'accueil).
+// Ce téléphone : notification « Web Push » (Android, ordinateur ; iPhone seulement une fois Farm tasks ajoutée à l'écran d'accueil).
 var telAbo = null, telMsg = '';
 function pushPossible(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
 function iPhone(){ return /iPhone|iPad|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
@@ -1686,8 +1686,8 @@ function aboEnregistre(){ var a = telAbo && ((D.abonnements || {})[qui()] || {})
 function majTelephone(){
   var b = $('#rapTel'); if(!b) return;
   var h = '';
-  if(!pushPossible()) h = '<p>Ce ' + (iPhone() ? 'iPhone' : 'navigateur') + ' ne reçoit pas encore les notifications d\'Aurore Task.' + (iPhone() ? ' Sur iPhone, il faut d\'abord l\'ajouter à l\'écran d\'accueil (Partager, puis « Sur l\'écran d\'accueil »), puis l\'ouvrir depuis son icône et revenir ici.' : '') + '</p>';
-  else if(Notification.permission === 'denied') h = '<p>Les notifications sont refusées pour Aurore Task sur ce téléphone. Les autoriser dans les réglages du téléphone (Notifications), puis revenir ici.</p>';
+  if(!pushPossible()) h = '<p>Ce ' + (iPhone() ? 'iPhone' : 'navigateur') + ' ne reçoit pas encore les notifications de Farm tasks.' + (iPhone() ? ' Sur iPhone, il faut d\'abord l\'ajouter à l\'écran d\'accueil (Partager, puis « Sur l\'écran d\'accueil »), puis l\'ouvrir depuis son icône et revenir ici.' : '') + '</p>';
+  else if(Notification.permission === 'denied') h = '<p>Les notifications sont refusées pour Farm tasks sur ce téléphone. Les autoriser dans les réglages du téléphone (Notifications), puis revenir ici.</p>';
   else if(aboEnregistre()) h = '<p>Ce téléphone reçoit le rappel.</p><div class="btns"><button type="button" class="btn outil" id="rapEssai">Envoyer un essai</button><button type="button" class="btn outil" id="rapRetirer">Ne plus recevoir ici</button></div>';
   else h = '<p>Ce téléphone ne reçoit pas encore le rappel.</p><div class="btns"><button type="button" class="btn principal" id="rapAbonner">Recevoir sur ce téléphone</button></div>';
   if(telMsg) h += '<p role="status">' + esc(telMsg) + '</p>';

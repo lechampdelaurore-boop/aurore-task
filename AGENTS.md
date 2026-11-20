@@ -1,6 +1,6 @@
 # Consignes pour les agents IA
 
-**Aurore Task** : les listes de tâches partagées de la ferme (remplace Google Tasks), du Champ de l'Aurore (GAEC, Tronget, Allier), utilisées par François, Aurore et Martin. Appli web statique, hébergée sur Cloudflare Pages (déploie depuis `main`), à son adresse à elle. Cahier des charges : `docs/CAHIER_DES_CHARGES_AURORE_TASK.md`.
+**Farm tasks** (nom affiché depuis le 20/11/2026, anciennement « Aurore Task » ; l'adresse `aurore-task.pages.dev`, le dépôt `aurore-task` et le projet Cloudflare gardent l'ancien nom) : les listes de tâches partagées de la ferme (remplace Google Tasks), du Champ de l'Aurore (GAEC, Tronget, Allier), utilisées par François, Aurore et Martin. Appli web statique, hébergée sur Cloudflare Pages (déploie depuis `main`), à son adresse à elle. Cahier des charges : `docs/CAHIER_DES_CHARGES_AURORE_TASK.md`.
 
 Née le 18/11/2026 dans le dépôt `liste-recolte` (le Cumul), sortie dans ce dépôt le 19/11/2026. **Règle de François : un outil, un dépôt, une adresse.** Ne jamais ajouter un autre outil ici, ni remettre Aurore Task dans un autre dépôt.
 

@@ -76,7 +76,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(depart.nom && ['francois', 'aurore', 'martin'].every((k) => depart.personnes[k] && depart.personnes[k].nom && depart.personnes[k].initiale) && depart.personnes.aurore.couleur === 'rose' && depart.personnes.martin.couleur === 'bleu' && depart.personnes.francois.couleur === 'rouge', 'fichier de départ : nom de la ferme, trois personnes (Aurore rose, Martin bleu, François rouge)');
   verifie(depart.encarts && depart.encarts.rdv === 'RDV' && depart.encarts.p1 === 'P1' && depart.encarts.p2 === 'P2', 'fichier de départ : noms des encarts RDV, P1, P2');
   const html = fs.readFileSync(path.join(RACINE, 'index.html'), 'utf8');
-  verifie(!/Champ de l'Aurore|Tronget|François|Aurore'|Martin/.test(html.replace(/Aurore Task/g, '')), 'rien de propre à la ferme dans le code (prénoms et nom lus dans le fichier de départ)');
+  verifie(!/Champ de l'Aurore|Tronget|François|Aurore'|Martin/.test(html), 'rien de propre à la ferme dans le code (prénoms et nom lus dans le fichier de départ)');
   verifie(/taches-depart\.json/.test(fs.readFileSync(path.join(RACINE, 'sw.js'), 'utf8')), 'le fichier de départ est gardé pour le mode hors ligne');
 
   const navigateur = await chromium.launch();
