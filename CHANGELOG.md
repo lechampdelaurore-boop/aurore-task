@@ -2,6 +2,8 @@
 
 ## 2026-11-21
 
+- **Encarts : l'étiquette devient un bandeau** (demande de François du 21/11, capture à l'appui ; variante A de la maquette validée : « OK pour la variante A »). Sur le téléphone et l'ordinateur, l'étiquette RDV, P1, P2 (ou le nom donné dans les Réglages) s'étire vers la droite jusqu'à 8 px avant le « + » de l'encart, dans sa couleur pâle ; un peu plus haute (27 px au lieu de 21), comme sur la maquette ; un nom trop long se coupe avec « … ». Liste verrouillée (pas de « + ») : le bandeau va jusqu'au bord. Rien d'autre ne change. CACHE `aurore-task-v20`. `tests/taches-encarts.cjs` : 2 vérifications ajoutées (téléphone et ordinateur). **Non vérifié** : de vrais appareils.
+
 - **Nouveau logo** (choix de François : le presse-papier sur ciel orangé) : `icons/taches.svg` (onglet du navigateur), `icons/taches-192.png` et `icons/taches-512.png` (installation, notifications), `icons/taches-maskable-512.png` (dessin réduit pour la découpe ronde d'Android), `icons/taches-180.png` (iPhone). CACHE `aurore-task-v19`. Aucun autre changement.
 
 ## 2026-11-20
