@@ -2,7 +2,7 @@
 
 ## 2026-11-21
 
-- **Contrat de l'impression des listes** (étape 52, demande de François du 21/11 ; `docs/CONTRAT_IMPRESSION.md`, maquette d'exemple dans les fichiers du projet). Documentation seulement, **aucun code** : proposition d'un bouton « Imprimer… » qui fabrique une page d'impression complète (sans ascenseur) depuis la copie locale, hors ligne ; quatre points à confirmer par François.
+- **Contrat de l'impression des listes** (étape 52, demande de François du 21/11 ; `docs/CONTRAT_IMPRESSION.md`, maquette d'exemple dans les fichiers du projet). Documentation seulement, **aucun code** : proposition d'un bouton « Imprimer… » qui fabrique une page d'impression complète (sans ascenseur) depuis la copie locale, hors ligne ; quatre points confirmés par François.
 
 - **La couleur d'une tâche passe à ses sous-tâches** (étape 50, demande de François du 21/11 ; contrat `docs/CONTRAT_COULEUR_SOUS_TACHES.md`, cinq points confirmés). Dans le menu « ⋯ » d'une tâche, choisir la couleur du texte colore aussi, en une seule écriture groupée, les sous-tâches et sous-sous-tâches qui avaient la même couleur que leur mère directe ; on s'arrête à une sous-tâche colorée à la main (elle et ses propres sous-tâches gardent leur couleur). « Noir » se propage comme une couleur (champ vidé comme avant) ; un ancien gris compte comme une couleur ; un séparateur est sauté sans couper la descente ; la même couleur rechoisie n'écrit rien. Une nouvelle sous-tâche prend la couleur de sa mère à sa création (Entrée enchaînée comprise : la mère, pas la sœur). Un déplacement ne change aucune couleur. Aucune migration. Fonction `colorerTache` et `creer` dans `index.html`. CACHE `aurore-task-v23`. Nouveau test `tests/couleur-sous-taches.cjs`. **Non vérifié** : de vrais appareils.
 

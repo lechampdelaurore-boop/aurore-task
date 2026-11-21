@@ -2,7 +2,7 @@
 
 *Étape 52 de la feuille de route. Rédigé le 21/11/2026, **avant tout code**. Demande de François (21/11) : « Je veux qu'on puisse imprimer la totalité des listes, chaque tâche visible, au cas où il y aurait un problème réseau. Certaines listes ont un ascenseur : je ne peux pas juste imprimer l'écran ou faire une capture. Il faut un outil spécifique. »*
 
-**État : proposé par Claude. Les quatre points de la partie 4 sont à confirmer par François ; chacun a une recommandation, qui s'applique tant que François n'a pas répondu autrement.**
+**État : les quatre points de la partie 4 ont été confirmés par François le 21/11/2026, tous selon la recommandation de Claude. Prêt à coder (Opus 5.5 · Élevé).**
 
 Maquette d'exemple (données inventées, autre ferme) : `maquette-impression.pdf` et `.png` dans le dossier `impression-taches/` des fichiers du projet.
 
@@ -38,12 +38,12 @@ Un bouton **« Imprimer… »** ouvre une petite fenêtre où l'on coche les lis
 
 **R11. Plusieurs fermes.** Rien de propre à une ferme : noms, encarts, couleurs, personnes viennent des données ; la maquette utilise une ferme inventée.
 
-## 4. Points à confirmer par François (une question à la fois, recommandation en tête)
+## 4. Points confirmés par François le 21/11/2026
 
-1. **Mise en page par défaut** : **A4 portrait en 2 colonnes** (recommandé : 7 jours et les autres listes tiennent en 1 à 2 pages ; paysage et gros caractères en option) ; autre choix : une liste par page (plus de papier, plus lisible).
-2. **Contenu par défaut** : **tâches à faire seulement**, cases vides, sous-tâches comprises (recommandé) ; « Faites récemment » en option, décochée.
-3. **Couleur** : **couleur par défaut**, noir et blanc en option (recommandé si l'imprimante est en couleur) ; ou noir et blanc par défaut.
-4. **Où mettre le bouton** : **Réglages → « Imprimer… »** et **« ⋯ » d'une liste → « Imprimer cette liste »** (recommandé : pas de bouton de plus dans la barre du haut) ; autre choix : une icône d'imprimante dans la barre du haut.
+1. **Confirmé.** **Mise en page par défaut** : **A4 portrait en 2 colonnes** (recommandé : 7 jours et les autres listes tiennent en 1 à 2 pages ; paysage et gros caractères en option) ; autre choix : une liste par page (plus de papier, plus lisible).
+2. **Confirmé** (« toutes les tâches notées, sauf celles déjà faites »). **Contenu par défaut** : **tâches à faire seulement**, cases vides, sous-tâches comprises (recommandé) ; « Faites récemment » en option, décochée.
+3. **Confirmé** (« couleur par défaut »). **Couleur** : **couleur par défaut**, noir et blanc en option (recommandé si l'imprimante est en couleur) ; ou noir et blanc par défaut.
+4. **Confirmé** (« dans Réglages »). **Où mettre le bouton** : **Réglages → « Imprimer… »** et **« ⋯ » d'une liste → « Imprimer cette liste »** (recommandé : pas de bouton de plus dans la barre du haut) ; autre choix : une icône d'imprimante dans la barre du haut.
 
 ## 5. Ce qui ne change pas / ce qui est écarté
 
