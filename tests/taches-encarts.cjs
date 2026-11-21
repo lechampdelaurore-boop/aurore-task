@@ -229,7 +229,11 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await A.click('#reglAjPers');
   await A.locator('#reglPers .pers-l').last().locator('.p-nom').fill('Léa');
   verifie(await A.evaluate(() => document.querySelector('#reglPers .pers-l:last-child .p-ini').value === 'L'), 'initiale remplie toute seule');
-  await A.fill('#reglEnc [data-enc="p1"]', 'Urgent');
+  // Encarts des jours (21/11) : leur propre fenêtre, ouverte depuis les Réglages, enregistrée à part.
+  await A.click('#reglEncModif'); await A.waitForSelector('#encDlg[open]');
+  await A.fill('#encLignes [data-enc="p1"]', 'Urgent');
+  await A.click('#encOk');
+  verifie(await attendreQue(() => A.evaluate(() => !document.getElementById('encDlg').open && document.getElementById('reglDlg').open && document.getElementById('reglEnc').textContent.includes('Urgent'))), 'encarts des jours enregistrés, le résumé des Réglages suit');
   await A.click('#reglForm [type="submit"]');
   verifie(await attendreQue(() => { const r = base.lire('taches/reglages'); return r && r.nom === 'Ferme de test' && r.personnes.martin.couleur === 'vert' && r.personnes.francois.nom && r.encarts.p1 === 'Urgent' && Object.values(r.personnes).some((p) => p.nom === 'Léa' && p.initiale === 'L'); }), 'Réglages enregistrés dans la base (taches/reglages)');
   verifie(await attendreQue(() => B.evaluate((L) => document.getElementById('nomFerme').textContent === 'Ferme de test' && Array.from(document.querySelectorAll(`.pan[data-l="${L}"] .etiq`)).map((x) => x.textContent).includes('Urgent') && getComputedStyle(document.getElementById('avatar')).backgroundColor === 'rgb(214, 236, 223)', LJ)), 'sur l\'autre téléphone : nouveau nom, encart « Urgent », Martin en vert');

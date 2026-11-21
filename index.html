@@ -217,9 +217,38 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 .pers-l .p-ini{width:3.2em;flex:0 0 auto;text-align:center}
 .pers-l .p-coul{flex:0 0 auto}
 .pers-l .p-suppr{flex:0 0 auto;width:40px;height:40px;border:0;border-radius:50%;background:transparent;font-size:20px;color:var(--sec)}
-.enc-l{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.enc-l span{width:3.5em;font-size:12px;color:var(--sec)}
-.enc-l input{flex:1 1 auto}
+/* Réglages des encarts (21/11) : ▲▼, nom, pastille de couleur, horloge, corbeille */
+.enc-l{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.enc-l input{flex:1 1 auto;min-height:44px}
+.enc-fl{display:flex;flex-direction:column;gap:2px;flex:0 0 auto}
+.enc-fl button{width:30px;height:21px;border:1px solid var(--filet);border-radius:6px;background:#fff;color:var(--anthracite);font-size:10px;line-height:1;padding:0}
+.enc-fl button:disabled{color:#c9c9c9;border-color:var(--filet-pale)}
+.enc-b{flex:0 0 auto;width:44px;height:44px;border:1px solid var(--filet);border-radius:var(--r-bloc);background:#fff;color:var(--sec);display:inline-flex;align-items:center;justify-content:center;padding:0}
+.enc-b svg.i{width:20px;height:20px}
+.enc-b.enc-coul{border-radius:50%}
+.enc-b.enc-coul span{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.enc-b.enc-heure{color:transparent}
+.enc-b.enc-heure[aria-pressed="true"]{border:2px solid var(--vert);background:var(--vert-pale);color:var(--vert)}
+.enc-b.enc-suppr{color:var(--rouge-txt)}
+.enc-b.enc-suppr[aria-disabled="true"]{color:#c9c9c9}
+.enc-pal{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 8px 36px}
+.enc-pal button{width:36px;height:36px;border-radius:50%;border:1px solid rgba(0,0,0,.12);padding:0}
+.enc-pal button[aria-pressed="true"]{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--vert)}
+.enc-h-ico svg.i{width:14px;height:14px;vertical-align:-2px;color:var(--vert)}
+.enc-legende{margin-top:2px}
+.enc-msg{color:var(--rouge-txt)}
+.enc-aj{width:100%;margin-top:4px}
+.enc-dest{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.enc-dest label{display:flex;align-items:center;gap:10px;min-height:48px;border:1px solid var(--filet);border-radius:var(--r-bloc);padding:0 12px;font-family:var(--f-ui);font-weight:500;font-size:14px}
+.enc-dest label:has(input:checked){border-color:var(--vert);background:var(--menu)}
+.enc-dest input{width:20px;height:20px;accent-color:var(--vert);margin:0}
+.enc-dest .etiq{margin-left:auto}
+.enc-puce{background:var(--gris);color:var(--anthracite);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+.enc-resume{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
+.enc-resume .etiq{padding:5px 10px}
+.enc-depart{margin:10px 0 0;padding:10px 12px;background:var(--gris);border-radius:var(--r-bloc);font-size:13px}
+.enc-depart button{border:0;background:none;padding:6px 2px;font:inherit;font-weight:700;color:var(--texte);text-decoration:underline;text-underline-offset:3px}
+#encDlg .enc-l input{font-size:16px}
 .champ span{font-size:11.7px;color:var(--sec)}
 .champ input:focus,.champ textarea:focus{outline:2px solid var(--vert);outline-offset:0}
 .poignee-f:focus{outline:0}
@@ -401,6 +430,14 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   <h2 id="nomTitre">Nouvelle liste</h2>
   <form id="nomForm">
     <label class="champ"><span>Nom de la liste</span><input id="nomVal" autocomplete="off" maxlength="80"></label>
+    <div id="nomEnc" hidden>
+      <h3 class="regl-h">Encarts</h3>
+      <div class="enc-dest" role="radiogroup" aria-label="Encarts de la nouvelle liste">
+        <label><input type="radio" name="nomEnc" value="aucun" checked>Aucun encart</label>
+        <label><input type="radio" name="nomEnc" value="jours">Comme les jours<span class="etiq enc-puce" id="nomEncJours"></span></label>
+        <label><input type="radio" name="nomEnc" value="miens">Les miens, je les crée ensuite</label>
+      </div>
+    </div>
     <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="submit" class="btn principal">Enregistrer</button></div>
   </form>
 </dialog>
@@ -418,6 +455,27 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="button" class="btn danger" id="confOui">Supprimer</button></div>
 </dialog>
 
+<dialog id="encDlg" class="feuille" aria-label="Encarts">
+  <div class="poignee-f"></div>
+  <h2 id="encTitre"></h2>
+  <p class="regl-aide" id="encAide"></p>
+  <div id="encLignes"></div>
+  <p class="regl-aide enc-legende" id="encLegende"></p>
+  <p class="regl-aide enc-msg" id="encMsg" role="status" hidden></p>
+  <button type="button" class="btn outil enc-aj" id="encAj">+ Ajouter un encart</button>
+  <p class="enc-depart" id="encDepart">Départ rapide : <button type="button" data-a="comme-jours">Comme les jours</button> · <button type="button" data-a="aucun-encart">Aucun encart</button></p>
+  <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="button" class="btn principal" id="encOk">Enregistrer</button></div>
+</dialog>
+
+<dialog id="encSupprDlg" class="feuille" aria-label="Supprimer un encart">
+  <div class="poignee-f"></div>
+  <h2 id="encSupprTitre"></h2>
+  <p id="encSupprTexte"></p>
+  <div class="enc-dest" id="encSupprChoix" role="radiogroup" aria-label="Où vont les tâches"></div>
+  <p class="regl-aide" id="encSupprNote"></p>
+  <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="button" class="btn danger" id="encSupprOui">Supprimer l'encart</button></div>
+</dialog>
+
 <dialog id="compteDlg">
   <h2>Compte</h2>
   <p id="compteTexte"></p>
@@ -432,8 +490,10 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
     <p class="regl-aide">Prénom, initiale de la pastille et couleur.</p>
     <div id="reglPers"></div>
     <button type="button" class="btn outil" id="reglAjPers">Ajouter une personne</button>
-    <h3 class="regl-h">Noms des encarts</h3>
-    <div id="reglEnc"></div>
+    <h3 class="regl-h">Encarts des sept jours</h3>
+    <p class="regl-aide">Le modèle des listes Lundi à Dimanche : le changer change tous les jours. Les autres listes ont leurs propres encarts (menu « ⋯ » de la liste).</p>
+    <div class="enc-resume" id="reglEnc"></div>
+    <button type="button" class="btn outil enc-aj" id="reglEncModif">Modifier les encarts des jours…</button>
     <h3 class="regl-h">Rappel du matin</h3>
     <p class="regl-aide">Chacun règle le sien. À l'heure dite, une notification montre la liste du jour ; tant que « J'ai lu ma liste » n'est pas touché, elle revient.</p>
     <div id="reglRap"></div>
@@ -479,9 +539,15 @@ var PC = window.matchMedia ? matchMedia('(min-width: 1000px)') : {matches:false}
 var SEP = /^\s*-{3,}\s*$/;
 // Étape 36B : encarts, personnes, couleur du texte, verrou. Noms des encarts, personnes et nom affiché : réglages
 // (taches/reglages), sinon le fichier de départ de la ferme (referentiel/taches-depart.json) ; rien de tout ça dans le code.
-var ENCARTS = ['rdv', 'p1', 'p2'];
+// Encarts (21/11) : la ferme en ajoute, en supprime, les renomme, les range et choisit leur couleur (Réglages).
+// taches/reglages : encarts {id: nom} (format d'origine, toujours lu), encartsInfo {id: {couleur, ordre}},
+// encartHeure (l'unique encart qui reçoit l'agenda, l'heure et le rappel du matin). Les trois encarts de départ gardent
+// leurs identités internes rdv, p1, p2 (les tâches déjà saisies les portent) ; une nouvelle ferme les voit « Encart 1, 2, 3 ».
+var ENCARTS_DEPART = ['rdv', 'p1', 'p2'];
 var JOURS_COURTS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-var NOMS_ENCARTS = {rdv:'RDV', p1:'P1', p2:'P2'};
+var NOMS_ENCARTS = {rdv:'Encart 1', p1:'Encart 2', p2:'Encart 3'};
+var COULEURS_ENCARTS = {rdv:'bleu', p1:'orange', p2:'gris'};
+var SUITE_COULEURS_ENC = ['bleu', 'orange', 'gris', 'vert', 'violet', 'rose', 'rouge'];
 var PALETTE = {rouge:['#fbe0e3', '#8f1d2a', 'Rouge'], rose:['#fbe3ef', '#9c2257', 'Rose'], bleu:['#e1eaff', '#2a3f8a', 'Bleu'], vert:['#d6ecdf', '#0f4d2b', 'Vert'], orange:['#fbe6cf', '#8a4302', 'Orange'], violet:['#efe3f7', '#6a2f8f', 'Violet'], gris:['#eeeeee', '#373737', 'Gris']};
 var COULEURS_TEXTE = [['', '#111111', 'Noir'], ['rouge', '#b02a37', 'Rouge'], ['orange', '#a14d06', 'Orange'], ['vert', '#0b694d', 'Vert'], ['violet', '#6a2f8f', 'Violet'], ['bleu', '#1a5fb4', 'Bleu']];
 // Le gris n'est plus proposé (remplacé par le bleu le 20/11) ; une tâche déjà en gris reste affichée en gris.
@@ -509,6 +575,7 @@ var ICO = {
   encart:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 9.5h16M12 12v4M10 14h4"/></svg>',
   reglages:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg>',
   astreinte:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4h-4"/></svg>',
+  horloge:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
   agenda:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
   retour:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>'
 };
@@ -543,6 +610,7 @@ function appliquer(o, c){ Object.keys(c).forEach(function(k){ o = setAt(o, k, c[
 var garderMinuteur = 0;
 function garderCopie(){ clearTimeout(garderMinuteur); garderMinuteur = setTimeout(function(){ ls('taches.copie', S); }, 300); }
 function recalculer(){
+  CATALOGUE = null; ENC_LISTES = {};
   D = copie(S);
   pending.forEach(function(p){ D = appliquer(D, p.c); });
   if(!D.listes) D.listes = {};
@@ -593,12 +661,12 @@ function indexer(){
     (enf[k] = enf[k] || []).push(id);
   });
   function h(id){ return /^\d\d:\d\d$/.test(TT[id].heure || '') ? TT[id].heure : '99:99'; }
-  Object.keys(enf).forEach(function(k){ var rdv = /\/#rdv$/.test(k); enf[k].sort(function(a, b){ return (rdv ? (h(a) < h(b) ? -1 : h(a) > h(b) ? 1 : 0) : 0) || (Number(TT[a].ordre) || 0) - (Number(TT[b].ordre) || 0) || (Number(TT[a].at) || 0) - (Number(TT[b].at) || 0) || (a < b ? -1 : 1); }); });
+  Object.keys(enf).forEach(function(k){ var i = k.lastIndexOf('/#'), hz = i >= 0 ? horlogeDe(k.slice(0, i)) : '', rdv = !!hz && k.slice(i + 2) === hz; enf[k].sort(function(a, b){ return (rdv ? (h(a) < h(b) ? -1 : h(a) > h(b) ? 1 : 0) : 0) || (Number(TT[a].ordre) || 0) - (Number(TT[b].ordre) || 0) || (Number(TT[a].at) || 0) - (Number(TT[b].at) || 0) || (a < b ? -1 : 1); }); });
   Object.keys(par).forEach(encDe);
   IX = {listes:listes, ok:ok, enf:enf, par:par, anim:anim, T:TT, enc:enc};
 }
 // Les enfants vivants (dans la base) ; enfantsTous : avec ceux en animation de coche, pour l'affichage seulement.
-// Les tâches racines sont rangées par encart (e : 'rdv', 'p1', 'p2' ou '' hors encart) ; une sous-tâche suit sa mère.
+// Les tâches racines sont rangées par encart (e : son identité, 'rdv', 'p1', 'p2' ou une autre, ou '' hors encart) ; une sous-tâche suit sa mère.
 function enfantsTous(L, parent, e){ return (IX.enf[L + '/' + (parent || '#' + (e || ''))] || []).slice(); }
 function enfants(L, parent, e){ return enfantsTous(L, parent, e).filter(function(x){ return !!D.t[x]; }); }
 function descendants(id){
@@ -626,38 +694,106 @@ function nomListe(L){ var l = IX.ok[L]; return l ? l.nom : ''; }
 // Réglages : ceux de la base, sinon ceux du fichier de départ de la ferme.
 function reglages(){
   var r = D.reglages || {}, d = DEPART || {};
-  var pers = r.personnes || d.personnes || {}, enc = r.encarts || d.encarts || {};
-  return {nom:r.nom != null ? String(r.nom) : (d.nom || ''), personnes:pers, encarts:enc};
+  var pers = r.personnes || d.personnes || {};
+  return {nom:r.nom != null ? String(r.nom) : (d.nom || ''), personnes:pers};
 }
+// Les encarts de la ferme, dans l'ordre : [{id, nom, couleur, ordre}]. Ceux de la base, sinon ceux du fichier de départ,
+// sinon « Encart 1, 2, 3 ». Sans ordre ni couleur enregistrés (format d'origine) : rdv, p1, p2 puis les autres ; bleu, orange, gris.
+var CATALOGUE = null; // recalculé à chaque changement (recalculer, fichier de départ)
+function catalogueEncarts(){ return CATALOGUE || (CATALOGUE = lireCatalogue()); }
+function lireCatalogue(){
+  var r = D.reglages || {}, d = DEPART || {};
+  var src = r.encarts && typeof r.encarts === 'object' ? r : (d.encarts && typeof d.encarts === 'object' ? d : {encarts:NOMS_ENCARTS});
+  var noms = src.encarts, info = src.encartsInfo && typeof src.encartsInfo === 'object' ? src.encartsInfo : null;
+  // Format d'origine (des noms seulement) : les trois encarts de départ existent toujours, nommés ou non.
+  if(!info && !('_aucun' in noms)){ noms = Object.assign({}, NOMS_ENCARTS, noms); }
+  info = info || {};
+  return Object.keys(noms).filter(function(k){ return /^[A-Za-z0-9_-]{1,40}$/.test(k) && noms[k] != null && noms[k] !== false; }).map(function(k){
+    var x = info[k] && typeof info[k] === 'object' ? info[k] : {}, i = ENCARTS_DEPART.indexOf(k);
+    return {id:k, nom:String(noms[k]).trim() || NOMS_ENCARTS[k] || 'Encart', couleur:PALETTE[x.couleur] ? x.couleur : (COULEURS_ENCARTS[k] || 'vert'),
+      ordre:Number(x.ordre) || (i >= 0 ? i + 1 : 100)};
+  }).sort(function(a, b){ return a.ordre - b.ordre || (a.id < b.id ? -1 : 1); });
+}
+function idsEncarts(){ return catalogueEncarts().map(function(x){ return x.id; }); }
+function encartInfo(k){ return catalogueEncarts().filter(function(x){ return x.id === k; })[0] || null; }
+// L'encart à l'horloge : il reçoit les rendez-vous de l'agenda, montre l'heure et trie par heure. Un seul.
+// Rien d'enregistré : rdv s'il existe, sinon le premier encart.
+function encartHeure(){
+  var ids = idsEncarts(), r = D.reglages || {}, d = DEPART || {};
+  var h = r.encarts && typeof r.encarts === 'object' ? r.encartHeure : d.encartHeure;
+  if(h && ids.indexOf(h) >= 0) return h;
+  return ids.indexOf('rdv') >= 0 ? 'rdv' : (ids[0] || '');
+}
+// Couleur du bandeau d'un encart : [fond pâle, texte]. Le gris reste celui d'origine du bandeau P2.
+function couleursEncart(c){ return c === 'gris' ? ['#f2f2f5', '#373737'] : (PALETTE[c] || PALETTE.gris); }
 function personnes(){
   var p = reglages().personnes;
   return Object.keys(p).filter(function(k){ return p[k] && p[k].nom; }).map(function(k){ var x = p[k]; return {id:k, nom:String(x.nom), initiale:String(x.initiale || x.nom.slice(0, 1)).slice(0, 2), couleur:PALETTE[x.couleur] ? x.couleur : 'gris', ordre:Number(x.ordre) || 0}; })
     .sort(function(a, b){ return a.ordre - b.ordre || a.nom.localeCompare(b.nom, 'fr'); });
 }
 function personne(id){ return personnes().filter(function(x){ return x.id === id; })[0] || null; }
-function nomEncart(e){ var n = reglages().encarts[e]; return n ? String(n) : NOMS_ENCARTS[e]; }
-// Encarts présents dans une liste : un jour a les trois tant qu'on n'y a pas touché ; les autres listes, aucun.
+// Une liste suit le modèle des jours (Réglages) ou a ses propres encarts (listes/<L>/encartsPropres {id: {nom, couleur,
+// ordre}}, réglés par son menu « ⋯ »). Les sept jours suivent toujours le modèle. Une liste qui n'a jamais eu ses propres
+// encarts garde l'ancien réglage, lu tel quel (aucune migration) : listes/<L>/encarts {id: vrai/faux}, les encarts du
+// modèle montrés (vrai) ou cachés (faux) ; sans ce réglage, un jour a tous les encarts du modèle, une autre liste aucun.
+var ENC_LISTES = {}; // recalculé à chaque changement
+function propresDe(L){
+  var l = D.listes[L] || {};
+  if(l.type === 'jour' || l.type === 'astreintes') return null;
+  return l.encartsPropres && typeof l.encartsPropres === 'object' ? l.encartsPropres : null;
+}
+function suitModele(L){ var l = D.listes[L] || {}; return l.type !== 'astreintes' && !propresDe(L); }
+// Les encarts possibles d'une liste, dans l'ordre : ceux du modèle, ou les siens.
+function encartsPossibles(L){
+  if(ENC_LISTES[L]) return ENC_LISTES[L];
+  var l = D.listes[L] || {}, p = propresDe(L), r;
+  if(l.type === 'astreintes') r = [];
+  else if(!p) r = catalogueEncarts();
+  else r = Object.keys(p).filter(function(k){ return /^[A-Za-z0-9_-]{1,40}$/.test(k) && p[k] && typeof p[k] === 'object'; }).map(function(k){
+    var x = p[k], i = ENCARTS_DEPART.indexOf(k);
+    return {id:k, nom:String(x.nom || '').trim() || 'Encart', couleur:PALETTE[x.couleur] ? x.couleur : (COULEURS_ENCARTS[k] || 'vert'), ordre:Number(x.ordre) || (i >= 0 ? i + 1 : 100)};
+  }).sort(function(a, b){ return a.ordre - b.ordre || (a.id < b.id ? -1 : 1); });
+  return (ENC_LISTES[L] = r);
+}
+// Encarts montrés dans une liste : {id: vrai/faux} sur ses encarts possibles.
 function encartsDe(L){
-  var l = D.listes[L] || {}, e = l.encarts, r = {};
-  ENCARTS.forEach(function(k){ r[k] = e && typeof e === 'object' ? !!e[k] : (l.type === 'jour'); });
-  if(l.type === 'astreintes') ENCARTS.forEach(function(k){ r[k] = false; });
+  var l = D.listes[L] || {}, e = l.encarts && typeof l.encarts === 'object' ? l.encarts : null, prop = !!propresDe(L), r = {};
+  encartsPossibles(L).forEach(function(x){
+    var k = x.id;
+    r[k] = prop ? true : (l.type === 'jour' ? !(e && e[k] === false) : !!(e && e[k] === true));
+  });
   return r;
 }
-function aEncarts(L){ var e = encartsDe(L); return ENCARTS.some(function(k){ return e[k]; }); }
-function encartPlus(L){ var e = encartsDe(L); return e.p1 ? 'p1' : ''; }
+function encartsListe(L){ var e = encartsDe(L); return encartsPossibles(L).filter(function(x){ return e[x.id]; }); }
+function aEncarts(L){ return encartsListe(L).length > 0; }
+// L'encart à l'horloge d'une liste : celui du modèle pour les listes qui le suivent ; aucun pour une liste à ses encarts.
+function horlogeDe(L){ return suitModele(L) ? encartHeure() : ''; }
+function infoEncart(e, L){
+  var r = L ? encartsPossibles(L).filter(function(x){ return x.id === e; })[0] : null;
+  return r || encartInfo(e);
+}
+function nomEncart(e, L){ var x = infoEncart(e, L); return x ? x.nom : (NOMS_ENCARTS[e] || ''); }
+function memeNom(a, b){ return String(a || '').trim().toLocaleLowerCase('fr') === String(b || '').trim().toLocaleLowerCase('fr'); }
+// Une tâche (racine) déplacée vers la liste L : l'encart du même nom s'il y en a un, sinon hors encart.
+function encartPour(id, L){
+  var e = IX.enc[id] || '', t = D.t[id]; if(!e || !t) return '';
+  var n = nomEncart(e, t.liste);
+  return (encartsListe(L).filter(function(x){ return memeNom(x.nom, n); })[0] || {}).id || '';
+}
 function verrou(L){ var l = D.listes[L]; return l && l.verrou && typeof l.verrou === 'object' ? l.verrou : null; }
 function verrouDe(id){ var t = D.t[id]; return t ? verrou(t.liste) : null; }
 /* ---------- Astreintes (étape 36C) : modèles dans la liste Astreintes, recopiés dans les jours à la demande ----------
    Champs d'une astreinte (tâche de premier niveau de la liste Astreintes) : jours ('024' = lundi, mercredi, vendredi),
-   zone ('rdv', 'p1', 'p2' ; P1 sinon), heure (RDV), pause (true = ignorée). Une copie porte origine 'a:<id du modèle>'. */
+   zone (identité d'un encart, '-' hors encart ; P1 sinon), heure (encart à l'horloge), pause (true = ignorée). Une copie porte origine 'a:<id du modèle>'. */
 function estAstreinte(id){ var t = D.t[id] || (IX.T && IX.T[id]); return !!t && !t.sep && !IX.par[id] && !!IX.ok[t.liste] && IX.ok[t.liste].type === 'astreintes'; }
 function joursDe(t){ var r = []; String(t.jours || '').split('').forEach(function(c){ var j = Number(c); if(/^[0-6]$/.test(c) && r.indexOf(j) < 0) r.push(j); }); return r.sort(); }
-function zoneDe(t){ return ENCARTS.indexOf(t.zone) >= 0 ? t.zone : 'p1'; }
+// Zone d'une astreinte : un encart, ou '' (hors encart, enregistré '-'). Sans zone valable : P1 s'il existe (comme avant).
+function zoneDe(t){ var ids = idsEncarts(); if(t.zone === '-') return ''; return ids.indexOf(t.zone) >= 0 ? t.zone : (ids.indexOf('p1') >= 0 ? 'p1' : ''); }
 function astInfoHtml(t){
   var j = joursDe(t), z = zoneDe(t), h = [];
   if(j.length) j.forEach(function(k){ h.push('<span class="j">' + JOURS_COURTS[k] + '</span>'); });
   else h.push('<span class="sans">Aucun jour</span>');
-  h.push('<span class="zone">' + esc(nomEncart(z)) + (z === 'rdv' && /^\d\d:\d\d$/.test(t.heure || '') ? ' ' + esc(t.heure) : '') + '</span>');
+  h.push('<span class="zone">' + esc(z ? nomEncart(z) : 'Hors encart') + (z && z === encartHeure() && /^\d\d:\d\d$/.test(t.heure || '') ? ' ' + esc(t.heure) : '') + '</span>');
   if(t.pause) h.push('<span class="pause">En pause</span>');
   return '<div class="ast-info">' + h.join('') + '</div>';
 }
@@ -667,7 +803,7 @@ function listeDuJourN(j){ return IX.listes.filter(function(l){ return l.type ===
 // Pas de doublon : une copie pas cochée du même modèle dans ce jour suffit. En pause : ignorée.
 function repartirAstreintes(){
   var A = listeAstreintes(); if(!A) return;
-  var c = {}, encs = {}, fins = {}, pose = 0, deja = 0, pause = 0, sansJour = 0, fige = 0, t0 = Date.now();
+  var c = {}, encs = {}, fins = {}, pose = 0, deja = 0, pause = 0, sansJour = 0, fige = 0, t0 = Date.now(), hz = encartHeure();
   var copies = {};
   Object.keys(D.t).forEach(function(x){ var o = D.t[x] && D.t[x].origine; if(o && /^a:/.test(o)) copies[D.t[x].liste + '|' + o] = true; });
   enfants(A.id, '').forEach(function(r){
@@ -680,13 +816,13 @@ function repartirAstreintes(){
       if(copies[Lj.id + '|a:' + r]){ deja++; return; }
       var z = zoneDe(m);
       if(!encs[Lj.id]) encs[Lj.id] = encartsDe(Lj.id);
-      if(!encs[Lj.id][z]){ encs[Lj.id][z] = true; c['listes/' + Lj.id + '/encarts'] = encs[Lj.id]; }
+      if(z && !encs[Lj.id][z]){ encs[Lj.id][z] = true; c['listes/' + Lj.id + '/encarts'] = encs[Lj.id]; }
       var k = Lj.id + '#' + z;
       if(fins[k] == null){ var f = enfants(Lj.id, '', z), der = f[f.length - 1]; fins[k] = der ? Number(D.t[der].ordre) || 0 : 0; }
       fins[k] += 1;
       var nid = nouvelId();
       var copie = {liste:Lj.id, parent:'', encart:z, ordre:fins[k], texte:String(m.texte || ''), origine:'a:' + r, by:qui(), at:t0};
-      if(z === 'rdv' && /^\d\d:\d\d$/.test(m.heure || '')) copie.heure = m.heure;
+      if(z && z === hz && /^\d\d:\d\d$/.test(m.heure || '')) copie.heure = m.heure;
       if(m.pour) copie.pour = m.pour;
       if(m.couleur) copie.couleur = m.couleur;
       c['t/' + nid] = copie;
@@ -744,7 +880,7 @@ function majAgenda(){
   }).then(function(){ agendaEnCours = false; $('#agendaBtn').disabled = false; });
 }
 function rangerAgenda(j){
-  var n = {ajoutes:0, changes:0, retires:0, deja:0, fige:0}, c = {}, t0 = Date.now(), vus = {}, fins = {}, encs = {};
+  var n = {ajoutes:0, changes:0, retires:0, deja:0, fige:0}, c = {}, t0 = Date.now(), vus = {}, fins = {}, encs = {}, hz = encartHeure();
   var memo = D.agenda || {}, rdv = (j && Array.isArray(j.rdv)) ? j.rdv : [];
   var de = String(j && j.de || ''), a = String(j && j.a || '');
   rdv.forEach(function(r){
@@ -766,11 +902,11 @@ function rangerAgenda(j){
     var Lj = listeDuJourN(Number(r.jour)); if(!Lj) return;
     if(verrou(Lj.id)){ n.fige++; return; }
     if(!encs[Lj.id]) encs[Lj.id] = encartsDe(Lj.id);
-    if(!encs[Lj.id].rdv){ encs[Lj.id].rdv = true; c['listes/' + Lj.id + '/encarts'] = encs[Lj.id]; } // l'encart revient pour l'accueillir
-    var kf = Lj.id + '#rdv';
-    if(fins[kf] == null){ var f = enfants(Lj.id, '', 'rdv'), der = f[f.length - 1]; fins[kf] = der ? Number(D.t[der].ordre) || 0 : 0; }
+    if(hz && !encs[Lj.id][hz]){ encs[Lj.id][hz] = true; c['listes/' + Lj.id + '/encarts'] = encs[Lj.id]; } // l'encart revient pour l'accueillir
+    var kf = Lj.id + '#' + hz;
+    if(fins[kf] == null){ var f = enfants(Lj.id, '', hz), der = f[f.length - 1]; fins[kf] = der ? Number(D.t[der].ordre) || 0 : 0; }
     fins[kf] += 1;
-    var nid = nouvelId(), tache = {liste:Lj.id, parent:'', encart:'rdv', ordre:fins[kf], texte:titre, origine:'g:' + k, by:qui(), at:t0};
+    var nid = nouvelId(), tache = {liste:Lj.id, parent:'', encart:hz, ordre:fins[kf], texte:titre, origine:'g:' + k, by:qui(), at:t0};
     if(heure) tache.heure = heure;
     c['t/' + nid] = tache;
     c['agenda/' + k] = {t:nid, date:r.date, titre:titre, heure:heure || null, at:t0};
@@ -916,11 +1052,18 @@ function listesDeDepart(){
   c['listes/astreintes'] = {nom:'Astreintes', type:'astreintes', ordre:8, by:qui(), at:t};
   ecrire(c);
 }
-function nouvelleListe(nom){
+function nouvelleListe(nom, encarts){
   var id = nouvelId(), der = IX.listes.slice(-1)[0];
-  var c = {}; c['listes/' + id] = {nom:nom, type:'simple', ordre:der ? der.ordre + 1 : 1, by:qui(), at:Date.now()};
+  var l = {nom:nom, type:'simple', ordre:der ? der.ordre + 1 : 1, by:qui(), at:Date.now()};
+  // « Comme les jours » : une copie du modèle, qui devient les encarts de cette liste (mêmes identités, mêmes noms).
+  if(encarts === 'jours'){
+    var p = {}; catalogueEncarts().forEach(function(x, i){ p[x.id] = {nom:x.nom, couleur:x.couleur, ordre:i + 1}; });
+    if(Object.keys(p).length) l.encartsPropres = p;
+  }
+  var c = {}; c['listes/' + id] = l;
   ecrire(c);
   allerA(id, true);
+  if(encarts === 'miens') ouvrirEncarts(id);
 }
 function renommerListe(L, nom){ var c = {}; c['listes/' + L + '/nom'] = nom; ecrire(c); }
 function supprimerListe(L){
@@ -1128,7 +1271,7 @@ function ligneHtml(x){
   var fige = !!verrou(t.liste);
   if(t.sep) return '<li class="t sep" data-id="' + id + '" data-n="' + n + '"' + st + '><span class="trait" role="separator" aria-label="Séparateur"></span>' + (fige ? '' : '<button class="pt" type="button" data-a="menu-tache" aria-label="Menu du séparateur">' + ICO.pt + '</button>') + '</li>';
   var texte = String(t.texte || ''), coul = COULEURS_TEXTE.concat(COULEURS_ANCIENNES).filter(function(c){ return c[0] && c[0] === t.couleur; })[0];
-  var heure = /^\d\d:\d\d$/.test(t.heure || '') && IX.enc[x.id] === 'rdv' && !IX.par[x.id] ? '<b class="heure">' + esc(t.heure) + '</b> ' : '';
+  var heure = /^\d\d:\d\d$/.test(t.heure || '') && !!IX.enc[x.id] && IX.enc[x.id] === horlogeDe(t.liste) && !IX.par[x.id] ? '<b class="heure">' + esc(t.heure) + '</b> ' : '';
   var corps = ed && ed.mode === 'modif' && ed.id === x.id
     ? '<textarea class="ed" rows="1" enterkeyhint="enter" aria-label="Texte de la tâche"></textarea>'
     : '<div class="tx"' + (fige ? '' : ' data-a="modifier"') + (coul ? ' style="color:' + coul[1] + '"' : '') + '>' + heure + esc(texte) + '</div>';
@@ -1139,9 +1282,8 @@ function ligneHtml(x){
   return '<li class="t' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '><button class="coche" type="button" data-a="cocher" aria-label="Cocher « ' + esc(texte) + ' »"></button>' + corps + orig + pas +
     '<button class="pt" type="button" data-a="menu-tache" aria-label="Menu de la tâche « ' + esc(texte) + ' »">' + ICO.pt + '</button>' + info + '</li>';
 }
-var CLASSES_ENCART = {rdv:'info', p1:'warn', p2:'neutre'};
 function panneauHtml(l){
-  var L = l.id, e = encartsDe(L), fige = !!verrou(L);
+  var L = l.id, fige = !!verrou(L);
   if(ed && ed.mode === 'nouveau' && ed.liste === L) ed.vu = false;
   var blocs = [];
   if(!aEncarts(L)){
@@ -1149,7 +1291,7 @@ function panneauHtml(l){
   } else {
     var hors = aplatir(L, '');
     if(hors.length) blocs.push({e:'', lignes:hors});
-    ENCARTS.forEach(function(k){ if(e[k]) blocs.push({e:k, lignes:aplatir(L, k), tete:true}); });
+    encartsListe(L).forEach(function(x){ blocs.push({e:x.id, lignes:aplatir(L, x.id), tete:true}); });
   }
   // Ligne d'écriture qui n'a plus sa place (tâche d'à côté partie) : en haut de la liste.
   if(ed && ed.mode === 'nouveau' && ed.liste === L && !ed.vu){
@@ -1159,8 +1301,9 @@ function panneauHtml(l){
   return blocs.map(function(b){
     var tete = '';
     if(b.tete){
-      tete = '<div class="encart-tete"><span class="etiq ' + CLASSES_ENCART[b.e] + '">' + esc(nomEncart(b.e)) + '</span>' +
-        (fige ? '' : '<button class="pt mini plus-e" type="button" data-a="ajouter" data-e="' + b.e + '" aria-label="Ajouter une tâche dans ' + esc(nomEncart(b.e)) + '">' + ICO.plus + '</button>') + '</div>';
+      var ie = infoEncart(b.e, L) || {}, ce = couleursEncart(ie.couleur);
+      tete = '<div class="encart-tete"><span class="etiq" style="background:' + ce[0] + ';color:' + ce[1] + '">' + esc(ie.nom || '') + '</span>' +
+        (fige ? '' : '<button class="pt mini plus-e" type="button" data-a="ajouter" data-e="' + b.e + '" aria-label="Ajouter une tâche dans ' + esc(ie.nom || '') + '">' + ICO.plus + '</button>') + '</div>';
     }
     return '<div class="encart" data-e="' + b.e + '">' + tete + '<ul class="taches" data-e="' + b.e + '">' + b.lignes.map(ligneHtml).join('') + '</ul></div>';
   }).join('');
@@ -1393,18 +1536,19 @@ function reglagesTacheHtml(id){
       pers.map(function(p){ return '<button type="button" data-pour="' + esc(p.id) + '"' + (t.pour === p.id ? ' aria-pressed="true"' : '') + '><span class="pastille" style="background:' + PALETTE[p.couleur][0] + ';color:' + PALETTE[p.couleur][1] + '">' + esc(p.initiale) + '</span>' + esc(p.nom) + '</button>'; }).join('') + '</div></div>');
   }
   if(!IX.par[id] && aEncarts(t.liste)){
-    var e = encartsDe(t.liste), cur = IX.enc[id] || '';
+    var cur = IX.enc[id] || '';
     h.push('<div class="menu-bloc"><span>Zone du jour</span><div class="seg" role="group" aria-label="Zone du jour">' +
-      ENCARTS.filter(function(k){ return e[k]; }).map(function(k){ return '<button type="button" data-zone="' + k + '"' + (cur === k ? ' aria-pressed="true"' : '') + '>' + esc(nomEncart(k)) + '</button>'; }).join('') + '</div></div>');
-    if(cur === 'rdv') h.push('<label class="menu-bloc"><span>Heure du rendez-vous</span><input class="heure-champ" type="time" id="tacheHeure" value="' + esc(/^\d\d:\d\d$/.test(t.heure || '') ? t.heure : '') + '"></label>');
+      encartsListe(t.liste).map(function(x){ return '<button type="button" data-zone="' + x.id + '"' + (cur === x.id ? ' aria-pressed="true"' : '') + '>' + esc(x.nom) + '</button>'; }).join('') + '</div></div>');
+    if(cur && cur === horlogeDe(t.liste)) h.push('<label class="menu-bloc"><span>Heure du rendez-vous</span><input class="heure-champ" type="time" id="tacheHeure" value="' + esc(/^\d\d:\d\d$/.test(t.heure || '') ? t.heure : '') + '"></label>');
   }
   if(estAstreinte(id)){
     var js = joursDe(t), z = zoneDe(t);
     h.push('<div class="menu-bloc"><span>Jours</span><div class="jours-choix" role="group" aria-label="Jours de l\'astreinte">' +
       JOURS_COURTS.map(function(n, j){ return '<button type="button" data-jour="' + j + '" aria-label="' + JOURS[j] + '"' + (js.indexOf(j) >= 0 ? ' aria-pressed="true"' : '') + '>' + n + '</button>'; }).join('') + '</div></div>');
     h.push('<div class="menu-bloc"><span>Zone</span><div class="seg" role="group" aria-label="Zone de l\'astreinte">' +
-      ENCARTS.map(function(k){ return '<button type="button" data-azone="' + k + '"' + (z === k ? ' aria-pressed="true"' : '') + '>' + esc(nomEncart(k)) + '</button>'; }).join('') + '</div></div>');
-    if(z === 'rdv') h.push('<label class="menu-bloc"><span>Heure du rendez-vous</span><input class="heure-champ" type="time" id="tacheHeure" value="' + esc(/^\d\d:\d\d$/.test(t.heure || '') ? t.heure : '') + '"></label>');
+      idsEncarts().map(function(k){ return '<button type="button" data-azone="' + k + '"' + (z === k ? ' aria-pressed="true"' : '') + '>' + esc(nomEncart(k)) + '</button>'; }).join('') +
+      '<button type="button" data-azone="-"' + (z ? '' : ' aria-pressed="true"') + '>Hors encart</button></div></div>');
+    if(z && z === encartHeure()) h.push('<label class="menu-bloc"><span>Heure du rendez-vous</span><input class="heure-champ" type="time" id="tacheHeure" value="' + esc(/^\d\d:\d\d$/.test(t.heure || '') ? t.heure : '') + '"></label>');
     h.push('<label class="menu-bloc case-pause"><input type="checkbox" id="tachePause"' + (t.pause ? ' checked' : '') + '><span>En pause (pas recopiée)</span></label>');
   }
   h.push('<div class="menu-bloc"><span>Couleur du texte</span><div class="couleurs" role="group" aria-label="Couleur du texte">' +
@@ -1449,7 +1593,7 @@ $('#tacheDlg').addEventListener('click', function(e){
   else if(a === 'droite') decalerDroite(id);
   else if(a === 'gauche') decalerGauche(id);
   else if(a === 'separateur') ajouterSeparateur(id);
-  else if(a === 'deplacer') choisirListe('Déplacer vers…', t.liste, function(L){ ecrire(cheminsDeplacer(id, L, '', null, encartPlus(L))); flash(id); });
+  else if(a === 'deplacer') choisirListe('Déplacer vers…', t.liste, function(L){ ecrire(cheminsDeplacer(id, L, '', null, encartPour(id, L))); flash(id); });
 });
 
 /* ---------- Menu d'une liste ---------- */
@@ -1463,10 +1607,15 @@ function ouvrirMenuListe(L){
   a.push('<button class="act" type="button" data-a="renommer">' + ICO.crayon + 'Renommer la liste</button>');
   a.push('<button class="act" type="button" data-a="faites"' + (nf ? '' : ' disabled') + '>' + ICO.retour + 'Faites récemment<small>' + nf + '</small></button>');
   if(l.type === 'astreintes') a.push('<button class="act" type="button" data-a="repartir">' + ICO.astreinte + 'Répartir les astreintes dans les jours</button>');
-  var v = verrou(L), e = encartsDe(L), manque = ENCARTS.filter(function(k){ return !e[k]; });
-  if(l.type !== 'astreintes' && !v) manque.forEach(function(k){ a.push('<button class="act" type="button" data-a="ajouter-encart" data-e="' + k + '">' + ICO.encart + 'Ajouter l\'encart ' + esc(nomEncart(k)) + '</button>'); });
-  // Un encart vide se supprime ici (le petit lien collé au « + » partait d'un seul toucher, 19/11).
-  if(l.type !== 'astreintes' && !v) ENCARTS.filter(function(k){ return e[k] && !enfants(L, '', k).length; }).forEach(function(k){ a.push('<button class="act" type="button" data-a="supprimer-encart" data-e="' + k + '">' + ICO.poubelle + 'Supprimer l\'encart ' + esc(nomEncart(k)) + ' (vide)</button>'); });
+  var v = verrou(L);
+  // Encarts (21/11) : une liste a les siens (« Encarts de cette liste… ») ; les jours suivent le modèle des Réglages,
+  // et chaque jour peut encore cacher un encart vide du modèle ou le remettre (19/11).
+  if(l.type === 'jour' && !v){
+    var e = encartsDe(L);
+    encartsPossibles(L).filter(function(x){ return !e[x.id]; }).forEach(function(x){ a.push('<button class="act" type="button" data-a="ajouter-encart" data-e="' + x.id + '">' + ICO.encart + 'Ajouter l\'encart ' + esc(x.nom) + '</button>'); });
+    encartsListe(L).filter(function(x){ return !enfants(L, '', x.id).length; }).forEach(function(x){ a.push('<button class="act" type="button" data-a="supprimer-encart" data-e="' + x.id + '">' + ICO.poubelle + 'Supprimer l\'encart ' + esc(x.nom) + ' (vide)</button>'); });
+    a.push('<button class="act" type="button" data-a="encarts-jours">' + ICO.encart + 'Encarts des sept jours…</button>');
+  } else if(l.type !== 'astreintes' && !v) a.push('<button class="act" type="button" data-a="encarts-liste">' + ICO.encart + 'Encarts de cette liste…</button>');
   a.push(v ? '<button class="act" type="button" data-a="deverrouiller">' + ICO.ouvert + 'Déverrouiller la liste</button>'
            : '<button class="act" type="button" data-a="verrouiller">' + ICO.cadenas + 'Verrouiller la liste</button>');
   if(peutSupprimer(L)) a.push('<button class="act danger" type="button" data-a="supprimer-liste">' + ICO.poubelle + 'Supprimer la liste</button>');
@@ -1482,6 +1631,8 @@ $('#listeDlg').addEventListener('click', function(e){
   if(a === 'repartir') repartirAstreintes();
   else if(a === 'ajouter-encart') ajouterEncart(L, b.dataset.e);
   else if(a === 'supprimer-encart') supprimerEncart(L, b.dataset.e);
+  else if(a === 'encarts-liste') ouvrirEncarts(L);
+  else if(a === 'encarts-jours') ouvrirEncarts('');
   else if(a === 'verrouiller') verrouiller(L, true);
   else if(a === 'deverrouiller') verrouiller(L, false);
   else if(a === 'renommer') demanderNom('Renommer la liste', IX.ok[L].nom, function(n){ renommerListe(L, n); });
@@ -1491,10 +1642,22 @@ $('#listeDlg').addEventListener('click', function(e){
     confirmer('Supprimer la liste ?', '« ' + IX.ok[L].nom + ' »' + (n ? ' et ses ' + n + ' tâche' + (n > 1 ? 's' : '') : '') + ' seront supprimées pour tout le monde.', function(){ supprimerListe(L); });
   }
 });
-function demanderNom(titre, val, fait){
+// avecEncarts : création d'une liste, on choisit ses encarts de départ (Aucun encart, Comme les jours, Les miens).
+function demanderNom(titre, val, fait, avecEncarts){
   var d = $('#nomDlg');
   $('#nomTitre').textContent = titre; $('#nomVal').value = val || '';
-  $('#nomForm').onsubmit = function(e){ e.preventDefault(); var n = $('#nomVal').value.trim(); if(!n) return; d.close(); fait(n); };
+  $('#nomEnc').hidden = !avecEncarts;
+  $('#nomForm [type="submit"]').textContent = avecEncarts ? 'Créer' : 'Enregistrer';
+  if(avecEncarts){
+    var cat = catalogueEncarts();
+    $('#nomEncJours').textContent = cat.map(function(x){ return x.nom; }).join(' · ') || 'aucun';
+    document.querySelector('#nomEnc input[value="aucun"]').checked = true;
+  }
+  $('#nomForm').onsubmit = function(e){
+    e.preventDefault(); var n = $('#nomVal').value.trim(); if(!n) return; d.close();
+    var ch = avecEncarts ? document.querySelector('#nomEnc input:checked') : null;
+    fait(n, ch ? ch.value : '');
+  };
   d.showModal(); $('#nomVal').focus();
 }
 function confirmer(titre, texte, fait){
@@ -1562,7 +1725,7 @@ function ouvrirReglages(){
   $('#reglNom').value = r.nom;
   $('#reglPers').innerHTML = personnes().map(persLigne).join('');
   rapEdit = {}; rapPour = personne(qui()) ? qui() : ((personnes()[0] || {}).id || qui()); rendreRappelRegl();
-  $('#reglEnc').innerHTML = ENCARTS.map(function(k){ return '<label class="enc-l"><span>' + NOMS_ENCARTS[k] + '</span><input data-enc="' + k + '" maxlength="20" value="' + esc(nomEncart(k)) + '"></label>'; }).join('');
+  resumeEncartsJours();
   var d = $('#reglDlg'); if(!d.open) d.showModal();
 }
 $('#versReglages').onclick = function(){ $('#compteDlg').close(); ouvrirReglages(); };
@@ -1580,20 +1743,199 @@ $('#reglPers').addEventListener('input', function(e){
 $('#reglPers').addEventListener('change', function(e){ if(e.target.closest('.p-ini')) e.target.dataset.touche = '1'; });
 $('#reglForm').addEventListener('submit', function(e){
   e.preventDefault();
-  var pers = {}, enc = {};
+  var pers = {};
   Array.prototype.forEach.call(document.querySelectorAll('#reglPers .pers-l'), function(l, i){
     var nom = l.querySelector('.p-nom').value.trim(); if(!nom) return;
     var ini = l.querySelector('.p-ini').value.trim() || nom.slice(0, 1).toUpperCase();
     pers[l.dataset.p] = {nom:nom, initiale:ini, couleur:l.querySelector('.p-coul').value, ordre:i + 1};
   });
-  Array.prototype.forEach.call(document.querySelectorAll('#reglEnc [data-enc]'), function(x){ enc[x.dataset.enc] = x.value.trim() || NOMS_ENCARTS[x.dataset.enc]; });
-  var c = {reglages:{nom:$('#reglNom').value.trim(), personnes:pers, encarts:enc, by:qui(), at:Date.now()}};
+  // Chemin par chemin : les encarts des jours (enregistrés par leur propre fenêtre) ne sont pas touchés ici.
+  var c = {'reglages/nom':$('#reglNom').value.trim(), 'reglages/personnes':pers, 'reglages/by':qui(), 'reglages/at':Date.now()};
   lireRappelRegl();
   Object.keys(rapEdit).forEach(function(pid){ var a = rappelDe(pid), n = rapEdit[pid]; if(['actif', 'heure', 'jours', 'repete', 'jusqua'].some(function(k){ return a[k] !== n[k]; }) || !(D.rappels || {})[pid] && n.actif) c['rappels/' + pid] = Object.assign({}, n, {by:qui(), at:Date.now()}); });
   ecrire(c);
   $('#reglDlg').close();
   montrerBandeau('Réglages enregistrés', null);
 });
+/* ---------- Encarts (21/11) : la même fenêtre règle le modèle des sept jours (Réglages, L = '') ou les encarts d'une liste
+   (menu « ⋯ »). Nom, ordre (▲▼), couleur, ajout, suppression (on choisit où vont les tâches : aucune n'est supprimée) ;
+   l'horloge (agenda, heure, rappel du matin) n'existe que dans le modèle des jours. Rien n'est écrit avant « Enregistrer ». */
+var EDE = null; // {L, lignes: [{id, nom, couleur, nouveau}], heure, suppr: {id: destination ('' = hors encart)}, pal: id}
+function puceEncart(x){ var c = couleursEncart(x.couleur); return '<span class="etiq" style="background:' + c[0] + ';color:' + c[1] + '">' + esc(x.nom) + '</span>'; }
+function resumeEncartsJours(){
+  var cat = catalogueEncarts(), h = encartHeure();
+  $('#reglEnc').innerHTML = cat.length ? cat.map(function(x){ return puceEncart({nom:x.nom + (x.id === h ? ' 🕘' : ''), couleur:x.couleur}); }).join('') : '<span class="regl-aide">Aucun encart</span>';
+}
+$('#reglEncModif').onclick = function(){ ouvrirEncarts(''); };
+function ouvrirEncarts(L){
+  var modele = !L, src = modele ? catalogueEncarts() : encartsListe(L);
+  EDE = {L:L, lignes:src.map(function(x){ return {id:x.id, nom:x.nom, couleur:x.couleur}; }), heure:modele ? encartHeure() : '', suppr:{}, pal:null};
+  $('#encTitre').textContent = modele ? 'Encarts des sept jours' : 'Encarts de « ' + nomListe(L) + ' »';
+  $('#encAide').textContent = modele ? 'Le modèle des listes Lundi à Dimanche : ce qui change ici change tous les jours. Les flèches les remettent dans l\'ordre ; la pastille donne la couleur du bandeau.'
+    : 'Pour cette liste seulement. Les autres listes ne changent pas.';
+  $('#encLegende').innerHTML = modele ? '<span class="enc-h-ico" aria-hidden="true">' + ICO.horloge + '</span> = reçoit les rendez-vous de l\'agenda et l\'heure (un seul encart).' : '';
+  $('#encLegende').hidden = !modele;
+  $('#encDepart').hidden = modele;
+  $('#encDlg').classList.toggle('modele', modele);
+  encMsg('');
+  rendreEncarts();
+  if(!$('#encDlg').open) $('#encDlg').showModal();
+}
+function encMsg(m){ $('#encMsg').textContent = m; $('#encMsg').hidden = !m; }
+function lireNomsEncarts(){
+  Array.prototype.forEach.call(document.querySelectorAll('#encLignes [data-enc]'), function(x){
+    var l = EDE.lignes.filter(function(y){ return y.id === x.dataset.enc; })[0]; if(l) l.nom = x.value;
+  });
+}
+function rendreEncarts(){
+  var modele = !EDE.L, n = EDE.lignes.length;
+  $('#encLignes').innerHTML = EDE.lignes.map(function(x, i){
+    var c = couleursEncart(x.couleur), nomA = esc(x.nom.trim() || 'cet encart');
+    var hz = modele && x.id === EDE.heure, bloque = hz && n > 1;
+    return '<div class="enc-l" data-k="' + x.id + '">' +
+      '<div class="enc-fl"><button type="button" data-ea="haut" aria-label="Monter ' + nomA + '"' + (i ? '' : ' disabled') + '>▲</button><button type="button" data-ea="bas" aria-label="Descendre ' + nomA + '"' + (i < n - 1 ? '' : ' disabled') + '>▼</button></div>' +
+      '<input data-enc="' + x.id + '" maxlength="20" aria-label="Nom de l\'encart" value="' + esc(x.nom) + '">' +
+      '<button type="button" class="enc-b enc-coul" data-ea="couleur" aria-label="Couleur de ' + nomA + ' : ' + PALETTE[x.couleur][2] + '" aria-expanded="' + (EDE.pal === x.id) + '"><span style="background:' + c[0] + '"></span></button>' +
+      (modele ? '<button type="button" class="enc-b enc-heure" data-ea="heure" aria-pressed="' + hz + '" aria-label="' + nomA + ' reçoit l\'agenda et l\'heure">' + ICO.horloge + '</button>' : '') +
+      '<button type="button" class="enc-b enc-suppr" data-ea="suppr" aria-label="Supprimer ' + nomA + '"' + (bloque ? ' aria-disabled="true"' : '') + '>' + ICO.poubelle + '</button></div>' +
+      (EDE.pal === x.id ? '<div class="enc-pal" role="group" aria-label="Couleur du bandeau">' + SUITE_COULEURS_ENC.map(function(k){ return '<button type="button" data-ecoul="' + k + '" aria-label="' + PALETTE[k][2] + '" style="background:' + couleursEncart(k)[0] + '"' + (k === x.couleur ? ' aria-pressed="true"' : '') + '></button>'; }).join('') + '</div>' : '');
+  }).join('') || '<p class="regl-aide">Aucun encart.</p>';
+}
+// Les tâches rangées dans un encart, là où la fenêtre s'applique : {taches, listes, astreintes}.
+function tachesEncart(k){
+  var r = {taches:0, listes:{}, astreintes:0}, modele = !EDE.L;
+  Object.keys(D.t).forEach(function(id){
+    var t = D.t[id]; if(!t || t.sep || IX.enc[id] !== k || !IX.ok[t.liste]) return;
+    if(modele ? !suitModele(t.liste) : t.liste !== EDE.L) return;
+    r.taches++; r.listes[t.liste] = 1;
+  });
+  var A = modele && listeAstreintes();
+  if(A) enfants(A.id, '').forEach(function(x){ if(D.t[x] && !D.t[x].sep && zoneDe(D.t[x]) === k) r.astreintes++; });
+  r.nl = Object.keys(r.listes).length;
+  return r;
+}
+function retirerLigne(k, dest){
+  var x = EDE.lignes.filter(function(y){ return y.id === k; })[0]; if(!x) return;
+  EDE.lignes = EDE.lignes.filter(function(y){ return y.id !== k; });
+  if(!x.nouveau) EDE.suppr[k] = dest;
+  Object.keys(EDE.suppr).forEach(function(s){ if(EDE.suppr[s] === k) EDE.suppr[s] = dest; }); // déjà envoyées vers k : suivent
+  if(EDE.heure === k) EDE.heure = EDE.lignes[0] ? EDE.lignes[0].id : '';
+  if(EDE.pal === k) EDE.pal = null;
+}
+var supprEnCours = null;
+function demanderSuppression(k){
+  var x = EDE.lignes.filter(function(y){ return y.id === k; })[0]; if(!x) return;
+  var n = x.nouveau ? {taches:0, nl:0, astreintes:0} : tachesEncart(k), nom = x.nom.trim() || 'Encart';
+  if(!n.taches && !n.astreintes){ retirerLigne(k, ''); rendreEncarts(); return; }
+  supprEnCours = k;
+  $('#encSupprTitre').textContent = 'Supprimer l\'encart « ' + nom + ' » ?';
+  var parts = [];
+  if(n.taches) parts.push('<b>' + n.taches + ' tâche' + (n.taches > 1 ? 's' : '') + '</b>, dans <b>' + n.nl + ' liste' + (n.nl > 1 ? 's' : '') + '</b>');
+  if(n.astreintes) parts.push('<b>' + n.astreintes + ' astreinte' + (n.astreintes > 1 ? 's' : '') + '</b>');
+  $('#encSupprTexte').innerHTML = 'Il contient ' + parts.join(' et ') + '. ' + (n.taches > 1 || n.astreintes ? 'Elles ne sont pas supprimées' : 'Elle n\'est pas supprimée') + ' : choisissez où ' + (n.taches > 1 || n.astreintes ? 'elles vont' : 'elle va') + '.';
+  var autres = EDE.lignes.filter(function(y){ return y.id !== k; });
+  $('#encSupprChoix').innerHTML = autres.map(function(y, i){ return '<label><input type="radio" name="encDest" value="' + y.id + '"' + (i ? '' : ' checked') + '>' + esc(y.nom.trim() || 'Encart') + puceEncart({nom:y.nom.trim() || 'Encart', couleur:y.couleur}) + '</label>'; }).join('') +
+    '<label><input type="radio" name="encDest" value=""' + (autres.length ? '' : ' checked') + '>Hors encart (en haut de la liste)</label>';
+  $('#encSupprNote').textContent = (EDE.L ? '' : 'Les astreintes et les copies rangées dans « ' + nom + ' » suivent le même choix. ') + 'Vous pouvez annuler jusqu\'à l\'enregistrement des encarts.';
+  $('#encSupprDlg').showModal();
+}
+$('#encSupprOui').onclick = function(){
+  var r = document.querySelector('#encSupprChoix input:checked');
+  if(supprEnCours) retirerLigne(supprEnCours, r ? r.value : '');
+  supprEnCours = null; $('#encSupprDlg').close(); rendreEncarts();
+};
+$('#encSupprDlg').addEventListener('click', function(e){ var b = e.target.closest('[data-a="fermer"]'); if(b || e.target === e.currentTarget){ supprEnCours = null; $('#encSupprDlg').close(); } });
+$('#encLignes').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b || !EDE) return;
+  lireNomsEncarts(); encMsg('');
+  var ligne = b.closest('[data-k]'), k = ligne ? ligne.dataset.k : (EDE.pal || ''), i = EDE.lignes.map(function(y){ return y.id; }).indexOf(k), x = EDE.lignes[i];
+  if(b.dataset.ecoul){ if(EDE.pal){ EDE.lignes.filter(function(y){ return y.id === EDE.pal; })[0].couleur = b.dataset.ecoul; EDE.pal = null; } }
+  else if(!x) return;
+  else if(b.dataset.ea === 'haut' && i > 0){ EDE.lignes.splice(i - 1, 0, EDE.lignes.splice(i, 1)[0]); }
+  else if(b.dataset.ea === 'bas' && i < EDE.lignes.length - 1){ EDE.lignes.splice(i + 1, 0, EDE.lignes.splice(i, 1)[0]); }
+  else if(b.dataset.ea === 'couleur'){ EDE.pal = EDE.pal === k ? null : k; }
+  else if(b.dataset.ea === 'heure'){ EDE.heure = k; }
+  else if(b.dataset.ea === 'suppr'){
+    if(b.getAttribute('aria-disabled') === 'true'){ encMsg('Cet encart reçoit l\'agenda et l\'heure : touchez d\'abord l\'horloge d\'un autre encart.'); return; }
+    demanderSuppression(k); return;
+  }
+  rendreEncarts();
+  var f = document.querySelector('#encLignes [data-k="' + k + '"] [data-ea="' + b.dataset.ea + '"]'); if(f && !f.disabled) f.focus();
+});
+function nouvelEncartLigne(){
+  var pris = EDE.lignes.map(function(y){ return y.nom.trim(); }), n = EDE.lignes.length + 1;
+  while(pris.some(function(p){ return memeNom(p, 'Encart ' + n); })) n++;
+  var coul = EDE.lignes.map(function(y){ return y.couleur; }), libre = SUITE_COULEURS_ENC.filter(function(c){ return coul.indexOf(c) < 0; })[0] || SUITE_COULEURS_ENC[EDE.lignes.length % SUITE_COULEURS_ENC.length];
+  return {id:'e' + nouvelId(), nom:'Encart ' + n, couleur:libre, nouveau:true};
+}
+$('#encAj').onclick = function(){
+  if(!EDE) return; lireNomsEncarts(); encMsg('');
+  var x = nouvelEncartLigne(); EDE.lignes.push(x);
+  if(!EDE.L && !EDE.heure) EDE.heure = x.id;
+  rendreEncarts();
+  var f = document.querySelector('#encLignes [data-enc="' + x.id + '"]'); if(f){ f.focus(); f.select(); }
+};
+$('#encDepart').addEventListener('click', function(e){
+  var b = e.target.closest('[data-a]'); if(!b || !EDE || !EDE.L) return;
+  lireNomsEncarts(); encMsg('');
+  if(b.dataset.a === 'comme-jours'){
+    catalogueEncarts().forEach(function(m){
+      if(EDE.lignes.some(function(y){ return y.id === m.id || memeNom(y.nom, m.nom); })) return;
+      var revient = EDE.suppr[m.id] !== undefined; delete EDE.suppr[m.id];
+      EDE.lignes.push({id:m.id, nom:m.nom, couleur:m.couleur, nouveau:!revient && !encartsPossibles(EDE.L).some(function(y){ return y.id === m.id; })});
+    });
+  } else if(b.dataset.a === 'aucun-encart'){
+    EDE.lignes.slice().forEach(function(y){ retirerLigne(y.id, ''); });
+    var n = Object.keys(EDE.suppr).reduce(function(a, k){ return a + tachesEncart(k).taches; }, 0);
+    if(n) encMsg(n + ' tâche' + (n > 1 ? 's iront' : ' ira') + ' hors encart, en haut de la liste.');
+  }
+  rendreEncarts();
+});
+$('#encDlg').addEventListener('click', function(e){
+  if(e.target === e.currentTarget || e.target.closest('[data-a="fermer"]')){ EDE = null; $('#encDlg').close(); }
+});
+$('#encOk').onclick = function(){ if(EDE){ lireNomsEncarts(); enregistrerEncarts(); } };
+// Enregistrer : les encarts (modèle ou liste) et, pour chaque encart supprimé, ses tâches rangées à la fin de la destination.
+function enregistrerEncarts(){
+  var modele = !EDE.L, c = {}, rangs = {}, noms = {}, fins = {};
+  EDE.lignes.forEach(function(x, i){
+    var nom = x.nom.trim() || 'Encart ' + (i + 1);
+    rangs[x.id] = {couleur:x.couleur, ordre:i + 1}; noms[x.id] = nom;
+  });
+  var ids = EDE.lignes.map(function(x){ return x.id; });
+  var portee = modele ? IX.listes.filter(function(l){ return suitModele(l.id); }).map(function(l){ return l.id; }) : [EDE.L];
+  Object.keys(EDE.suppr).forEach(function(k){
+    var d = EDE.suppr[k]; if(d && ids.indexOf(d) < 0) d = '';
+    portee.forEach(function(L){
+      var racines = enfants(L, '', k); if(!racines.length) return;
+      var l = D.listes[L] || {}, carte = l.encarts && typeof l.encarts === 'object' ? l.encarts : null;
+      // Le modèle : un jour (ou une ancienne liste) qui cachait l'encart de destination le remontre, pour accueillir ces tâches.
+      if(modele && d && carte && (l.type === 'jour' ? carte[d] === false : carte[d] !== true)) c['listes/' + L + '/encarts/' + d] = true;
+      var kf = L + '#' + d;
+      if(fins[kf] == null){ var f = enfants(L, '', d), der = f[f.length - 1]; fins[kf] = der ? Number(D.t[der].ordre) || 0 : 0; }
+      racines.forEach(function(r){
+        c['t/' + r + '/encart'] = d; c['t/' + r + '/ordre'] = ++fins[kf];
+        descendants(r).forEach(function(s){ if(D.t[s].encart != null) c['t/' + s + '/encart'] = d; });
+      });
+    });
+    var A = modele && listeAstreintes();
+    if(A) enfants(A.id, '').forEach(function(x){ if(D.t[x] && !D.t[x].sep && zoneDe(D.t[x]) === k) c['t/' + x + '/zone'] = d || '-'; });
+  });
+  if(modele){
+    c['reglages/encarts'] = ids.length ? noms : {_aucun:false}; // vide : on le note, sinon le fichier de départ reviendrait
+    c['reglages/encartsInfo'] = ids.length ? rangs : null;
+    c['reglages/encartHeure'] = ids.indexOf(EDE.heure) >= 0 ? EDE.heure : (ids[0] || null);
+  } else {
+    var p = {};
+    ids.forEach(function(k){ p[k] = {nom:noms[k], couleur:rangs[k].couleur, ordre:rangs[k].ordre}; });
+    c['listes/' + EDE.L + '/encartsPropres'] = ids.length ? p : null;
+    c['listes/' + EDE.L + '/encarts'] = null; // l'ancien réglage (encarts du modèle montrés ou cachés) ne sert plus
+  }
+  EDE = null; $('#encDlg').close();
+  ecrire(c);
+  if($('#reglDlg').open) resumeEncartsJours();
+  montrerBandeau('Encarts enregistrés', null);
+}
 // Fichier de départ de la ferme (gardé sur l'appareil pour le mode hors ligne).
 function chargerDepart(){
   if(!window.fetch) return;
@@ -1771,7 +2113,7 @@ document.addEventListener('click', function(e){
   else if(a === 'menu-liste' && L){ ouvrirMenuListe(L); }
   else if(a === 'faites' && L){ ouvrirFaites(L); }
   else if(a === 'aller'){ allerA(b.dataset.l, true); }
-  else if(a === 'nouvelle-liste'){ demanderNom('Nouvelle liste', '', nouvelleListe); }
+  else if(a === 'nouvelle-liste'){ demanderNom('Nouvelle liste', '', nouvelleListe, true); }
   else if(a === 'annuler'){ var f = annulable; cacherBandeau(); if(f) f(); }
   else if(a === 'planning'){ $('#piste').scrollTo({left:0, behavior:'smooth'}); }
   else if(a === 'aller-astreintes'){ var as = IX.listes.filter(function(l){ return l.type === 'astreintes'; })[0]; if(as) allerA(as.id, true); }
