@@ -328,6 +328,16 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   .rond{width:34px;height:34px}
   /* Jamais d'ascenseur de côté dans une liste (demande du 20/11) : la zone de clic du « ⋯ » d'une tâche dépassait de 2 px. */
   .pan-corps{padding:0 10px 12px;overflow-x:hidden}
+  /* Ascenseur des listes plus fin et plus clair (maquette validée le 21/11) : 8 px au lieu d'environ 17,
+     gris clair, sans fond, bouts arrondis ; il défile comme avant. Chrome et Edge lisent les règles ::-webkit-scrollbar ;
+     Firefox, qui ne les connaît pas, lit scrollbar-width et scrollbar-color (réservés à lui : Chrome les ferait passer
+     avant les règles ::-webkit-scrollbar et l'ascenseur resterait plus large). Téléphone inchangé. */
+  .pan-corps::-webkit-scrollbar{width:8px}
+  .pan-corps::-webkit-scrollbar-track,.pan-corps::-webkit-scrollbar-corner{background:transparent}
+  .pan-corps::-webkit-scrollbar-thumb{background:#d3d8d6;border-radius:4px}
+  .pan-corps::-webkit-scrollbar-thumb:hover{background:#b9c1be}
+  .pan-corps::-webkit-scrollbar-button{display:none}
+  @supports not selector(::-webkit-scrollbar){.pan-corps{scrollbar-width:thin;scrollbar-color:#d3d8d6 transparent}}
   li.t .pt::after{right:-4px}
   .bloc{box-shadow:none;padding:0}
   .pan.fige{outline:2px dashed #c4c4cc;outline-offset:-1px}
