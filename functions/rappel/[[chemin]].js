@@ -97,16 +97,25 @@ export function listeDuJour(taches, jour, pid, reglages) {
   const listes = (taches && taches.listes) || {}, t = (taches && taches.t) || {};
   const L = Object.keys(listes).find((k) => listes[k] && listes[k].type === 'jour' && Number(listes[k].jour) === jour);
   if (!L) return { nom: JOURS[jour], lignes: [] };
-  const encarts = (listes[L].encarts && typeof listes[L].encarts === 'object') ? listes[L].encarts : {};
-  const noms = Object.assign({ rdv: 'RDV', p1: 'P1', p2: 'P2' }, (reglages && reglages.encarts) || {});
-  const rang = { rdv: 1, p1: 2, p2: 3 };
+  // Encarts d'un jour (21/11) : ceux du modèle des jours (reglages.encarts, ordre dans reglages.encartsInfo), sauf ceux
+  // que ce jour cache (listes/<jour>/encarts/<id> = faux) ; l'encart à l'horloge (reglages.encartHeure, sinon rdv) a l'heure.
+  const carte = (listes[L].encarts && typeof listes[L].encarts === 'object') ? listes[L].encarts : {};
+  const modele = (reglages && reglages.encarts && typeof reglages.encarts === 'object') ? reglages.encarts : null;
+  const info = (reglages && reglages.encartsInfo && typeof reglages.encartsInfo === 'object') ? reglages.encartsInfo : {};
+  const noms = Object.assign({ rdv: 'RDV', p1: 'P1', p2: 'P2' }, modele || {});
+  const depart = { rdv: 1, p1: 2, p2: 3 };
+  // Format d'origine (des noms seulement, sans encartsInfo) : rdv, p1, p2 existent toujours.
+  const ancien = !modele || (!(reglages.encartsInfo && typeof reglages.encartsInfo === 'object') && !('_aucun' in modele));
+  const existe = (k) => (ancien && k in depart) || (!!modele && modele[k] != null && modele[k] !== false);
+  const rang = (k) => (k ? Number(info[k] && info[k].ordre) || depart[k] || 100 : 0);
+  const hz = reglages && reglages.encartHeure && existe(reglages.encartHeure) ? reglages.encartHeure : (existe('rdv') ? 'rdv' : '');
   const racines = Object.keys(t).map((id) => Object.assign({ id }, t[id])).filter((x) => x && x.liste === L && !x.sep && String(x.texte || '').trim() &&
     !(x.parent && t[x.parent] && t[x.parent].liste === L) && (!x.pour || x.pour === pid));
-  racines.forEach((x) => { x.e = x.encart && encarts[x.encart] ? x.encart : ''; });
-  racines.sort((a, b) => (rang[a.e] || 0) - (rang[b.e] || 0) ||
-    (a.e === 'rdv' ? String(a.heure || '99:99').localeCompare(String(b.heure || '99:99')) : 0) ||
+  racines.forEach((x) => { x.e = x.encart && existe(x.encart) && carte[x.encart] !== false ? x.encart : ''; });
+  racines.sort((a, b) => rang(a.e) - rang(b.e) ||
+    (a.e && a.e === hz ? String(a.heure || '99:99').localeCompare(String(b.heure || '99:99')) : 0) ||
     (Number(a.ordre) || 0) - (Number(b.ordre) || 0) || (Number(a.at) || 0) - (Number(b.at) || 0));
-  return { nom: String(listes[L].nom || JOURS[jour]), lignes: racines.map((x) => (x.e === 'rdv' && /^\d\d:\d\d$/.test(x.heure || '') ? x.heure.replace(':', ' h ') + ' · ' : (x.e === 'rdv' ? noms.rdv + ' · ' : '')) + String(x.texte).replace(/\s+/g, ' ').trim()) };
+  return { nom: String(listes[L].nom || JOURS[jour]), lignes: racines.map((x) => (x.e && x.e === hz && /^\d\d:\d\d$/.test(x.heure || '') ? x.heure.replace(':', ' h ') + ' · ' : (x.e && x.e === hz ? String(noms[hz]) + ' · ' : '')) + String(x.texte).replace(/\s+/g, ' ').trim()) };
 }
 export function message(liste, rappel, essai) {
   const l = liste.lignes, vus = l.slice(0, MAX_LIGNES).map((x) => '• ' + (x.length > 70 ? x.slice(0, 69) + '…' : x));

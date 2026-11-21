@@ -2,8 +2,9 @@
 
 ## Où on en est
 
-*Au 21 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 au 21/11.*
+*Au 21 novembre 2026 (soir). Source : lecture du dépôt et demandes de François du 18/11 au 21/11.*
 
+- **Encarts propres à chaque liste (21/11, étape 49)**, conception validée par François (« vas-y » du 21/11) : menu « ⋯ » d'une liste → « Encarts de cette liste… » (nom, ordre par ▲▼, couleur par pastille, ajout « Encart N », suppression où l'on choisit où vont les tâches) ; Réglages → « Encarts des sept jours » = le modèle des jours (le changer change tous les jours ; l'horloge marque l'unique encart qui reçoit l'agenda, l'heure et le rappel du matin) ; « ⋯ » d'un jour → « Encarts des sept jours… » ; création d'une liste : Aucun encart (par défaut, comme avant), Comme les jours, ou Les miens ; une tâche déplacée va dans l'encart du même nom, sinon hors encart. **Aucune migration** : les encarts RDV, P1, P2 de la ferme et toutes les listes restent tels quels (ancien format lu) ; aucune tâche n'est supprimée par la suppression d'un encart. Liste de courses **pas pré-remplie** (François le fera). Vérifié : nouveau `tests/encarts-listes.cjs` (39 vérifications, téléphone et ordinateur), les 7 autres fichiers de tests verts. **Non vérifié** : de vrais appareils.
 - **Encarts en bandeau (21/11)**, variante A de la maquette validée par François : l'étiquette colorée de chaque encart (RDV bleu, P1 orange, P2 gris) s'étire jusqu'un peu avant le « + », sur le téléphone et l'ordinateur. Vérifié : `tests/taches-encarts.cjs` (écart de 8 px avec le « + », couleur pâle de chaque encart, aux deux écrans). **Non vérifié** : de vrais appareils.
 - **Nouveau logo (21/11)**, choisi par François : le presse-papier sur ciel orangé. Remplacé partout : icônes du téléphone (Android, rond compris, et iPhone), onglet du navigateur, notifications. **À faire par François** : sur un téléphone où Farm tasks est déjà installé, l'icône peut garder l'ancien logo quelque temps ; pour l'avoir tout de suite, supprimer l'icône et réinstaller depuis https://aurore-task.pages.dev. **Non vérifié** : l'icône sur un vrai téléphone.
 
