@@ -85,7 +85,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   verifie(/<title>Farm tasks<\/title>/.test(html) && /apple-mobile-web-app-title" content="Farm tasks"/.test(html) && /class="menu-nom">Farm tasks</.test(html) && /d\.titre \|\| 'Farm tasks'/.test(fs.readFileSync(path.join(RACINE, 'sw.js'), 'utf8')), 'nom affiché « Farm tasks » : onglet, écran d\'accueil de l\'iPhone, menu de gauche, notification par défaut');
   verifie(!/Aurore/.test(html) && !/Aurore/.test(JSON.stringify(man)), 'plus aucun « Aurore » dans la page ni dans le manifeste (nom d\'appli valable pour toute ferme)');
   verifie(man.icons.length === 3 && man.icons.every((i) => fs.existsSync(path.join(RACINE, i.src))) && man.icons.some((i) => i.purpose === 'maskable'), 'icônes de l\'appli présentes (dont l\'icône « maskable » d\'Android)');
-  verifie(/rel="manifest" href="manifest\.webmanifest"/.test(html) && /apple-touch-icon" href="icons\/taches-180\.png"/.test(html) && fs.existsSync(path.join(RACINE, 'icons/taches-180.png')), 'la page déclare son manifeste et son icône pour l\'iPhone');
+  verifie(/rel="manifest" href="manifest\.webmanifest"/.test(html) && /apple-touch-icon" href="icons\/farm-tasks-presse-papier-180\.png"/.test(html) && fs.existsSync(path.join(RACINE, 'icons/farm-tasks-presse-papier-180.png')), 'la page déclare son manifeste et son icône pour l\'iPhone');
   const sw = fs.readFileSync(path.join(RACINE, 'sw.js'), 'utf8');
   verifie(/'\.\/index\.html'/.test(sw) && /register\('sw\.js'\)/.test(html), 'le service hors ligne garde la page des tâches');
   // La règle « taches » de la base est dans le dépôt liste-recolte (docs/regles-base/fermees.json) : la base est commune.

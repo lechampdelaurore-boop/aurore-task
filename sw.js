@@ -1,10 +1,10 @@
 // Hors ligne : la page passe d'abord par le réseau, sinon la dernière copie gardée.
 // La base Firebase (autre domaine) n'est jamais mise en cache.
 // Après toute modification de index.html, config.js, des icônes ou du fichier de départ : changer CACHE.
-var CACHE = 'aurore-task-v24';
+var CACHE = 'aurore-task-v25';
 // Clé web reprise du site du Cumul (voir index.html) : gardée aussi pour l'ouverture hors ligne.
 var CLE_SOURCE = 'https://liste-recolte.pages.dev/cle-web.js';
-var SHELL = ['./', './index.html', './config.js', './cle-web.js', './manifest.webmanifest', './icons/taches.svg', './icons/taches-192.png', './referentiel/taches-depart.json', './polices/bricolage-grotesque.woff2', './polices/dm-sans.woff2', './polices/open-sans.woff2'];
+var SHELL = ['./', './index.html', './config.js', './cle-web.js', './manifest.webmanifest', './favicon.ico', './icons/farm-tasks-presse-papier.svg', './icons/farm-tasks-presse-papier-192.png', './referentiel/taches-depart.json', './polices/bricolage-grotesque.woff2', './polices/dm-sans.woff2', './polices/open-sans.woff2'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL).then(function () { return c.add(new Request(CLE_SOURCE, { mode: 'no-cors' })).catch(function () {}); }); }).then(function () { return self.skipWaiting(); }));
@@ -41,7 +41,7 @@ self.addEventListener('push', function (e) {
   e.waitUntil(self.registration.showNotification(d.titre || 'Farm tasks', {
     body: d.texte || 'La liste du jour vous attend.',
     tag: d.tag || 'rappel', renotify: true, requireInteraction: true,
-    icon: 'icons/taches-192.png', badge: 'icons/taches-192.png', lang: 'fr',
+    icon: 'icons/farm-tasks-presse-papier-192.png', badge: 'icons/farm-tasks-presse-papier-192.png', lang: 'fr',
     data: { url: d.url || './?rappel=1' },
     actions: d.essai ? [] : [{ action: 'lu', title: 'J\'ai lu ma liste' }]
   }));
