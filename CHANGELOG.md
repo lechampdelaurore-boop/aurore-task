@@ -1,5 +1,9 @@
 # Historique des changements
 
+## 2026-11-21
+
+- **Nouveau logo** (choix de François : le presse-papier sur ciel orangé) : `icons/taches.svg` (onglet du navigateur), `icons/taches-192.png` et `icons/taches-512.png` (installation, notifications), `icons/taches-maskable-512.png` (dessin réduit pour la découpe ronde d'Android), `icons/taches-180.png` (iPhone). CACHE `aurore-task-v19`. Aucun autre changement.
+
 ## 2026-11-20
 
 - **L'appli s'appelle « Farm tasks »** (demande de François du 20/11, auparavant « Aurore Task ») : onglet, menu de gauche, nom sous l'icône (manifeste et iPhone), titre de notification par défaut, textes des Réglages sur les notifications, README. Adresse, dépôt et projet Cloudflare inchangés. CACHE `aurore-task-v18`. `tests/taches.cjs` : 2 vérifications ajoutées (nom à chaque endroit, plus aucun « Aurore » dans la page ni le manifeste). Au passage, `tests/rappel.cjs` : une vérification comparait l'heure de Paris du téléphone simulé à l'heure du serveur (UTC) et échouait entre minuit et 1 h ; elle lit maintenant l'heure du téléphone simulé. **Non vérifié** : de vrais appareils.

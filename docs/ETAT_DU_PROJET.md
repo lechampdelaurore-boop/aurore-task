@@ -2,7 +2,9 @@
 
 ## Où on en est
 
-*Au 20 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 au 20/11.*
+*Au 21 novembre 2026. Source : lecture du dépôt et demandes de François du 18/11 au 21/11.*
+
+- **Nouveau logo (21/11)**, choisi par François : le presse-papier sur ciel orangé. Remplacé partout : icônes du téléphone (Android, rond compris, et iPhone), onglet du navigateur, notifications. **À faire par François** : sur un téléphone où Farm tasks est déjà installé, l'icône peut garder l'ancien logo quelque temps ; pour l'avoir tout de suite, supprimer l'icône et réinstaller depuis https://aurore-task.pages.dev. **Non vérifié** : l'icône sur un vrai téléphone.
 
 - **L'appli s'appelle « Farm tasks » (20/11)**, demande de François (« renomme l'app Aurore Task en Farm tasks ») : onglet du navigateur, menu de gauche, nom sous l'icône (manifeste, et iPhone), notification par défaut, textes des Réglages. **Inchangés** : l'adresse https://aurore-task.pages.dev, le dépôt `aurore-task`, le projet Cloudflare (les changer demande le « vas-y » de François et casserait les icônes installées), le nom de la ferme en haut de l'écran (réglage de la base), les données. Vérifié : `tests/taches.cjs` (nom à chaque endroit, plus aucun « Aurore » dans la page ni le manifeste). Icône déjà installée : sur Android et l'ordinateur, Chrome reprend en principe le nouveau nom tout seul dans les jours qui suivent (il peut demander d'accepter) ; sur iPhone, il faut supprimer l'icône et la rajouter. **Non vérifié** : de vrais appareils.
 - **Ordinateur : sept listes entières sur un écran de 1920 px (20/11)** : menu de gauche resserré (152 px), listes de 240 px (largeur calculée sur l'écran, entre 230 et 300 px), texte des tâches inchangé (10,5 px) ; sur 1600 px, six listes entières et on tire pour la suite ; téléphone inchangé. Aucun ascenseur de côté dans les listes (corrigé le soir même après la capture de François), l'ascenseur vertical reste. Vérifié : `tests/taches.cjs`. **Non vérifié** : le vrai écran de François.
