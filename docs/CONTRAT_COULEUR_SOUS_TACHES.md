@@ -1,6 +1,6 @@
 # Contrat : la couleur d'une tâche passe à ses sous-tâches
 
-*Étape 50 de la feuille de route. Rédigé le 21/11/2026, **avant tout code**. Demande de François (21/11) : « Quand on choisit la couleur d'une tâche, toutes ses sous-tâches et sous-sous-tâches prennent la même couleur, par défaut. Si besoin, je peux changer individuellement. » Les cinq points ci-dessous ont été **confirmés par François le 21/11/2026**, tous selon la recommandation de Claude.*
+*Étape 50 de la feuille de route. Rédigé le 21/11/2026, **avant tout code**. Demande de François (21/11) : « Quand on choisit la couleur d'une tâche, toutes ses sous-tâches et sous-sous-tâches prennent la même couleur, par défaut. Si besoin, je peux changer individuellement. » Les cinq points ci-dessous ont été **confirmés par François le 21/11/2026**, tous selon la recommandation de Claude. **Codé le 21/11/2026** (`colorerTache` et `creer` dans `index.html`, test `tests/couleur-sous-taches.cjs`).*
 
 ## 1. Le comportement voulu, en une phrase
 
