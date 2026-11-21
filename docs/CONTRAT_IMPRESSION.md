@@ -2,7 +2,7 @@
 
 *Étape 52 de la feuille de route. Rédigé le 21/11/2026, **avant tout code**. Demande de François (21/11) : « Je veux qu'on puisse imprimer la totalité des listes, chaque tâche visible, au cas où il y aurait un problème réseau. Certaines listes ont un ascenseur : je ne peux pas juste imprimer l'écran ou faire une capture. Il faut un outil spécifique. »*
 
-**État : les quatre points de la partie 4 ont été confirmés par François le 21/11/2026, tous selon la recommandation de Claude. Prêt à coder (Opus 5.5 · Élevé).**
+**État : les quatre points de la partie 4 ont été confirmés par François le 21/11/2026, tous selon la recommandation de Claude. Codé le 21/11/2026 (Opus 5.5 · Élevé), test `tests/impression.cjs` ; détails des choix faits en codant dans `docs/DECISIONS.md`.**
 
 Maquette d'exemple (données inventées, autre ferme) : `maquette-impression.pdf` et `.png` dans le dossier `impression-taches/` des fichiers du projet.
 

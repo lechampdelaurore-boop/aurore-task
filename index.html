@@ -367,6 +367,54 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   dialog.feuille{margin:auto;max-width:420px;border-radius:var(--r-feuille);padding:18px}
   .poignee-f{display:none}
 }
+
+/* Impression (étape 52, contrat docs/CONTRAT_IMPRESSION.md) : fenêtre de choix, puis une page d'impression à part
+   (#impPage), fabriquée depuis la copie de l'appareil, invisible à l'écran, seule imprimée. */
+.imp-raccourcis{margin:0 0 6px;font-size:13px}
+.imp-raccourcis button{border:0;background:none;padding:8px 2px;font:inherit;font-weight:700;color:var(--texte);text-decoration:underline;text-underline-offset:3px}
+.imp-listes{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.imp-listes label,.imp-opts label{display:flex;align-items:center;gap:8px;min-height:40px;font-family:var(--f-ui);font-weight:500;font-size:13px;min-width:0}
+.imp-listes label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.imp-listes small{color:var(--sec);font-weight:400}
+.imp-listes input,.imp-opts input{width:20px;height:20px;accent-color:var(--vert);margin:0;flex-shrink:0}
+.imp-opts{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.imp-compte{margin:10px 0 0;padding:10px 12px;background:var(--gris);border-radius:var(--r-bloc);font-family:var(--f-ui);font-weight:600;font-size:14px}
+#impDlg .btn:disabled{opacity:.45;cursor:default}
+/* Téléphone : « Annuler » et « Imprimer » restent en bas de l'écran pendant qu'on fait défiler la fenêtre. */
+@media (max-width:999.98px){
+  #impDlg .btns{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom));margin:12px -14px calc(-16px - env(safe-area-inset-bottom));padding:10px 14px calc(16px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--filet-pale)}
+}
+#impPage{display:none}
+@media print{
+  @page{size:A4 portrait;margin:12mm}
+  html,body{height:auto!important;min-height:0!important;overflow:visible!important;background:#fff!important}
+  body.imprime{display:block!important}
+  body.imprime > :not(#impPage){display:none!important}
+  body.imprime #impPage{display:block}
+}
+#impPage{font-family:var(--f-texte);color:#111;font-size:9pt;line-height:1.32;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#impPage.gros{font-size:11pt}
+.imp-tete{display:flex;justify-content:space-between;align-items:flex-end;gap:6mm;border-bottom:.8pt solid #111;padding-bottom:2mm;margin-bottom:4mm}
+.imp-tete h1{margin:0;font-family:var(--f-titre);font-weight:600;font-size:1.55em;line-height:1.15}
+.imp-quand{font-size:.82em;color:#444;text-align:right;max-width:55%}
+.imp-cols{column-count:var(--cols,2);column-gap:8mm}
+.imp-liste{margin:0 0 4mm}
+.imp-titre{margin:0 0 1.2mm;padding-bottom:.8mm;border-bottom:.6pt solid #888;font-family:var(--f-titre);font-weight:600;font-size:1.25em;line-height:1.2}
+.imp-titre small{font-family:var(--f-ui);font-weight:500;font-size:.62em;color:#555}
+.imp-enc{margin:1.6mm 0 .8mm;padding:.5mm 2mm;border-radius:1.6mm;font-family:var(--f-ui);font-weight:600;font-size:.86em}
+.imp-garde,.imp-t,.imp-sep{break-inside:avoid;page-break-inside:avoid}
+.imp-t{display:flex;align-items:flex-start;gap:1.6mm;padding:.45mm 0 .45mm calc(var(--n,0) * 1.45em)}
+.imp-case{flex:0 0 auto;width:1.05em;height:1.05em;margin-top:.14em;border:.8pt solid #222;border-radius:.2em;background:#fff}
+.imp-t.faite .imp-case{background:#222}
+.imp-t.faite .imp-tx{color:#555}
+.imp-corps{min-width:0;flex-grow:1}
+.imp-tx{white-space:pre-wrap;overflow-wrap:anywhere}
+.imp-pas{display:inline-flex;align-items:center;justify-content:center;width:1.4em;height:1.4em;margin-left:.35em;border-radius:50%;font-family:var(--f-ui);font-weight:700;font-size:.74em;line-height:1;vertical-align:.1em;white-space:nowrap}
+.imp-nb .imp-pas{width:auto;height:auto;margin-left:.3em;border-radius:0;font-size:.86em;vertical-align:0}
+.imp-ast{font-size:.86em;color:#444}
+.imp-sep{margin:1.1mm 0 1.1mm calc(var(--n,0) * 1.45em + 1.6em);border-top:.8pt dashed #999}
+.imp-vide{margin:.4mm 0;font-style:italic;color:#666}
+.imp-sous{margin:1.6mm 0 .6mm;font-family:var(--f-ui);font-weight:600;font-size:.86em;color:#444}
 </style>
 </head>
 <body>
@@ -507,8 +555,32 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
     <h3 class="regl-h">Rappel du matin</h3>
     <p class="regl-aide">Chacun règle le sien. À l'heure dite, une notification montre la liste du jour ; tant que « J'ai lu ma liste » n'est pas touché, elle revient.</p>
     <div id="reglRap"></div>
+    <h3 class="regl-h">Papier de secours</h3>
+    <p class="regl-aide" id="reglImpAide">Toutes les listes en entier, sur papier ou en PDF, même sans réseau.</p>
+    <button type="button" class="btn outil enc-aj" id="reglImp">Imprimer…</button>
     <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="submit" class="btn principal">Enregistrer</button></div>
   </form>
+</dialog>
+
+<dialog id="impDlg" class="feuille" aria-label="Imprimer">
+  <div class="poignee-f"></div>
+  <h2>Imprimer</h2>
+  <p class="regl-aide" id="impQuand"></p>
+  <h3 class="regl-h">Listes</h3>
+  <p class="imp-raccourcis"><button type="button" data-imp="tout">Tout</button> · <button type="button" data-imp="jours">Les sept jours</button> · <button type="button" data-imp="aucune">Aucune</button></p>
+  <div class="imp-listes" id="impListes"></div>
+  <h3 class="regl-h">Mise en page</h3>
+  <div class="imp-opts" id="impOpts">
+    <label><input type="radio" name="impPapier" value="portrait">A4 portrait</label>
+    <label><input type="radio" name="impPapier" value="paysage">A4 paysage</label>
+    <label><input type="radio" name="impCoul" value="couleur">Couleur</label>
+    <label><input type="radio" name="impCoul" value="nb">Noir et blanc</label>
+    <label><input type="checkbox" id="impGros">Gros caractères</label>
+    <label><input type="checkbox" id="impFaites">Faites récemment (7 jours)</label>
+  </div>
+  <p class="imp-compte" id="impCompte" role="status"></p>
+  <p class="regl-aide" id="impIphone" hidden>Sur iPhone, si la fenêtre d'impression ne s'ouvre pas : ouvrir le site dans Safari, toucher « Imprimer » ici, puis Partager → Imprimer.</p>
+  <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="button" class="btn principal" id="impOk">Imprimer</button></div>
 </dialog>
 
 <script src="cle-web.js"></script>
@@ -587,7 +659,8 @@ var ICO = {
   astreinte:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4h-4"/></svg>',
   horloge:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
   agenda:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>',
-  retour:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>'
+  retour:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+  imprimer:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/></svg>'
 };
 
 /* ---------- État ---------- */
@@ -619,6 +692,9 @@ function setAt(o, chemin, v){
 function appliquer(o, c){ Object.keys(c).forEach(function(k){ o = setAt(o, k, c[k]); }); return o; }
 var garderMinuteur = 0;
 function garderCopie(){ clearTimeout(garderMinuteur); garderMinuteur = setTimeout(function(){ ls('taches.copie', S); }, 300); }
+// Impression (étape 52) : heure à laquelle la copie de l'appareil était à jour pour la dernière fois (flux en direct ouvert
+// et reçu). Sur l'appareil seulement (taches.copieLe), jamais dans la base.
+function marquerFrais(){ ls('taches.copieLe', Date.now()); }
 function recalculer(){
   CATALOGUE = null; ENC_LISTES = {};
   D = copie(S);
@@ -1227,8 +1303,8 @@ function ouvrir(force){
     if(!patch && m.path === '/' && !premier){ premier = true; apresPremier(); }
     rendre();
   }
-  flux.addEventListener('put', function(ev){ recu = true; enLigne = true; recevoir(ev, false); flush(); });
-  flux.addEventListener('patch', function(ev){ recevoir(ev, true); });
+  flux.addEventListener('put', function(ev){ recu = true; enLigne = true; recevoir(ev, false); marquerFrais(); flush(); });
+  flux.addEventListener('patch', function(ev){ recevoir(ev, true); if(enLigne) marquerFrais(); });
   flux.addEventListener('auth_revoked', function(){ compte.fin = 0; renouveler().then(function(){ ouvrir(true); }, function(){}); });
   flux.addEventListener('cancel', function(){ refuse = 'La base refuse ce compte.'; rendre(); });
   flux.onerror = function(){ if(es === flux){ enLigne = false; majStatut(); } };
@@ -1272,6 +1348,7 @@ function verifier(){
     if(!profil){ demarrer(); return; }
     if(compte && compte.jeton !== avant) ouvrir(true);
     else if(!es || es.readyState === 2) ouvrir(false);
+    if(enLigne && recu && es && es.readyState === 1) marquerFrais();
     flush();
   }, function(){ enLigne = false; majStatut(); });
 }
@@ -1651,6 +1728,7 @@ function ouvrirMenuListe(L){
   } else if(l.type !== 'astreintes' && !v) a.push('<button class="act" type="button" data-a="encarts-liste">' + ICO.encart + 'Encarts de cette liste…</button>');
   a.push(v ? '<button class="act" type="button" data-a="deverrouiller">' + ICO.ouvert + 'Déverrouiller la liste</button>'
            : '<button class="act" type="button" data-a="verrouiller">' + ICO.cadenas + 'Verrouiller la liste</button>');
+  a.push('<button class="act" type="button" data-a="imprimer-liste">' + ICO.imprimer + 'Imprimer cette liste</button>');
   if(peutSupprimer(L)) a.push('<button class="act danger" type="button" data-a="supprimer-liste">' + ICO.poubelle + 'Supprimer la liste</button>');
   $('#listeActions').innerHTML = a.join('');
   if(!$('#listeDlg').open) $('#listeDlg').showModal();
@@ -1670,6 +1748,7 @@ $('#listeDlg').addEventListener('click', function(e){
   else if(a === 'deverrouiller') verrouiller(L, false);
   else if(a === 'renommer') demanderNom('Renommer la liste', IX.ok[L].nom, function(n){ renommerListe(L, n); });
   else if(a === 'faites') ouvrirFaites(L);
+  else if(a === 'imprimer-liste') ouvrirImpression(L);
   else if(a === 'supprimer-liste'){
     var n = Object.keys(D.t).filter(function(id){ return D.t[id] && D.t[id].liste === L; }).length;
     confirmer('Supprimer la liste ?', '« ' + IX.ok[L].nom + ' »' + (n ? ' et ses ' + n + ' tâche' + (n > 1 ? 's' : '') : '') + ' seront supprimées pour tout le monde.', function(){ supprimerListe(L); });
@@ -1759,8 +1838,12 @@ function ouvrirReglages(){
   $('#reglPers').innerHTML = personnes().map(persLigne).join('');
   rapEdit = {}; rapPour = personne(qui()) ? qui() : ((personnes()[0] || {}).id || qui()); rendreRappelRegl();
   resumeEncartsJours();
+  var donnees = IX.listes.length > 0;
+  $('#reglImp').disabled = !donnees;
+  $('#reglImpAide').textContent = donnees ? 'Toutes les listes en entier, sur papier ou en PDF, même sans réseau.' : 'Pas encore de données sur cet appareil.';
   var d = $('#reglDlg'); if(!d.open) d.showModal();
 }
+$('#reglImp').onclick = function(){ if(IX.listes.length) ouvrirImpression(''); };
 $('#versReglages').onclick = function(){ $('#compteDlg').close(); ouvrirReglages(); };
 $('#reglAjPers').onclick = function(){
   var pris = personnes().map(function(p){ return p.couleur; }), libre = Object.keys(PALETTE).filter(function(k){ return pris.indexOf(k) < 0; })[0] || 'gris';
@@ -2131,6 +2214,176 @@ function cacherBandeau(){ $('#bandeau').hidden = true; annulable = null; }
 function flash(id){
   setTimeout(function(){ var li = document.querySelector('li.t[data-id="' + CSS.escape(id) + '"]'); if(li){ li.classList.add('vient'); setTimeout(function(){ li.classList.remove('vient'); }, 1300); } }, 30);
 }
+
+/* ---------- Impression (étape 52, contrat docs/CONTRAT_IMPRESSION.md) : le papier de secours ----------
+   Une page d'impression à part (#impPage), fabriquée depuis ce qu'il y a sur l'appareil (D : la copie de la base reçue + les
+   modifications pas encore envoyées), sans aucun appel réseau ni écriture : marche hors ligne. Invisible à l'écran, seule
+   imprimée (@media print) : toutes les tâches à la suite, sans ascenseur ; une tâche n'est jamais coupée, un titre ne reste
+   jamais seul en bas. Retirée un peu après la fin de l'impression (un téléphone peut relire la page tant que sa fenêtre
+   d'impression est ouverte). « Ctrl+P » sur l'appli imprime aussi les listes en entier (toutes, options retenues).
+   Options retenues sur l'appareil (taches.impression) : paysage, nb (noir et blanc), gros (caractères), faites (récemment). */
+var IMP_GARDE_MS = 120000, impDernier = null, impMinuteur = 0;
+var IMP_DEFAUT = {paysage:false, nb:false, gros:false, faites:false};
+function impOptions(){
+  var o = ls('taches.impression'), r = {}; o = o && typeof o === 'object' ? o : {};
+  Object.keys(IMP_DEFAUT).forEach(function(k){ r[k] = typeof o[k] === 'boolean' ? o[k] : IMP_DEFAUT[k]; });
+  return r;
+}
+function heureFr(d){ return deux(d.getHours()) + ' h ' + deux(d.getMinutes()); }
+function dateFr(d, an){ try{ return d.toLocaleDateString('fr-FR', an === false ? {weekday:'long', day:'numeric', month:'long'} : {weekday:'long', day:'numeric', month:'long', year:'numeric'}); }catch(e){ return dateLocale(d); } }
+// Heure de l'impression et fraîcheur des données : connecté en direct, elles sont à jour maintenant ; sinon, à la dernière
+// heure où elles l'étaient (taches.copieLe). Les modifications pas encore envoyées sont comprises, et comptées.
+function impQuand(){
+  var mtn = new Date(), direct = enLigne && recu && !!es && es.readyState === 1;
+  var le = direct ? mtn.getTime() : Number(ls('taches.copieLe')) || 0, d = new Date(le), n = pending.length;
+  var frais = !le ? 'heure de mise à jour des données inconnue'
+    : 'données de cet appareil à jour ' + (dateLocale(d) === dateLocale(mtn) ? '' : 'le ' + dateFr(d, d.getFullYear() !== mtn.getFullYear()) + ' ') + 'à ' + heureFr(d);
+  if(n) frais += ', dont ' + n + ' modification' + (n > 1 ? 's' : '') + ' pas encore envoyée' + (n > 1 ? 's' : '');
+  return {imprime:'Imprimé le ' + dateFr(mtn) + ' à ' + heureFr(mtn), frais:frais};
+}
+function astInfoTexte(t){
+  var j = joursDe(t), z = zoneDe(t), h = [];
+  h.push(j.length ? j.map(function(k){ return JOURS_COURTS[k]; }).join(', ') : 'Aucun jour');
+  h.push((z ? nomEncart(z) : 'Hors encart') + (z && z === encartHeure() && /^\d\d:\d\d$/.test(t.heure || '') ? ' ' + t.heure : ''));
+  if(t.pause) h.push('En pause');
+  return h.join(' · ');
+}
+// Faites récemment d'une liste (option) : cochées depuis moins de 7 jours (pas les supprimées), avec leurs sous-tâches.
+function impFaites(L){
+  var lim = Date.now() - GARDE_FAITES, r = [];
+  Object.keys(D.faites).filter(function(id){ var f = D.faites[id]; return !!f && f.liste === L && !f.supprime && Number(f.at) > lim; })
+    .sort(function(a, b){ return (Number(D.faites[b].at) || 0) - (Number(D.faites[a].at) || 0); })
+    .forEach(function(fid){
+      var f = D.faites[fid], tt = f.t && typeof f.t === 'object' ? f.t : {}, enf = {}, racine = tt[fid] || {texte:f.texte};
+      if(racine.sep) return;
+      Object.keys(tt).forEach(function(x){ if(x === fid || !tt[x]) return; var p = tt[x].parent && tt[tt[x].parent] ? tt[x].parent : fid; (enf[p] = enf[p] || []).push(x); });
+      Object.keys(enf).forEach(function(k){ enf[k].sort(function(a, b){ return (Number(tt[a].ordre) || 0) - (Number(tt[b].ordre) || 0); }); });
+      r.push({k:'t', faite:true, n:0, t:racine});
+      (function g(x, n){ if(n > 50) return; (enf[x] || []).forEach(function(k){ if(!tt[k].sep) r.push({k:'t', faite:true, n:n, t:tt[k]}); g(k, n + 1); }); })(fid, 1);
+    });
+  return r;
+}
+// Ce qu'on imprime d'une liste, dans l'ordre de l'écran : son titre, les tâches hors encart, puis chaque encart avec ses
+// tâches (sous-tâches à tous les niveaux, séparateurs), puis, en option, « Faites récemment ». Les tâches qu'on vient de
+// cocher (encore animées à l'écran) n'y sont plus. Sert aussi au compte de la fenêtre : le chiffre annoncé est celui imprimé.
+function impModele(L, o){
+  var r = [{k:'titre'}], avant;
+  function arbre(e){ (function f(parent, n){ enfants(L, parent, e).forEach(function(id){ var t = D.t[id]; r.push(t.sep ? {k:'sep', n:n} : {k:'t', id:id, n:n, t:t}); f(id, n + 1); }); })('', 0); }
+  if(!aEncarts(L)){ avant = r.length; arbre(''); if(r.length === avant) r.push({k:'vide'}); }
+  else {
+    arbre('');
+    encartsListe(L).forEach(function(x){ r.push({k:'enc', x:x}); avant = r.length; arbre(x.id); if(r.length === avant) r.push({k:'vide'}); });
+  }
+  if(o.faites){ var f = impFaites(L); if(f.length) r = r.concat([{k:'sous'}], f); }
+  return r;
+}
+function impCompte(listes, o){
+  var c = {taches:0, faites:0};
+  listes.forEach(function(L){ impModele(L, o).forEach(function(y){ if(y.k === 't') c[y.faite ? 'faites' : 'taches']++; }); });
+  return c;
+}
+function impTacheHtml(y, o){
+  var t = y.t || {}, texte = String(t.texte || '');
+  var coul = !y.faite && COULEURS_TEXTE.concat(COULEURS_ANCIENNES).filter(function(c){ return c[0] && c[0] === t.couleur; })[0];
+  var heure = y.id && /^\d\d:\d\d$/.test(t.heure || '') && !!IX.enc[y.id] && IX.enc[y.id] === horlogeDe(t.liste) && !IX.par[y.id] ? '<b>' + esc(t.heure) + '</b> ' : '';
+  var pe = t.pour && personne(t.pour), pas = '';
+  if(pe) pas = o.nb ? '<span class="imp-pas">[' + esc(pe.initiale) + ']</span>' : '<span class="imp-pas" style="background:' + PALETTE[pe.couleur][0] + ';color:' + PALETTE[pe.couleur][1] + '">' + esc(pe.initiale) + '</span>';
+  var ast = y.id && estAstreinte(y.id) ? '<div class="imp-ast">' + esc(astInfoTexte(t)) + '</div>' : '';
+  return '<div class="imp-t' + (y.faite ? ' faite' : '') + '" style="--n:' + Math.min(y.n, 8) + '"><span class="imp-case"></span><div class="imp-corps">' +
+    '<span class="imp-tx"' + (coul && !o.nb ? ' style="color:' + coul[1] + '"' : '') + '>' + (coul && o.nb ? '● ' : '') + heure + esc(texte) + '</span>' + pas + ast + '</div></div>';
+}
+function impListeHtml(L, o){
+  var l = IX.ok[L], att = '', h = '';
+  if(!l) return '';
+  impModele(L, o).forEach(function(y){
+    var x;
+    if(y.k === 'titre') x = '<h2 class="imp-titre">' + esc(l.nom) + '</h2>';
+    else if(y.k === 'enc'){ var c = o.nb ? ['#e6e6e6', '#111111'] : couleursEncart(y.x.couleur); x = '<div class="imp-enc" style="background:' + c[0] + ';color:' + c[1] + '">' + esc(y.x.nom) + '</div>'; }
+    else if(y.k === 'sous') x = '<div class="imp-sous">Faites récemment</div>';
+    else if(y.k === 'vide') x = '<div class="imp-vide">Aucune tâche</div>';
+    else if(y.k === 'sep') x = '<div class="imp-sep" style="--n:' + Math.min(y.n, 8) + '"></div>';
+    else x = impTacheHtml(y, o);
+    // Un titre (liste, encart, « Faites récemment ») part toujours avec la ligne qui le suit.
+    if(y.k === 'titre' || y.k === 'enc' || y.k === 'sous'){ att += x; return; }
+    h += att ? '<div class="imp-garde">' + att + x + '</div>' : x; att = '';
+  });
+  return '<section class="imp-liste" data-l="' + esc(L) + '">' + h + (att ? '<div class="imp-garde">' + att + '</div>' : '') + '</section>';
+}
+function retirerImpression(){ var p = $('#impPage'); if(p) p.remove(); document.body.classList.remove('imprime'); }
+function construireImpression(listes, o){
+  retirerImpression();
+  var q = impQuand(), tout = listes.length === IX.listes.length && listes.length > 1;
+  var titre = esc(reglages().nom || 'Farm tasks') + ' · ' + (listes.length === 1 ? esc(nomListe(listes[0])) : tout ? 'Toutes les listes' : listes.length + ' listes');
+  var cols = o.gros ? (o.paysage ? 2 : 1) : (o.paysage ? 3 : 2);
+  var p = document.createElement('div');
+  p.id = 'impPage'; p.className = (o.nb ? 'imp-nb' : 'imp-couleur') + (o.gros ? ' gros' : '');
+  p.innerHTML = '<style>@media print{@page{size:A4 ' + (o.paysage ? 'landscape' : 'portrait') + ';margin:12mm}}</style>' +
+    '<header class="imp-tete"><h1>' + titre + '</h1><div class="imp-quand">' + esc(q.imprime) + '<br>' + esc(q.frais) + '</div></header>' +
+    '<div class="imp-cols" style="--cols:' + cols + '">' + listes.map(function(L){ return impListeHtml(L, o); }).join('') + '</div>';
+  document.body.appendChild(p); document.body.classList.add('imprime');
+  return p;
+}
+// La fenêtre : listes à cocher (toutes, ou seulement celle du menu « ⋯ »), options, et le compte de ce qui sera imprimé.
+function ouvrirImpression(seule){
+  if(ed){ validerEd(); fermerEd(); }
+  if(!IX.listes.length) return;
+  var o = impOptions();
+  $('#impListes').innerHTML = IX.listes.map(function(l){
+    var info = verrou(l.id) ? 'verrouillée' : (PC.matches && cachees.indexOf(l.id) >= 0 ? 'cachée' : '');
+    return '<label><input type="checkbox" data-l="' + esc(l.id) + '"' + (!seule || l.id === seule ? ' checked' : '') + '><span>' + esc(l.nom) + (info ? ' <small>(' + info + ')</small>' : '') + '</span></label>';
+  }).join('');
+  document.querySelector('#impOpts [name="impPapier"][value="' + (o.paysage ? 'paysage' : 'portrait') + '"]').checked = true;
+  document.querySelector('#impOpts [name="impCoul"][value="' + (o.nb ? 'nb' : 'couleur') + '"]').checked = true;
+  $('#impGros').checked = o.gros; $('#impFaites').checked = o.faites;
+  $('#impIphone').hidden = !iPhone();
+  majImpCompte();
+  var d = $('#impDlg'); if(!d.open) d.showModal();
+}
+function lireImpOptions(){
+  return {paysage:!!document.querySelector('#impOpts [value="paysage"]:checked'), nb:!!document.querySelector('#impOpts [value="nb"]:checked'), gros:$('#impGros').checked, faites:$('#impFaites').checked};
+}
+function impListesChoisies(){
+  var oui = {};
+  Array.prototype.forEach.call(document.querySelectorAll('#impListes input:checked'), function(c){ oui[c.dataset.l] = true; });
+  return IX.listes.map(function(l){ return l.id; }).filter(function(L){ return oui[L]; });
+}
+function majImpCompte(){
+  var L = impListesChoisies(), o = lireImpOptions(), c = impCompte(L, o), q = impQuand();
+  $('#impQuand').textContent = q.frais.charAt(0).toUpperCase() + q.frais.slice(1) + '.';
+  $('#impCompte').textContent = L.length + ' liste' + (L.length > 1 ? 's' : '') + ' · ' + c.taches + ' tâche' + (c.taches > 1 ? 's' : '') +
+    (o.faites ? ' · ' + c.faites + ' faite' + (c.faites > 1 ? 's' : '') + ' récemment' : '');
+  $('#impOk').disabled = !L.length;
+}
+$('#impDlg').addEventListener('change', majImpCompte);
+$('#impDlg').addEventListener('click', function(e){
+  var b = e.target.closest('[data-imp]'); if(!b) return;
+  var k = b.dataset.imp;
+  Array.prototype.forEach.call(document.querySelectorAll('#impListes input'), function(c){ var l = IX.ok[c.dataset.l]; c.checked = k === 'tout' || (k === 'jours' && !!l && l.type === 'jour'); });
+  majImpCompte();
+});
+$('#impOk').onclick = function(){
+  var L = impListesChoisies(), o = lireImpOptions(); if(!L.length) return;
+  ls('taches.impression', o);
+  $('#impDlg').close();
+  impDernier = {listes:L, o:o, at:Date.now()};
+  construireImpression(L, o);
+  window.print();
+};
+// Avant toute impression (bouton, ou « Ctrl+P » sur l'appli) : la page est refaite avec les données du moment ; le dernier
+// choix de la fenêtre s'il est récent, sinon toutes les listes avec les options retenues.
+addEventListener('beforeprint', function(){
+  clearTimeout(impMinuteur);
+  if(!compte || refuse || !IX || !IX.listes.length) return;
+  var r = impDernier && Date.now() - impDernier.at < IMP_GARDE_MS ? impDernier : null;
+  var L = r ? r.listes.filter(function(x){ return !!IX.ok[x]; }) : [];
+  if(!L.length){ r = null; L = IX.listes.map(function(l){ return l.id; }); }
+  construireImpression(L, r ? r.o : impOptions());
+});
+addEventListener('afterprint', function(){
+  clearTimeout(impMinuteur);
+  if(impDernier) impDernier.at = Date.now();
+  impMinuteur = setTimeout(retirerImpression, IMP_GARDE_MS);
+});
 
 /* ---------- Clics ---------- */
 document.addEventListener('click', function(e){
