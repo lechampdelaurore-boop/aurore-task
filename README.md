@@ -20,7 +20,7 @@ Les listes de tâches partagées de la ferme, sur le téléphone et l'ordinateur
 | `config.js` | Adresse de la base Firebase (commune avec le Cumul). |
 | `cle-web.js` | Clé web de Firebase, collée par la ferme (jamais par un agent). Vide ici : la page et le programme du rappel reprennent celle du site du Cumul (`https://liste-recolte.pages.dev/cle-web.js`, même base). |
 | `sw.js` | Mode hors ligne. |
-| `manifest.webmanifest`, `icons/` | Installation sur l'écran d'accueil. |
+| `manifest.webmanifest`, `icons/`, `favicon.ico` | Installation sur l'écran d'accueil, icône de l'onglet et des favoris. Un nouveau logo prend de nouveaux noms de fichiers (sinon Chrome garde l'ancien) ; `tests/icones.cjs` le vérifie. |
 | `polices/` | Polices de la charte (licence OFL). |
 | `referentiel/taches-depart.json` | Réglages de départ propres à une ferme (nom, personnes, encarts), lus tant que la base n'a pas les siens. |
 | `functions/rappel/` | Programme du rappel du matin (notifications), servi sous `/rappel/…`. |
