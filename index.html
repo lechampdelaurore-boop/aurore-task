@@ -119,7 +119,8 @@ li.t.vient{animation:vient 1.2s ease-out}
 .encart{padding-bottom:4px}
 .encart + .encart{border-top:1px solid var(--filet-pale);margin-top:2px}
 .encart-tete{display:flex;align-items:center;gap:8px;min-height:40px}
-.encart-tete .etiq{margin-right:auto}
+/* Bandeau d'encart (21/11, variante A de la maquette) : la pastille colorée s'étire jusqu'un peu avant le « + », même couleur pâle. */
+.encart-tete .etiq{flex:1;min-width:0;padding:5px 10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .etiq{font-family:var(--f-ui);font-weight:600;font-size:11px;border-radius:99px;padding:2px 9px;-webkit-user-select:none;user-select:none}
 .etiq.info{background:#e1eaff;color:#2a3f8a} .etiq.warn{background:var(--orange-pale);color:var(--orange-txt)} .etiq.neutre{background:var(--gris);color:var(--anthracite)}
 .pt.mini svg.i{width:16px;height:16px}

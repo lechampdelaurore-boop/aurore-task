@@ -47,6 +47,9 @@ const tachesBase = (base) => base.lire('taches/t') || {};
 const parTexte = (base, texte) => Object.entries(tachesBase(base)).find(([, t]) => t.texte === texte);
 const ligne = (L, texte) => `.pan[data-l="${L}"] li.t[data-id]:has(> .tx:has-text("${texte}"))`;
 
+// Bandeau d'encart (21/11, variante A) : chaque étiquette s'étire jusqu'un peu avant (4 à 12 px) le « + », dans sa couleur pâle, sur une seule ligne.
+const bandeaux = (page, L) => page.evaluate((L) => Array.from(document.querySelectorAll(`.pan[data-l="${L}"] .encart-tete`)).map((t) => { const e = t.querySelector('.etiq'), p = t.querySelector('[data-a="ajouter"]'), be = e.getBoundingClientRect(), bp = p.getBoundingClientRect(), bt = t.getBoundingClientRect(); return { nom: e.textContent, ecart: Math.round(bp.left - be.right), gauche: Math.round(be.left - bt.left), haut: Math.round(be.height), fond: getComputedStyle(e).backgroundColor }; }), L);
+const bandeauxOk = (b) => b.length === 3 && b.every((x) => x.ecart >= 4 && x.ecart <= 12 && x.gauche === 0 && x.haut >= 24 && x.haut <= 30) && b[0].fond === 'rgb(225, 234, 255)' && b[1].fond !== b[0].fond && b[2].fond !== b[1].fond && b[2].fond !== b[0].fond;
 async function connecter(page, id) {
   await page.goto(SITE + '/');
   await page.waitForSelector('#authDlg[open]');
@@ -105,6 +108,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await attendreQue(() => parTexte(base, 'Désherber carottes')[1].encart === 'p1'), 'puis glissée au doigt dans P1');
   // « + » des encarts : même aspect que le « + » de la liste (rond vert plein sur le téléphone).
   verifie(await A.evaluate((L) => { const a = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .plus`)), b = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`)); return a.backgroundColor === b.backgroundColor && a.color === b.color && b.backgroundColor === 'rgb(11, 105, 77)' && b.borderRadius === '50%'; }, LJ), 'téléphone : le « + » des encarts a le même aspect que le « + » de la liste (rond vert plein, « + » blanc)');
+  { const b = await bandeaux(A, LJ); verifie(bandeauxOk(b), 'téléphone : RDV, P1 et P2 en bandeau de leur couleur pâle, jusqu\'un peu avant le « + » ' + JSON.stringify(b)); }
   await A.click(`${ligne(LJ, 'Commander terreau')} .pt`); await A.waitForSelector('#tacheDlg[open]');
   await A.click('#tacheDlg [data-zone="p1"]'); await A.click('#tacheDlg [data-a="fermer"]'); await pause(200);
   verifie(await attendreQue(() => parTexte(base, 'Commander terreau')[1].encart === 'p1'), 'ou rangée par « Zone du jour » (menu de la tâche) : P1');
@@ -271,6 +275,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await attendreQue(() => { const x = parTexte(base, 'Tâche du haut'); return x && x[1].encart === '' && x[1].liste === L2; }), 'enregistrée sans encart');
   const plusPC = await P.evaluate((L) => { const a = document.querySelector(`.pan[data-l="${L}"] .ajout-ligne`), b = document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`); const ia = a.querySelector('svg').getBoundingClientRect(), ib = b.querySelector('svg').getBoundingClientRect(); return { ca: getComputedStyle(a).color, cb: getComputedStyle(b).color, fond: getComputedStyle(b).backgroundColor, ta: ia.width, tb: ib.width }; }, L2);
   verifie(plusPC.ca === plusPC.cb && plusPC.cb === 'rgb(11, 105, 77)' && plusPC.fond === 'rgba(0, 0, 0, 0)' && plusPC.ta === plusPC.tb, 'ordinateur : le « + » des encarts a le même aspect que celui de « Ajouter une tâche » (vert, même taille) ' + JSON.stringify(plusPC));
+  { const b = await bandeaux(P, L2); verifie(bandeauxOk(b), 'ordinateur : RDV, P1 et P2 en bandeau de leur couleur pâle, jusqu\'un peu avant le « + » ' + JSON.stringify(b)); }
   await P.click(`.pan[data-l="${L2}"] .encart-tete [data-a="ajouter"][data-e="p2"]`);
   verifie(await P.evaluate((L) => { const t = document.querySelector(`.pan[data-l="${L}"] textarea.ed`); return !!t && t.closest('.encart').dataset.e === 'p2'; }, L2), 'le « + » d\'un encart écrit toujours dans cet encart (P2)');
   await P.keyboard.press('Escape');
