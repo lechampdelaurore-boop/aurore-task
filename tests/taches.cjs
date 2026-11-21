@@ -355,8 +355,10 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   verifie(await P.evaluate(() => getComputedStyle(document.querySelector('.bande')).display === 'none'), 'pas de bande du bas sur l\'ordinateur');
   // Écran de 1920 px (celui de François, 20/11) : menu resserré, les sept listes des jours entières sans défiler de côté ;
   // tâches toujours à 10,5 px. Sur 1600 px, les colonnes ne descendent pas sous 230 px (on tire pour voir la suite).
+  // Le navigateur des tests cache les ascenseurs ; un second, qui les montre, sert à l'écran de 1920 px pour mesurer celui des listes.
+  const navAscenseurs = await chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] });
   for (const [w, h, attendu] of [[1920, 937, 7], [1600, 789, 6]]) {
-    const ctxG = await navigateur.newContext({ viewport: { width: w, height: h }, locale: 'fr-FR' });
+    const ctxG = await (w === 1920 ? navAscenseurs : navigateur).newContext({ viewport: { width: w, height: h }, locale: 'fr-FR' });
     const G = await ctxG.newPage();
     await connecter(G, 'aurore');
     await G.waitForSelector(`.pan[data-l="${LJ}"] li.t`);
@@ -368,8 +370,33 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
     verifie(m.menu === 152 && m.tx === '10.5px' && m.entieres.length === attendu && m.entieres.join() === JOURS.slice(0, attendu).join() && m.larg >= 230 && m.larg <= 300 && m.cote.length === 0,
       `ordinateur ${w} px : ${attendu} listes entières (${m.entieres.join(', ')}), colonnes de ${Math.round(m.larg)} px, menu de ${m.menu} px, tâches à ${m.tx}, aucun ascenseur de côté dans les listes${m.cote.length ? ' (sauf ' + m.cote.join(', ') + ')' : ''}`);
     if (CAPTURES) await G.screenshot({ path: path.join(CAPTURES, `ordinateur-${w}.png`) });
+    if (w === 1920) {
+      // Ascenseur des listes plus fin et plus clair (maquette validée le 21/11) : une liste trop longue pour la colonne
+      // (hauteur réduite à l'écran seulement, rien d'écrit dans la base) montre un ascenseur de 8 px, gris clair, sans fond.
+      const a = await G.evaluate(() => { const c = document.querySelector('#piste .pan:not(.cachee) .pan-corps'); c.style.maxHeight = Math.max(60, Math.min(260, c.scrollHeight - 80)) + 'px'; c.scrollTop = 0;
+        const b = c.getBoundingClientRect(); return { larg: c.offsetWidth - c.clientWidth, deborde: c.scrollHeight > c.clientHeight, x: b.right - 4, haut: b.top + 6, bas: b.bottom - 6 }; });
+      if (CAPTURES) { const z = await G.evaluate(() => { const p = Array.from(document.querySelectorAll('#piste .pan:not(.cachee)')).slice(0, 3).map((x) => x.getBoundingClientRect()); return { x: p[0].left - 10, y: p[0].top - 10, width: p[2].right - p[0].left + 20, height: 360 }; });
+        await G.screenshot({ path: path.join(CAPTURES, 'ascenseur-liste-1920.png'), clip: z }); }
+      const png = (await G.screenshot({ clip: { x: 0, y: 0, width: 1920, height: 937 } })).toString('base64');
+      const [pouce, piste] = await G.evaluate(async ([png, x, y1, y2]) => { const im = new Image(); im.src = 'data:image/png;base64,' + png; await im.decode();
+        const cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0);
+        return [y1, y2].map((y) => Array.from(cx.getImageData(Math.round(x), Math.round(y), 1, 1).data.slice(0, 3))); }, [png, a.x, a.haut, a.bas]);
+      verifie(a.deborde && a.larg === 8 && pouce.every((v, i) => Math.abs(v - [211, 216, 214][i]) <= 3) && piste.every((v) => v >= 250),
+        `ordinateur : l'ascenseur d'une liste trop longue fait ${a.larg} px (8 attendus ; 15 à 17 avant, selon l'ordinateur), poignée gris clair rgb(${pouce}), sans fond rgb(${piste})`);
+      const regles = await G.evaluate(() => { const r = []; const voir = (liste, parent) => { for (const x of liste) { if (x.cssRules && !x.selectorText) voir(x.cssRules, x); else if (/pan-corps::-webkit-scrollbar/.test(x.selectorText || '')) r.push({ sel: x.selectorText, media: parent && parent.conditionText }); } };
+        for (const f of document.styleSheets) voir(f.cssRules, null);
+        const ff = []; const chercher = (liste, media) => { for (const x of liste) { if (x instanceof CSSMediaRule) chercher(x.cssRules, x.conditionText); else if (x instanceof CSSSupportsRule) ff.push({ cond: x.conditionText, media, texte: x.cssText }); } };
+        for (const f of document.styleSheets) chercher(f.cssRules, null);
+        return { r, ff }; });
+      const firefox = regles.ff.find((x) => /not selector\(::-webkit-scrollbar\)/.test(x.cond));
+      verifie(regles.r.length >= 4 && regles.r.every((x) => /min-width: 1000px/.test(x.media || '')) && firefox && /min-width: 1000px/.test(firefox.media || '') && /scrollbar-width: thin/.test(firefox.texte) && /scrollbar-color: rgb\(211, 216, 214\) transparent/.test(firefox.texte),
+        `ascenseur fin réservé à l'ordinateur (${regles.r.length} règles Chrome/Edge sous « min-width: 1000px »), et pour Firefox : ${firefox ? firefox.texte.replace(/\s+/g, ' ') : 'absent'}`);
+      await G.evaluate(() => { const c = document.querySelector('#piste .pan:not(.cachee) .pan-corps'); c.scrollTop = 40; });
+      verifie(await G.evaluate(() => document.querySelector('#piste .pan:not(.cachee) .pan-corps').scrollTop > 0), 'la liste défile toujours (molette ou ascenseur)');
+    }
     await ctxG.close();
   }
+  await navAscenseurs.close();
   verifie(await A.evaluate(() => getComputedStyle(document.querySelector('.menu')).display === 'none' && Math.abs(document.querySelector('#piste .pan').getBoundingClientRect().width - innerWidth) < 1), 'téléphone inchangé : pas de menu, une liste pleine largeur');
   // Glisser « Écrite sans réseau » à la souris dans la colonne Astreintes, sous « Contrôle et irrig Endives » (au même niveau).
   await P.evaluate(() => { const p = document.querySelector('.pan[data-l="astreintes"]'); p.scrollIntoView({ inline: 'nearest' }); });
