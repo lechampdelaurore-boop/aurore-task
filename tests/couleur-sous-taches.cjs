@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium, devices } = require('playwright');
 const fauxFirebase = require('./faux-firebase.cjs');
+const { PIXEL } = require('./apparence-env.cjs'); // APPARENCE=pixel : le même test dans l'apparence pixel art (étape 53)
 
 
 const RACINE = path.join(__dirname, '..');
@@ -122,7 +123,8 @@ async function choisir(page, L, texte, coul) { await menu(page, L, texte); await
   // 3. « Noir » sur la mère : les vertes redeviennent noires (champ vidé), la bleue reste bleue.
   await choisir(A, LJ, 'Mère', '');
   verifie(await attendCouleurs(base, 'm: s1: ss1: s2:bleu ss2:bleu s3:'), '3. « Noir » sur la mère : les sous-tâches qui la suivaient redeviennent noires (champ vidé), la bleue reste bleue');
-  verifie(await A.evaluate(() => getComputedStyle(document.querySelector('li.t[data-id="ss1"] .tx')).color === 'rgb(17, 17, 17)'), '3. Sous-sous 1 s\'affiche en noir');
+  // « Noir » = la couleur du texte ordinaire : #111 en classique, brun très foncé #3b2a2f en pixel art.
+  verifie(await A.evaluate((P) => getComputedStyle(document.querySelector('li.t[data-id="ss1"] .tx')).color === (P ? 'rgb(59, 42, 47)' : 'rgb(17, 17, 17)'), PIXEL), '3. Sous-sous 1 s\'affiche en noir');
 
   // 4. Mère grise ancienne recolorée : ses sous-tâches grises suivent, la rouge à la main reste rouge.
   await choisir(A, LJ, 'Mère grise', 'orange');

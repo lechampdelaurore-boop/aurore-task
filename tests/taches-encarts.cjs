@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium, devices } = require('playwright');
 const fauxFirebase = require('./faux-firebase.cjs');
+const { sautePixel, PIXEL } = require('./apparence-env.cjs'); // APPARENCE=pixel : le même test dans l'apparence pixel art (étape 53)
 
 const RACINE = path.join(__dirname, '..');
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
@@ -49,7 +50,8 @@ const ligne = (L, texte) => `.pan[data-l="${L}"] li.t[data-id]:has(> .tx:has-tex
 
 // Bandeau d'encart (21/11, variante A) : chaque étiquette s'étire jusqu'un peu avant (4 à 12 px) le « + », dans sa couleur pâle, sur une seule ligne.
 const bandeaux = (page, L) => page.evaluate((L) => Array.from(document.querySelectorAll(`.pan[data-l="${L}"] .encart-tete`)).map((t) => { const e = t.querySelector('.etiq'), p = t.querySelector('[data-a="ajouter"]'), be = e.getBoundingClientRect(), bp = p.getBoundingClientRect(), bt = t.getBoundingClientRect(); return { nom: e.textContent, ecart: Math.round(bp.left - be.right), gauche: Math.round(be.left - bt.left), haut: Math.round(be.height), fond: getComputedStyle(e).backgroundColor }; }), L);
-const bandeauxOk = (b) => b.length === 3 && b.every((x) => x.ecart >= 4 && x.ecart <= 12 && x.gauche === 0 && x.haut >= 24 && x.haut <= 30) && b[0].fond === 'rgb(225, 234, 255)' && b[1].fond !== b[0].fond && b[2].fond !== b[1].fond && b[2].fond !== b[0].fond;
+// En pixel art, le bandeau a des marches de 3 points autour de lui : il est un peu plus haut et un peu plus loin du « + » (maquette).
+const bandeauxOk = (b) => b.length === 3 && b.every((x) => (PIXEL ? x.ecart >= 4 && x.ecart <= 20 && x.gauche <= 3 && x.haut >= 24 && x.haut <= 40 : x.ecart >= 4 && x.ecart <= 12 && x.gauche === 0 && x.haut >= 24 && x.haut <= 30)) && b[0].fond === 'rgb(225, 234, 255)' && b[1].fond !== b[0].fond && b[2].fond !== b[1].fond && b[2].fond !== b[0].fond;
 async function connecter(page, id) {
   await page.goto(SITE + '/');
   await page.waitForSelector('#authDlg[open]');
@@ -93,7 +95,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await attendreQue(() => A.evaluate((L) => Array.from(document.querySelectorAll(`.pan[data-l="${L}"] .encart-tete .etiq`)).map((x) => x.textContent).join(' ') === 'RDV P1 P2', LJ)), 'dans l\'ordre RDV, P1, P2 (noms du fichier de départ)');
   verifie(await A.evaluate(() => !document.querySelector('.pan[data-l="astreintes"] .encart-tete')), 'la liste Astreintes n\'a pas d\'encarts');
   verifie(await attendreQue(() => A.evaluate(() => document.getElementById('nomFerme').textContent === "Le Champ de l'Aurore")), 'nom de la ferme en haut, lu dans le fichier de départ');
-  verifie(await A.evaluate(() => { const a = document.getElementById('avatar'); return a.textContent === 'F' && getComputedStyle(a).backgroundColor === 'rgb(251, 224, 227)'; }), 'pastille du compte : initiale et couleur de la personne (rouge)');
+  verifie(await A.evaluate((P) => { const a = document.getElementById('avatar'); return a.textContent === 'F' && getComputedStyle(a).backgroundColor === (P ? 'rgb(224, 112, 159)' : 'rgb(251, 224, 227)'); }, PIXEL), 'pastille du compte : initiale et couleur de la personne (rouge ; en pixel art, carré rose de la maquette)');
 
   // ---------- « + » du haut : hors des encarts, au-dessus de RDV (19/11) ; « + » d'un encart : dans cet encart ----------
   await A.click(`.pan[data-l="${LJ}"] .plus`);
@@ -107,7 +109,8 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await glisserDoigt(cdpA, dh.x, dh.y, dh.x, p1t.b.y); // la ligne soulevée laisse sa place : P1 remonte d'une ligne
   verifie(await attendreQue(() => parTexte(base, 'Désherber carottes')[1].encart === 'p1'), 'puis glissée au doigt dans P1');
   // « + » des encarts : même aspect que le « + » de la liste (rond vert plein sur le téléphone).
-  verifie(await A.evaluate((L) => { const a = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .plus`)), b = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`)); return a.backgroundColor === b.backgroundColor && a.color === b.color && b.backgroundColor === 'rgb(11, 105, 77)' && b.borderRadius === '50%'; }, LJ), 'téléphone : le « + » des encarts a le même aspect que le « + » de la liste (rond vert plein, « + » blanc)');
+  // En pixel art (maquette validée) : « + » de la liste carré crème à signe rose, « + » des encarts bouton rose à signe blanc.
+  verifie(await A.evaluate(([L, P]) => { const a = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .plus`)), b = getComputedStyle(document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`)); return P ? a.color === 'rgb(168, 64, 111)' && b.backgroundColor === 'rgb(224, 112, 159)' && b.color === 'rgb(255, 255, 255)' && a.borderRadius === '0px' && b.borderRadius === '0px' : a.backgroundColor === b.backgroundColor && a.color === b.color && b.backgroundColor === 'rgb(11, 105, 77)' && b.borderRadius === '50%'; }, [LJ, PIXEL]), 'téléphone : le « + » des encarts a le même aspect que le « + » de la liste (rond vert plein, « + » blanc ; en pixel art, rose comme la maquette)');
   { const b = await bandeaux(A, LJ); verifie(bandeauxOk(b), 'téléphone : RDV, P1 et P2 en bandeau de leur couleur pâle, jusqu\'un peu avant le « + » ' + JSON.stringify(b)); }
   await A.click(`${ligne(LJ, 'Commander terreau')} .pt`); await A.waitForSelector('#tacheDlg[open]');
   await A.click('#tacheDlg [data-zone="p1"]'); await A.click('#tacheDlg [data-a="fermer"]'); await pause(200);
@@ -147,7 +150,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await A.evaluate(() => !document.querySelector('#tacheDlg [data-coul][aria-pressed="true"]')), 'tâche grise : aucun choix allumé dans le menu, un toucher la passe dans une autre couleur');
   await A.click('#tacheDlg [data-coul="rouge"]'); await fermer();
   await attendreQue(() => parTexte(base, 'Désherber carottes')[1].couleur === 'rouge');
-  verifie(await A.evaluate((s) => { const li = document.querySelector(s); const p = li.querySelector('.pastille'); return p && p.textContent === 'A' && getComputedStyle(p).borderRadius === '50%' && getComputedStyle(p).backgroundColor === 'rgb(251, 227, 239)' && getComputedStyle(li.querySelector('.tx')).color === 'rgb(176, 42, 55)'; }, `li.t[data-id="${parTexte(base, 'Désherber carottes')[0]}"]`), 'pastille ronde « A » rose à droite, texte en rouge');
+  verifie(await A.evaluate(([s, P]) => { const li = document.querySelector(s); const p = li.querySelector('.pastille'); return p && p.textContent === 'A' && getComputedStyle(p).borderRadius === (P ? '0px' : '50%') && getComputedStyle(p).backgroundColor === 'rgb(251, 227, 239)' && getComputedStyle(li.querySelector('.tx')).color === 'rgb(176, 42, 55)'; }, [`li.t[data-id="${parTexte(base, 'Désherber carottes')[0]}"]`, PIXEL]), 'pastille ronde « A » rose à droite, texte en rouge (en pixel art, carré à marches)');
 
   await menu('Commander terreau');
   await A.click('#tacheDlg [data-zone="p2"]'); await fermer();
@@ -197,13 +200,13 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   const erreursB = []; B.on('pageerror', (e) => erreursB.push(String(e)));
   await connecter(B, 'martin');
   await B.waitForSelector(`.pan[data-l="${LJ}"] li.t[data-id]`);
-  verifie(await attendreQue(() => B.evaluate(() => document.getElementById('avatar').textContent === 'M' && getComputedStyle(document.getElementById('avatar')).backgroundColor === 'rgb(225, 234, 255)')), 'Martin : sa pastille bleue en haut');
+  verifie(await attendreQue(() => B.evaluate((P) => document.getElementById('avatar').textContent === 'M' && getComputedStyle(document.getElementById('avatar')).backgroundColor === (P ? 'rgb(224, 112, 159)' : 'rgb(225, 234, 255)'), PIXEL)), 'Martin : sa pastille bleue en haut (en pixel art, carré rose de la maquette)');
   await A.click(`.pan[data-l="${LJ}"] [data-a="menu-liste"]`); await A.waitForSelector('#listeDlg[open]');
   await A.click('#listeDlg [data-a="verrouiller"]');
   if (await A.evaluate(() => document.getElementById('listeDlg').open)) await A.click('#listeDlg [data-a="fermer"]');
   verifie(await attendreQue(() => { const v = base.lire(`taches/listes/${LJ}/verrou`); return v && v.by === 'francois'; }), 'verrou posé dans la base (qui et quand)');
   for (const [P, nom] of [[A, 'ce téléphone'], [B, 'l\'autre téléphone']]) {
-    verifie(await attendreQue(() => P.evaluate((L) => { const p = document.querySelector(`.pan[data-l="${L}"]`); return p.querySelectorAll('li.t.fige').length >= 5 && !p.querySelector('li.t .coche') && !p.querySelector('li.t .pt') && !p.querySelector('[data-a="suppr-encart"]') && !p.querySelector('.encart-tete [data-a="ajouter"]') && getComputedStyle(p.querySelector('.plus')).display === 'none' && !p.querySelector('.puce') && Array.from(p.querySelectorAll('li.t.fige:not(.sep)')).every((li) => li.firstElementChild.classList.contains('tx')) && (() => { const v = p.querySelector('.verrou-info'); return !v.hidden && !!v.querySelector('svg') && v.textContent.includes('Liste verrouillée'); })() && (() => { const o = getComputedStyle(p.querySelector('.bloc')); return o.outlineStyle === 'dashed' && o.outlineColor === 'rgb(196, 196, 204)'; })(); }, LJ)), `liste verrouillée sur ${nom} : ni case, ni menu, ni « + », rien devant les tâches (pas de point noir) ; le cadenas et « Liste verrouillée » sous le titre ; contour gris en pointillés autour de la liste`);
+    verifie(await attendreQue(() => P.evaluate(([L, P]) => { const p = document.querySelector(`.pan[data-l="${L}"]`); return p.querySelectorAll('li.t.fige').length >= 5 && !p.querySelector('li.t .coche') && !p.querySelector('li.t .pt') && !p.querySelector('[data-a="suppr-encart"]') && !p.querySelector('.encart-tete [data-a="ajouter"]') && getComputedStyle(p.querySelector('.plus')).display === 'none' && !p.querySelector('.puce') && Array.from(p.querySelectorAll('li.t.fige:not(.sep)')).every((li) => li.firstElementChild.classList.contains('tx')) && (() => { const v = p.querySelector('.verrou-info'); return !v.hidden && !!v.querySelector('svg') && v.textContent.includes('Liste verrouillée'); })() && (() => { const o = getComputedStyle(p.querySelector(P ? '.pan-corps' : '.bloc')); return o.outlineStyle === 'dashed' && o.outlineColor === (P ? 'rgb(201, 180, 154)' : 'rgb(196, 196, 204)'); })(); }, [LJ, PIXEL])), `liste verrouillée sur ${nom} : ni case, ni menu, ni « + », rien devant les tâches (pas de point noir) ; le cadenas et « Liste verrouillée » sous le titre ; contour gris en pointillés autour de la liste`);
   }
   verifie(await B.evaluate((L) => { const v = document.querySelector(`.pan[data-l="${L}"] .verrou-info`); return v && !v.hidden && v.textContent.length > 0; }, LJ), 'un bandeau dit que la liste est verrouillée');
   await B.click(`${ligne(LJ, 'Véto')} .tx`); await pause(300);
@@ -236,7 +239,8 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   verifie(await attendreQue(() => A.evaluate(() => !document.getElementById('encDlg').open && document.getElementById('reglDlg').open && document.getElementById('reglEnc').textContent.includes('Urgent'))), 'encarts des jours enregistrés, le résumé des Réglages suit');
   await A.click('#reglForm [type="submit"]');
   verifie(await attendreQue(() => { const r = base.lire('taches/reglages'); return r && r.nom === 'Ferme de test' && r.personnes.martin.couleur === 'vert' && r.personnes.francois.nom && r.encarts.p1 === 'Urgent' && Object.values(r.personnes).some((p) => p.nom === 'Léa' && p.initiale === 'L'); }), 'Réglages enregistrés dans la base (taches/reglages)');
-  verifie(await attendreQue(() => B.evaluate((L) => document.getElementById('nomFerme').textContent === 'Ferme de test' && Array.from(document.querySelectorAll(`.pan[data-l="${L}"] .etiq`)).map((x) => x.textContent).includes('Urgent') && getComputedStyle(document.getElementById('avatar')).backgroundColor === 'rgb(214, 236, 223)', LJ)), 'sur l\'autre téléphone : nouveau nom, encart « Urgent », Martin en vert');
+  const sansCouleurCompte = sautePixel('taches-encarts : couleur de la pastille du compte après changement dans les Réglages (rose pour tous en pixel art)');
+  verifie(await attendreQue(() => B.evaluate(([L, P]) => document.getElementById('nomFerme').textContent === 'Ferme de test' && Array.from(document.querySelectorAll(`.pan[data-l="${L}"] .etiq`)).map((x) => x.textContent).includes('Urgent') && (P || getComputedStyle(document.getElementById('avatar')).backgroundColor === 'rgb(214, 236, 223)'), [LJ, sansCouleurCompte])), 'sur l\'autre téléphone : nouveau nom, encart « Urgent », Martin en vert');
   await B.click(`${ligne(LJ, 'Véto')} .pt`); await B.waitForSelector('#tacheDlg[open]');
   verifie(await B.evaluate(() => Array.from(document.querySelectorAll('#tacheDlg [data-pour]')).some((b) => b.textContent === 'LLéa')), 'la nouvelle personne apparaît dans « Pour qui ? »');
   await B.click('#tacheDlg [data-a="fermer"]');
@@ -261,15 +265,17 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), L2);
   await P.click(`${ligne(L2, 'Tâche figée')} .tx`, { button: 'right' }); await pause(300);
   verifie(await P.evaluate(() => !document.getElementById('tacheDlg').open), 'clic droit sur une tâche verrouillée : pas de menu');
-  verifie(await P.evaluate((L) => { const o = getComputedStyle(document.querySelector(`.pan[data-l="${L}"]`)); return o.outlineStyle === 'dashed' && o.outlineColor === 'rgb(196, 196, 204)' && o.outlineWidth === '2px'; }, L2), 'ordinateur : la colonne verrouillée a un contour gris en pointillés');
-  verifie(await P.evaluate((L) => getComputedStyle(document.querySelector(`.pan[data-l="${L}"]`)).outlineStyle === 'none', LJ), 'une colonne non verrouillée n\'en a pas');
+  // Le contour de la liste verrouillée : autour de la colonne en classique, à l'intérieur de la carte (sous le haut rose) en pixel art.
+  const contourDe = (L) => P.evaluate(([L, X]) => { const o = getComputedStyle(document.querySelector(`.pan[data-l="${L}"]` + (X ? ' .pan-corps' : ''))); return { s: o.outlineStyle, c: o.outlineColor, w: o.outlineWidth }; }, [L, PIXEL]);
+  verifie(await (async () => { const o = await contourDe(L2); return o.s === 'dashed' && o.c === (PIXEL ? 'rgb(201, 180, 154)' : 'rgb(196, 196, 204)') && o.w === (PIXEL ? '3px' : '2px'); })(), 'ordinateur : la colonne verrouillée a un contour gris en pointillés');
+  verifie((await contourDe(LJ)).s === 'none', 'une colonne non verrouillée n\'en a pas');
   if (CAPTURES) { fs.mkdirSync(CAPTURES, { recursive: true }); await P.screenshot({ path: path.join(CAPTURES, 'ordinateur-verrou.png') }); }
   await P.click(`.pan[data-l="${L2}"] [data-a="menu-liste"]`); await P.waitForSelector('#listeDlg[open]');
   await P.click('#listeDlg [data-a="deverrouiller"]');
   if (await P.evaluate(() => document.getElementById('listeDlg').open)) await P.click('#listeDlg [data-a="fermer"]');
   await P.click(`${ligne(L2, 'Tâche figée')} .tx`, { button: 'right' });
   verifie(await attendreQue(() => P.evaluate(() => document.getElementById('tacheDlg').open)), 'déverrouillée : le clic droit ouvre le menu');
-  verifie(await P.evaluate((L) => getComputedStyle(document.querySelector(`.pan[data-l="${L}"]`)).outlineStyle === 'none', L2), 'déverrouillée : le contour disparaît');
+  verifie((await contourDe(L2)).s === 'none', 'déverrouillée : le contour disparaît');
   await P.click('#tacheDlg [data-a="fermer"]');
   // « Ajouter une tâche » sur l'ordinateur : hors des encarts, au-dessus de RDV ; « + » des encarts au même aspect (vert).
   await P.evaluate((L) => document.querySelector(`.pan[data-l="${L}"]`).scrollIntoView({ inline: 'nearest' }), L2);
@@ -278,7 +284,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await P.keyboard.type('Tâche du haut'); await P.keyboard.press('Enter'); await P.keyboard.press('Escape');
   verifie(await attendreQue(() => { const x = parTexte(base, 'Tâche du haut'); return x && x[1].encart === '' && x[1].liste === L2; }), 'enregistrée sans encart');
   const plusPC = await P.evaluate((L) => { const a = document.querySelector(`.pan[data-l="${L}"] .ajout-ligne`), b = document.querySelector(`.pan[data-l="${L}"] .encart-tete [data-a="ajouter"]`); const ia = a.querySelector('svg').getBoundingClientRect(), ib = b.querySelector('svg').getBoundingClientRect(); return { ca: getComputedStyle(a).color, cb: getComputedStyle(b).color, fond: getComputedStyle(b).backgroundColor, ta: ia.width, tb: ib.width }; }, L2);
-  verifie(plusPC.ca === plusPC.cb && plusPC.cb === 'rgb(11, 105, 77)' && plusPC.fond === 'rgba(0, 0, 0, 0)' && plusPC.ta === plusPC.tb, 'ordinateur : le « + » des encarts a le même aspect que celui de « Ajouter une tâche » (vert, même taille) ' + JSON.stringify(plusPC));
+  verifie(plusPC.ca === plusPC.cb && plusPC.cb === (PIXEL ? 'rgb(168, 64, 111)' : 'rgb(11, 105, 77)') && plusPC.fond === 'rgba(0, 0, 0, 0)' && plusPC.ta === plusPC.tb, 'ordinateur : le « + » des encarts a le même aspect que celui de « Ajouter une tâche » (vert, même taille) ' + JSON.stringify(plusPC));
   { const b = await bandeaux(P, L2); verifie(bandeauxOk(b), 'ordinateur : RDV, P1 et P2 en bandeau de leur couleur pâle, jusqu\'un peu avant le « + » ' + JSON.stringify(b)); }
   await P.click(`.pan[data-l="${L2}"] .encart-tete [data-a="ajouter"][data-e="p2"]`);
   verifie(await P.evaluate((L) => { const t = document.querySelector(`.pan[data-l="${L}"] textarea.ed`); return !!t && t.closest('.encart').dataset.e === 'p2'; }, L2), 'le « + » d\'un encart écrit toujours dans cet encart (P2)');

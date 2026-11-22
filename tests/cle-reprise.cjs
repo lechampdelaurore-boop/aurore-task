@@ -7,6 +7,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+require('./apparence-env.cjs'); // APPARENCE=pixel : le même test dans l'apparence pixel art (étape 53)
 
 const RACINE = path.join(__dirname, '..');
 const PORT = 8966, SITE = `http://localhost:${PORT}`;

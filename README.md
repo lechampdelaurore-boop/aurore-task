@@ -10,6 +10,8 @@ Les listes de tâches partagées de la ferme, sur le téléphone et l'ordinateur
 
 **Rappel du matin** : Réglages → « Rappel du matin ». Chacun choisit son heure et ses jours ; à l'heure dite, la liste du jour arrive en notification et revient tant que « J'ai lu ma liste » n'est pas touché. Sur le téléphone : « Recevoir sur ce téléphone ». Sur iPhone, ajouter d'abord Farm tasks à l'écran d'accueil.
 
+**Apparence** : Réglages → « Apparence de cet appareil » : « Classique » ou « Pixel art » (la ferme au coucher du soleil, cartes en gros pixels). Le choix ne vaut que pour l'appareil où on le fait.
+
 **Connexion** : les mêmes comptes que le Cumul (`francois`, `aurore`, `martin`). On se connecte une fois par appareil.
 
 ## Fichiers
@@ -21,12 +23,13 @@ Les listes de tâches partagées de la ferme, sur le téléphone et l'ordinateur
 | `cle-web.js` | Clé web de Firebase, collée par la ferme (jamais par un agent). Vide ici : la page et le programme du rappel reprennent celle du site du Cumul (`https://liste-recolte.pages.dev/cle-web.js`, même base). |
 | `sw.js` | Mode hors ligne. |
 | `manifest.webmanifest`, `icons/`, `favicon.ico` | Installation sur l'écran d'accueil, icône de l'onglet et des favoris. Un nouveau logo prend de nouveaux noms de fichiers (sinon Chrome garde l'ancien) ; `tests/icones.cjs` le vérifie. |
-| `polices/` | Polices de la charte (licence OFL). |
+| `polices/` | Polices de la charte et du pixel art (licence OFL, voir `polices/LISEZMOI.md`). |
+| `apparence/` | Images de l'apparence pixel art (fonds, cadre des cartes, logo, vignettes) et leur provenance (`apparence/LISEZMOI.md`). |
 | `referentiel/taches-depart.json` | Réglages de départ propres à une ferme (nom, personnes, encarts), lus tant que la base n'a pas les siens. |
 | `functions/rappel/` | Programme du rappel du matin (notifications), servi sous `/rappel/…`. |
 | `cloudflare/horloge-rappel.js` | Horloge Cloudflare qui réveille ce programme toutes les 5 minutes. |
 | `functions/agenda/` | Lecture de Google Agenda (adresse secrète iCal, réglage `AGENDA_ICAL`), servie sous `/agenda/…`. |
-| `tests/` | Essais automatiques (navigateur simulé, faux Firebase) : `node tests/taches.cjs`, `node tests/taches-encarts.cjs`, `node tests/taches-astreintes.cjs`, `node tests/rappel.cjs`, `node tests/agenda.cjs`, `node tests/encarts-listes.cjs`. |
+| `tests/` | Essais automatiques (navigateur simulé, faux Firebase) : `node tests/taches.cjs`, `node tests/taches-encarts.cjs`, `node tests/taches-astreintes.cjs`, `node tests/rappel.cjs`, `node tests/agenda.cjs`, `node tests/encarts-listes.cjs`, `node tests/apparence.cjs`… (liste complète dans `AGENTS.md` ; `APPARENCE=pixel` pour les passer en pixel art). |
 | `docs/` | Cahier des charges, registres, pas-à-pas. |
 
 Pour une autre ferme : remplacer `referentiel/taches-depart.json`, `config.js` et `cle-web.js`, et publier la règle `taches` de sa base (modèle dans le dépôt `liste-recolte`, `docs/regles-base/fermees.json`).
