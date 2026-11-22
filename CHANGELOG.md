@@ -1,5 +1,9 @@
 # Historique des changements
 
+## 2026-11-22
+
+- **Contrat : choisir l'apparence, classique ou pixel art** (étape 53, demande de François du 22/11). Documentation seulement, **aucun code** : `docs/CONTRAT_APPARENCE_PIXEL_ART.md` (règles, charte pixel art en annexe, tests à prévoir) ; ROADMAP (étape 53), DECISIONS, ETAT_DU_PROJET, AGENTS. Quatre points confirmés par François le 22/11, tous selon la recommandation.
+
 ## 2026-11-21
 
 - **Icônes d'onglet renommées** (demande de François : l'onglet et les favoris de Chrome montraient encore l'ancienne icône) : `icons/taches*.svg/png` → `icons/farm-tasks-presse-papier*.svg/png` (mêmes dessins) ; nouvelle `favicon.ico` (16, 32, 48 px) citée par `index.html` ; manifeste, notifications du rappel et `sw.js` à jour (`CACHE` `aurore-task-v25`) ; test `tests/icones.cjs`. Registres : l'impression des listes essayée par François (21/11, 22 h 57).
