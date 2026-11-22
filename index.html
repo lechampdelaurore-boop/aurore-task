@@ -15,6 +15,30 @@
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <link rel="icon" href="icons/farm-tasks-presse-papier.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/farm-tasks-presse-papier-180.png">
+<script>
+/* Apparence de cet appareil (étape 53, docs/CONTRAT_APPARENCE_PIXEL_ART.md) : classique par défaut, ou pixel art.
+   Posée ici, avant le premier affichage, pour ne jamais voir l'autre apparence un instant (règle R5). Gardée sur
+   l'appareil seulement (clé taches.apparence), jamais dans la base. Le fond pixel art est agrandi d'un facteur entier
+   (jamais un demi-pixel) : le plus petit qui couvre la fenêtre (règle A1). */
+function apparenceFond(){
+  var r = document.documentElement, s = r.style;
+  if(r.getAttribute('data-apparence') !== 'pixel'){ s.removeProperty('--fond-l'); s.removeProperty('--fond-h'); if(!s.length && r.getAttribute('style') !== null) r.removeAttribute('style'); return; } // lire l'attribut avant de l'ôter : sinon Chrome le remet, vide
+  var pc = window.matchMedia && matchMedia('(min-width: 1000px)').matches, w = pc ? 480 : 195, h = pc ? 270 : 422;
+  var f = Math.max(1, Math.ceil(Math.max(innerWidth / w, innerHeight / h)));
+  s.setProperty('--fond-l', w * f + 'px'); s.setProperty('--fond-h', h * f + 'px');
+}
+function apparencePoser(a){
+  var pixel = a === 'pixel', r = document.documentElement, m = document.querySelector('meta[name="theme-color"]');
+  if(pixel) r.setAttribute('data-apparence', 'pixel'); else r.removeAttribute('data-apparence');
+  if(m) m.setAttribute('content', pixel ? '#3a2420' : '#373737');
+  apparenceFond();
+}
+(function(){
+  var a = null; try{ a = JSON.parse(localStorage.getItem('taches.apparence')); }catch(e){}
+  if(a === 'pixel') apparencePoser('pixel');
+  addEventListener('resize', apparenceFond);
+})();
+</script>
 <style>
 /* Farm tasks (étape 36A, 18/11/2026). Charte D'ORIGINE du module d'irrigation d'Ouvre ta ferme (demande du 18/11, 21 h 37 :
    pas la version ajustée pour le cumul) : feuille #f8f8f8, blocs blancs sans bordure avec ombre douce,
@@ -416,6 +440,320 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 .imp-sep{margin:1.1mm 0 1.1mm calc(var(--n,0) * 1.45em + 1.6em);border-top:.8pt dashed #999}
 .imp-vide{margin:.4mm 0;font-style:italic;color:#666}
 .imp-sous{margin:1.6mm 0 .6mm;font-family:var(--f-ui);font-weight:600;font-size:.86em;color:#444}
+/* Réglages → « Apparence de cet appareil » (étape 53) : deux gros boutons côte à côte, chacun avec sa vignette. */
+.app-choix{display:flex;gap:10px;margin:2px 0 4px}
+.app-b{flex:1 1 0;min-width:0;min-height:44px;display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid var(--filet);border-radius:var(--r-bloc);background:#fff;padding:8px 6px;font-family:var(--f-ui);font-weight:500;font-size:14px;color:var(--texte)}
+.app-b img{display:block;width:100%;max-width:150px;height:auto;aspect-ratio:150/90;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.app-b[aria-pressed="true"]{border:2px solid var(--vert);background:var(--vert-pale);color:var(--vert);padding:7px 5px}
+.app-b span{display:inline-flex;align-items:center;gap:6px}
+.app-coche{display:none;width:18px;height:18px;border-radius:50%;background:var(--vert);color:#fff;align-items:center;justify-content:center}
+.app-coche svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3}
+.app-b[aria-pressed="true"] .app-coche{display:inline-flex}
+/* PIXEL-ART-DEBUT
+   Apparence pixel art (étape 53, docs/CONTRAT_APPARENCE_PIXEL_ART.md ; maquette farm-tasks-v3 validée le 21/11/2026).
+   Choisie dans Réglages → « Apparence de cet appareil » (clé taches.apparence de cet appareil, jamais dans la base).
+   TOUTES les règles du pixel art sont ici, et chacune commence par :root[data-apparence="pixel"] : sans cet attribut
+   (apparence classique, par défaut), rien de ce bloc ne s'applique et la charte d'origine ne change pas d'un point.
+   Habillage seulement : mêmes éléments, mêmes places, mêmes gestes. La page d'impression (#impPage) reste classique.
+   Valeurs : annexe A du contrat. Un pixel du cadre = 3 × 3 points ; coins « en escalier » par des ombres de 3 points
+   (claires en haut et à gauche, foncées en bas et à droite) ; jamais d'arrondi lisse. Images : apparence/ (LISEZMOI.md).
+   Polices Press Start 2P (titres) et VT323 (texte), puis « Signes pixel » pour ⋯ ▲ ▼ ● → − ✓ 🕘 qu'elles n'ont pas.
+   Ces polices ne sont téléchargées que par un appareil en pixel art (le navigateur ne charge une police qu'à l'emploi). */
+@font-face{font-family:"Press Start 2P";src:url(polices/press-start-2p.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"VT323";src:url(polices/vt323.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Signes pixel";src:url(polices/signes-pixel.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+:root[data-apparence="pixel"]{
+  --feuille:#2a1810; --bloc:#fff4e4; --gris:#f6e6d2; --texte:#3b2a2f; --sec:#7a5a46; --filet:#e2c8ac; --filet-pale:#efcdb4;
+  --vert:#3d6e5a; --vert-pale:#dcebd9; --vert-ok:#dcebd9; --vert-ok-txt:#1e3a2e; --menu:#fbe3ef; --anthracite:#3a2420;
+  --rouge:#b4503c; --rouge-pale:#fbe0d8; --rouge-txt:#8a2a1e;
+  --r-bloc:0; --r-btn:0; --r-feuille:0; --ombre:none;
+  --f-titre:"Press Start 2P","Signes pixel","DM Sans",monospace;
+  --f-ui:"VT323","Signes pixel","DM Sans",monospace;
+  --f-texte:"VT323","Signes pixel","DM Sans",monospace;
+  --px-rose:#e0709f; --px-rose-f:#a8406f; --px-creme:#fff4e4; --px-brun:#3a2420; --px-ombre:#2a1810;
+  font-synthesis:none;
+}
+/* La page d'impression reste dans la charte d'origine (règle R12) : mêmes polices qu'en classique. */
+:root[data-apparence="pixel"] #impPage{--f-titre:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--f-ui:"DM Sans","Segoe UI",system-ui,sans-serif;--f-texte:"Open Sans","Segoe UI",system-ui,sans-serif;font-synthesis:initial}
+:root[data-apparence="pixel"] body{background:var(--px-ombre);-webkit-font-smoothing:none}
+/* Le fond : la ferme au coucher du soleil, en vrai pixel art, sur un calque fixe ; agrandie d'un facteur entier
+   (--fond-l, --fond-h, calculés par le script de tête), centrée, sans lissage. */
+:root[data-apparence="pixel"] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--px-ombre) url(apparence/fond-telephone.png) center center/var(--fond-l,390px) var(--fond-h,844px) no-repeat;image-rendering:pixelated}
+:root[data-apparence="pixel"] svg.i{shape-rendering:crispEdges;stroke-linecap:square;stroke-linejoin:miter}
+:root[data-apparence="pixel"] button{border-radius:0}
+
+/* Barre du haut (et bande du bas du téléphone) : brun foncé, filet orange, ombre */
+:root[data-apparence="pixel"] .barre{background:var(--px-brun);border-bottom:4px solid #f08a3c;box-shadow:0 4px 0 var(--px-ombre);position:relative;z-index:2}
+:root[data-apparence="pixel"] .barre-in{font-family:var(--f-ui);font-weight:400;font-size:22px;height:42px;color:#fff3e0;letter-spacing:.5px}
+:root[data-apparence="pixel"] .statut{font-size:20px;color:#fff3e0}
+:root[data-apparence="pixel"] .statut i{border-radius:0;width:10px;height:10px;box-shadow:0 0 0 2px var(--px-ombre)}
+:root[data-apparence="pixel"] .statut.ok i{background:#6fd08a}
+:root[data-apparence="pixel"] .barre-btn{border-radius:0;color:#ffcf8a}
+:root[data-apparence="pixel"] .avatar{border-radius:0;font-family:var(--f-titre);font-weight:400;font-size:11px;background:var(--px-rose)!important;color:#fff!important;margin:0 3px;
+  box-shadow:0 -3px 0 #f8b4d0,0 3px 0 var(--px-rose-f),-3px 0 0 #f8b4d0,3px 0 0 var(--px-rose-f)}
+
+/* Les cartes (une par liste) : cadre en gros pixels posé par border-image (apparence/cadre-carte.png, 9 morceaux :
+   les coins gardent leur escalier, les bords s'étirent), ombre en escalier comprise dans l'image, pas de filtre. */
+:root[data-apparence="pixel"] .pan{position:relative;isolation:isolate;background:transparent;border-radius:0;box-shadow:none;padding:15px 15px 21px}
+:root[data-apparence="pixel"] .pan::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-style:solid;border-width:15px 15px 21px;border-image:url(apparence/cadre-carte.png) 15 15 21 fill/15px 15px 21px stretch}
+/* Haut rose : reflet en haut, puis ombre, trait brun et filet clair en bas ; il recouvre la colonne crème du cadre. */
+:root[data-apparence="pixel"] .pan-tete{margin:0 -3px;padding:6px 7px 15px 10px;
+  background:linear-gradient(#f8b4d0,#f8b4d0) 3px 0/calc(100% - 6px) 3px no-repeat,linear-gradient(to top,#f7dcc4 0 3px,#3a2016 3px 6px,#c4508a 6px 9px,var(--px-rose) 9px)}
+:root[data-apparence="pixel"] .pan-titre{font-family:var(--f-titre);font-weight:400;font-size:13px;line-height:1.5;color:#fff;
+  text-shadow:3px 3px 0 #8a2a5a,-3px 0 0 #8a2a5a,3px 0 0 #8a2a5a,0 -3px 0 #8a2a5a,0 3px 0 #8a2a5a;padding:3px 3px 0}
+:root[data-apparence="pixel"] .rond{border-radius:0;position:relative}
+:root[data-apparence="pixel"] .rond.contour,:root[data-apparence="pixel"] .rond.plein{border:0;background:var(--px-creme);color:var(--px-rose-f);width:30px;height:30px;margin:3px 4px;
+  box-shadow:0 -3px 0 #8a2a5a,0 3px 0 #8a2a5a,-3px 0 0 #8a2a5a,3px 0 0 #8a2a5a,inset 0 -3px 0 #f2cfa8}
+:root[data-apparence="pixel"] .rond::after{content:"";position:absolute;inset:-7px}
+:root[data-apparence="pixel"] .pan-corps{padding:6px 6px 12px}
+:root[data-apparence="pixel"] .bloc{background:transparent;box-shadow:none;border-radius:0;padding:0 6px}
+:root[data-apparence="pixel"] .ajout-ligne{font-family:var(--f-ui);font-weight:400;font-size:20px;color:var(--px-rose-f)}
+:root[data-apparence="pixel"] .vide{font-size:19px;color:var(--sec)}
+:root[data-apparence="pixel"] .faites-lien{font-family:var(--f-ui);font-weight:400;font-size:19px;color:#8a6a52}
+
+/* Encarts : bandeau en marches de la couleur de l'encart (couleurs des Réglages), « + » rose */
+:root[data-apparence="pixel"] .encart + .encart{border-top:3px dashed #e8c0a8}
+:root[data-apparence="pixel"] .encart-tete{gap:12px;padding:0 3px}
+:root[data-apparence="pixel"] .etiq{border-radius:0;font-family:var(--f-titre);font-weight:400;font-size:8px;letter-spacing:0;padding:6px 9px;margin:3px 0;
+  box-shadow:0 -3px 0 currentColor,0 3px 0 currentColor,-3px 0 0 currentColor,3px 0 0 currentColor}
+:root[data-apparence="pixel"] .encart-tete .etiq{padding:6px 9px}
+:root[data-apparence="pixel"] .pt{border-radius:0;color:#8a6a52}
+:root[data-apparence="pixel"] .pt.plus-e,:root[data-apparence="pixel"] .pt.plus-e:hover{background:transparent;color:var(--px-rose-f)}
+:root[data-apparence="pixel"] .pt.plus-e svg.i{stroke-width:2.4}
+
+/* Tâches : VT323, pointillés entre les tâches, cases blanches à marches */
+:root[data-apparence="pixel"] li.t{border-bottom:3px dotted var(--filet-pale)}
+:root[data-apparence="pixel"] li.t:last-child{border-bottom:0}
+:root[data-apparence="pixel"] .tx,:root[data-apparence="pixel"] textarea.ed{font-family:var(--f-texte);font-weight:400;font-size:23px;line-height:24px;letter-spacing:.2px}
+:root[data-apparence="pixel"] textarea.ed{border-bottom:3px solid var(--px-rose-f)}
+:root[data-apparence="pixel"] .heure{font-weight:400;color:#1e5f86}
+:root[data-apparence="pixel"] .coche{border:0;border-radius:0;background:#fff;width:18px;height:18px;margin:4px 4px 0;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .coche::after{inset:-13px}
+:root[data-apparence="pixel"] .coche:hover{background:var(--vert-pale)}
+:root[data-apparence="pixel"] .coche.fantome{box-shadow:0 -3px 0 var(--filet),0 3px 0 var(--filet),-3px 0 0 var(--filet),3px 0 0 var(--filet)}
+:root[data-apparence="pixel"] .coche svg{left:1px;top:1px;stroke-linecap:square;stroke-linejoin:miter;shape-rendering:crispEdges}
+:root[data-apparence="pixel"] li.t.vient-coche .coche{background:var(--vert)}
+:root[data-apparence="pixel"] .pastille{border-radius:0;font-family:var(--f-titre);font-weight:400;font-size:9px;width:22px;height:22px;margin:2px 3px 0;
+  box-shadow:0 -2px 0 currentColor,0 2px 0 currentColor,-2px 0 0 currentColor,2px 0 0 currentColor}
+:root[data-apparence="pixel"] .origine{color:#a07a5c}
+:root[data-apparence="pixel"] li.t.sep .trait{border-top:4px dashed #c9a98c}
+:root[data-apparence="pixel"] li.t.appuye{background:var(--gris)}
+:root[data-apparence="pixel"] .ast-info{font-family:var(--f-ui);font-size:19px}
+:root[data-apparence="pixel"] .ast-info .j,:root[data-apparence="pixel"] .ast-info .zone,:root[data-apparence="pixel"] .ast-info .pause{border-radius:0;font-weight:400;padding:0 6px;margin:2px 2px}
+:root[data-apparence="pixel"] .ast-info .j{box-shadow:0 -2px 0 var(--vert),0 2px 0 var(--vert),-2px 0 0 var(--vert),2px 0 0 var(--vert)}
+:root[data-apparence="pixel"] .ast-info .zone{box-shadow:0 -2px 0 #8a6a52,0 2px 0 #8a6a52,-2px 0 0 #8a6a52,2px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .ast-info .pause{box-shadow:0 -2px 0 currentColor,0 2px 0 currentColor,-2px 0 0 currentColor,2px 0 0 currentColor}
+/* Liste verrouillée : pointillés à l'intérieur de la carte, encadré à marches */
+:root[data-apparence="pixel"] .pan.fige,:root[data-apparence="pixel"] .pan.fige .bloc{outline:0}
+:root[data-apparence="pixel"] .pan.fige .pan-corps{outline:3px dashed #c9b49a;outline-offset:-3px}
+:root[data-apparence="pixel"] .verrou-info{background:#f6e6d2;border-radius:0;color:#7a5a46;font-family:var(--f-ui);font-size:19px;line-height:1.2;margin:6px 3px 10px;
+  box-shadow:0 -3px 0 #e2c8ac,0 3px 0 #e2c8ac,-3px 0 0 #e2c8ac,3px 0 0 #e2c8ac}
+
+/* Bande des listes, en bas du téléphone */
+:root[data-apparence="pixel"] .bande{background:var(--px-brun);border-top:4px solid #f08a3c;position:relative;z-index:2}
+:root[data-apparence="pixel"] .bande-in{font-family:var(--f-ui);font-weight:400;font-size:21px}
+:root[data-apparence="pixel"] .pil{font-family:var(--f-ui);font-weight:400;font-size:21px;color:#e8d8c8;border-radius:0;background:transparent;margin:3px 3px}
+:root[data-apparence="pixel"] .pil.on{background:var(--px-rose);color:#fff;margin:3px 6px;box-shadow:0 -3px 0 #f8b4d0,0 3px 0 var(--px-rose-f),-3px 0 0 #f8b4d0,3px 0 0 var(--px-rose-f)}
+:root[data-apparence="pixel"] .pil.nouv{border:3px dashed #c9875a;color:#fff3e0}
+
+/* Glisser, bandeau du bas, message */
+:root[data-apparence="pixel"] .vol{background:var(--px-creme);border-radius:0;box-shadow:0 -3px 0 var(--px-rose-f),0 3px 0 var(--px-rose-f),-3px 0 0 var(--px-rose-f),3px 0 0 var(--px-rose-f),0 9px 0 rgba(42,24,16,.45)}
+:root[data-apparence="pixel"] .trait-depot{background:var(--px-rose-f);border-radius:0}
+:root[data-apparence="pixel"] .bandeau{background:var(--px-brun);color:#fff3e0;border-radius:0;border-top:4px solid #f08a3c;font-family:var(--f-ui);font-size:20px;box-shadow:0 6px 0 rgba(42,24,16,.55)}
+:root[data-apparence="pixel"] .bandeau button{border:0;border-radius:0;background:var(--px-creme);color:var(--texte);font-family:var(--f-ui);font-size:20px;margin:3px;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .message{color:#fff3e0;font-family:var(--f-ui);font-size:20px;text-shadow:2px 2px 0 var(--px-brun)}
+:root[data-apparence="pixel"] .rappel-lu{background:var(--px-creme);color:var(--texte);border-radius:0;font-family:var(--f-ui);font-size:20px;margin:11px 13px 3px;
+  box-shadow:0 -3px 0 #f08a3c,0 3px 0 #f08a3c,-3px 0 0 #f08a3c,3px 0 0 #f08a3c,0 9px 0 rgba(42,24,16,.45)}
+
+/* Fenêtres : des cartes (même cadre), haut rose avec le titre en blanc à contour, intérieur crème.
+   Le cadre (15 points) déborde de 3 points sur l'intérieur (bordure de 12) : le haut rose recouvre la colonne crème
+   du cadre sans sortir de la fenêtre (pas d'ascenseur de côté), et les petits coins de l'image restent visibles. */
+:root[data-apparence="pixel"] dialog{border-radius:0;box-shadow:none;background:var(--px-creme) padding-box;border-style:solid;border-color:transparent;border-width:12px 12px 18px;
+  border-image:url(apparence/cadre-carte.png) 15 15 21/15px 15px 21px stretch;padding:0 14px 14px;font-family:var(--f-ui);font-size:20px;line-height:1.25;
+  --px-haut-coins:linear-gradient(var(--px-rose),var(--px-rose)) 3px 0/calc(100% - 6px) 3px no-repeat;
+  --px-haut-reflet:linear-gradient(#f8b4d0,#f8b4d0) 3px 3px/calc(100% - 6px) 3px no-repeat;
+  --px-haut-bas:linear-gradient(to top,#f7dcc4 0 3px,#3a2016 3px 6px,#c4508a 6px 9px,var(--px-rose) 9px) 0 3px/100% calc(100% - 3px) no-repeat}
+:root[data-apparence="pixel"] dialog::backdrop{background:rgba(42,24,16,.5)}
+:root[data-apparence="pixel"] dialog h2{margin:0 -14px 12px;padding:12px 14px 18px;color:#fff;font-family:var(--f-titre);font-weight:400;font-size:16px;line-height:1.5;
+  background:var(--px-haut-reflet),var(--px-haut-coins),var(--px-haut-bas);
+  text-shadow:3px 3px 0 #8a2a5a,-3px 0 0 #8a2a5a,3px 0 0 #8a2a5a,0 -3px 0 #8a2a5a,0 3px 0 #8a2a5a;overflow-wrap:anywhere}
+/* La poignée des feuilles du téléphone devient le haut rose (avec son petit trait) ; un titre qui la suit la prolonge. */
+:root[data-apparence="pixel"] .poignee-f{width:auto;height:30px;border-radius:0;margin:0 -14px 12px;padding:0;
+  background:linear-gradient(#f8b4d0,#f8b4d0) center 12px/42px 6px no-repeat,var(--px-haut-reflet),var(--px-haut-coins),var(--px-haut-bas)}
+:root[data-apparence="pixel"] .poignee-f:has(+ h2){height:27px;margin-bottom:0;background:linear-gradient(#f8b4d0,#f8b4d0) center 12px/42px 6px no-repeat,var(--px-haut-reflet),var(--px-haut-coins),linear-gradient(var(--px-rose),var(--px-rose)) 0 3px/100% 100% no-repeat}
+:root[data-apparence="pixel"] .poignee-f + h2{padding-top:0;background:linear-gradient(to top,#f7dcc4 0 3px,#3a2016 3px 6px,#c4508a 6px 9px,var(--px-rose) 9px)}
+:root[data-apparence="pixel"] dialog p{margin:0 0 10px}
+:root[data-apparence="pixel"] .champ{gap:6px}
+:root[data-apparence="pixel"] .champ span{font-size:19px;color:var(--sec)}
+:root[data-apparence="pixel"] .champ input,:root[data-apparence="pixel"] .champ textarea,:root[data-apparence="pixel"] .heure-champ,:root[data-apparence="pixel"] .regl-pers input,:root[data-apparence="pixel"] .regl-pers select,:root[data-apparence="pixel"] .regl-enc input,:root[data-apparence="pixel"] .regl-nom,:root[data-apparence="pixel"] .pers-l input,:root[data-apparence="pixel"] .pers-l select,:root[data-apparence="pixel"] .enc-l input,:root[data-apparence="pixel"] .rap-l select,:root[data-apparence="pixel"] #encDlg .enc-l input{
+  border:0;border-radius:0;background:#fff;color:var(--texte);font-family:var(--f-ui);font-size:20px;margin:3px;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .champ input:focus,:root[data-apparence="pixel"] .champ textarea:focus{outline:3px solid var(--px-rose-f);outline-offset:3px}
+:root[data-apparence="pixel"] .err{background:#fbe0d8;color:#8a2a1e;border-radius:0;margin:3px 3px 10px;box-shadow:0 -3px 0 #e2a898,0 3px 0 #e2a898,-3px 0 0 #e2a898,3px 0 0 #e2a898}
+:root[data-apparence="pixel"] .act{font-family:var(--f-ui);font-weight:400;font-size:20px;border-top:3px dotted var(--filet-pale);color:var(--texte)}
+:root[data-apparence="pixel"] .act:disabled{color:#b8a494}
+:root[data-apparence="pixel"] .act.danger{color:#8a2a1e}
+:root[data-apparence="pixel"] .act small{color:var(--sec)}
+:root[data-apparence="pixel"] .btns{gap:12px;margin-top:14px}
+:root[data-apparence="pixel"] .btn{border:0;border-radius:0;font-family:var(--f-ui);font-weight:400;font-size:20px;margin:3px}
+:root[data-apparence="pixel"] .btn.principal{background:var(--px-rose-f);color:#fff;box-shadow:0 -3px 0 var(--px-rose),0 3px 0 #6a1e44,-3px 0 0 var(--px-rose),3px 0 0 #6a1e44}
+:root[data-apparence="pixel"] .btn.secondaire,:root[data-apparence="pixel"] .btn.outil{border:0;background:var(--px-creme);color:var(--texte);box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .btn.danger{border:0;background:#b4503c;color:#fff;box-shadow:0 -3px 0 #e0907a,0 3px 0 #6e2418,-3px 0 0 #e0907a,3px 0 0 #6e2418}
+:root[data-apparence="pixel"] .btn:disabled{opacity:.5}
+:root[data-apparence="pixel"] .regl-h{font-family:var(--f-titre);font-weight:400;font-size:8px;line-height:1.6;color:#8a6a52;margin:20px 0 8px}
+:root[data-apparence="pixel"] .regl-aide{font-size:19px;color:var(--sec)}
+:root[data-apparence="pixel"] .menu-bloc > span{font-family:var(--f-ui);font-weight:400;font-size:20px}
+:root[data-apparence="pixel"] .seg{background:#f6e6d2;border-radius:0;padding:5px;gap:6px;margin:3px;box-shadow:0 -3px 0 #e2c8ac,0 3px 0 #e2c8ac,-3px 0 0 #e2c8ac,3px 0 0 #e2c8ac}
+:root[data-apparence="pixel"] .seg button{border-radius:0;font-family:var(--f-ui);font-weight:400;font-size:20px;color:var(--texte)}
+:root[data-apparence="pixel"] .seg button[aria-pressed="true"]{background:var(--px-rose);color:#fff;box-shadow:0 -3px 0 #f8b4d0,0 3px 0 var(--px-rose-f),-3px 0 0 #f8b4d0,3px 0 0 var(--px-rose-f)}
+:root[data-apparence="pixel"] .seg .pastille{width:18px;height:18px;font-size:8px;margin:0 2px}
+:root[data-apparence="pixel"] .jours-choix{gap:8px;padding:3px}
+:root[data-apparence="pixel"] .jours-choix button,:root[data-apparence="pixel"] .couleurs button,:root[data-apparence="pixel"] .enc-b,:root[data-apparence="pixel"] .enc-fl button{border:0;border-radius:0;background:var(--px-creme);font-family:var(--f-ui);font-weight:400;font-size:19px;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .couleurs{gap:10px;padding:3px}
+:root[data-apparence="pixel"] .couleurs button{background:#fff;font-size:22px}
+:root[data-apparence="pixel"] .jours-choix button[aria-pressed="true"],:root[data-apparence="pixel"] .couleurs button[aria-pressed="true"],:root[data-apparence="pixel"] .enc-b.enc-heure[aria-pressed="true"]{border:0;background:#fbe3ef;
+  box-shadow:0 -3px 0 var(--px-rose-f),0 3px 0 var(--px-rose-f),-3px 0 0 var(--px-rose-f),3px 0 0 var(--px-rose-f),inset 0 0 0 3px var(--px-rose)}
+:root[data-apparence="pixel"] .jours-choix button[aria-pressed="true"]{color:var(--px-rose-f)}
+:root[data-apparence="pixel"] .enc-fl{gap:6px}
+:root[data-apparence="pixel"] .enc-fl button{font-family:"Signes pixel",var(--f-ui);font-size:20px;color:var(--texte)}
+:root[data-apparence="pixel"] .enc-fl button:disabled{color:#c9b49a;box-shadow:0 -3px 0 #e2c8ac,0 3px 0 #e2c8ac,-3px 0 0 #e2c8ac,3px 0 0 #e2c8ac}
+:root[data-apparence="pixel"] .enc-l{gap:10px}
+:root[data-apparence="pixel"] .enc-b.enc-coul span,:root[data-apparence="pixel"] .enc-pal button{border-radius:0}
+:root[data-apparence="pixel"] .enc-pal{gap:9px}
+:root[data-apparence="pixel"] .enc-pal button{border:0;box-shadow:0 0 0 3px rgba(42,24,16,.25)}
+:root[data-apparence="pixel"] .enc-pal button[aria-pressed="true"]{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--px-rose-f)}
+:root[data-apparence="pixel"] .enc-h-ico svg.i{color:var(--px-rose-f)}
+:root[data-apparence="pixel"] .enc-msg{color:#8a2a1e}
+:root[data-apparence="pixel"] .enc-dest{gap:12px;padding:3px}
+:root[data-apparence="pixel"] .enc-dest label{border:0;border-radius:0;background:var(--px-creme);font-family:var(--f-ui);font-weight:400;font-size:20px;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .enc-dest label:has(input:checked){background:#fbe3ef;box-shadow:0 -3px 0 var(--px-rose-f),0 3px 0 var(--px-rose-f),-3px 0 0 var(--px-rose-f),3px 0 0 var(--px-rose-f)}
+:root[data-apparence="pixel"] .enc-depart,:root[data-apparence="pixel"] .imp-compte,:root[data-apparence="pixel"] .rap-tel{background:#f6e6d2;border:0;border-radius:0;font-family:var(--f-ui);font-weight:400;font-size:19px;margin:13px 3px 3px;
+  box-shadow:0 -3px 0 #e2c8ac,0 3px 0 #e2c8ac,-3px 0 0 #e2c8ac,3px 0 0 #e2c8ac}
+:root[data-apparence="pixel"] .rap-tel p,:root[data-apparence="pixel"] .rap-l{font-size:19px}
+:root[data-apparence="pixel"] .enc-depart button,:root[data-apparence="pixel"] .imp-raccourcis button{font-weight:400;color:var(--px-rose-f);text-decoration-thickness:2px}
+:root[data-apparence="pixel"] .imp-raccourcis{font-size:19px}
+:root[data-apparence="pixel"] .imp-listes label,:root[data-apparence="pixel"] .imp-opts label,:root[data-apparence="pixel"] .choix li span{font-family:var(--f-ui);font-weight:400;font-size:20px}
+:root[data-apparence="pixel"] .pers-l .p-suppr{border-radius:0;font-size:24px}
+/* Cases et boutons radio : carrés à marches ; cochés, coche blanche dessinée en pixels sur rose */
+:root[data-apparence="pixel"] dialog input[type="checkbox"],:root[data-apparence="pixel"] dialog input[type="radio"],:root[data-apparence="pixel"] .menu label input{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:16px;height:16px;margin:3px;border:0;border-radius:0;background:#fff;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] dialog input[type="checkbox"]:checked,:root[data-apparence="pixel"] dialog input[type="radio"]:checked,:root[data-apparence="pixel"] .menu label input:checked{background:var(--px-rose) url(apparence/coche-pixel.svg) center/100% no-repeat;
+  box-shadow:0 -3px 0 #f8b4d0,0 3px 0 var(--px-rose-f),-3px 0 0 #f8b4d0,3px 0 0 var(--px-rose-f)}
+:root[data-apparence="pixel"] .case-pause input{width:18px;height:18px}
+/* Texte blanc sur rose (choix en cours, pastille du compte) : contour rose foncé obligatoire, comme les titres (le blanc
+   seul sur #e0709f ne fait que 3,0 de contraste ; règle R11). */
+:root[data-apparence="pixel"] .nav.on,:root[data-apparence="pixel"] .pil.on,:root[data-apparence="pixel"] .seg button[aria-pressed="true"],:root[data-apparence="pixel"] .avatar{text-shadow:2px 0 0 #8a2a5a,-2px 0 0 #8a2a5a,0 2px 0 #8a2a5a,0 -2px 0 #8a2a5a}
+/* Rubrique « Apparence de cet appareil » des Réglages */
+:root[data-apparence="pixel"] .app-b{border:0;border-radius:0;background:var(--px-creme);font-family:var(--f-ui);font-weight:400;font-size:20px;margin:3px;
+  box-shadow:0 -3px 0 #8a6a52,0 3px 0 #8a6a52,-3px 0 0 #8a6a52,3px 0 0 #8a6a52}
+:root[data-apparence="pixel"] .app-b img{border-radius:0;image-rendering:pixelated}
+:root[data-apparence="pixel"] .app-b[aria-pressed="true"]{border:0;background:#fbe3ef;color:var(--px-rose-f);
+  box-shadow:0 -3px 0 var(--px-rose-f),0 3px 0 var(--px-rose-f),-3px 0 0 var(--px-rose-f),3px 0 0 var(--px-rose-f),inset 0 0 0 3px var(--px-rose)}
+:root[data-apparence="pixel"] .app-b[aria-pressed="true"] .app-coche{background:var(--px-rose);border-radius:0;color:#fff}
+
+/* Téléphone */
+@media (max-width:999.98px){
+  :root[data-apparence="pixel"] .barre-in{font-size:19px;gap:6px}
+  :root[data-apparence="pixel"] .barre-nom{display:flex;align-items:center;gap:7px}
+  :root[data-apparence="pixel"] .barre-nom::before{content:"";flex:none;width:32px;height:32px;background:url(apparence/logo-pixel.png) center/32px 32px no-repeat;image-rendering:pixelated}
+  :root[data-apparence="pixel"] .statut{font-size:18px}
+  /* La carte laisse voir le fond autour d'elle : 2 pixels du cadre en haut, 3 sur les côtés. */
+  :root[data-apparence="pixel"] .pan{padding:21px 24px 21px}
+  :root[data-apparence="pixel"] .pan::before{inset:6px 9px 0}
+  :root[data-apparence="pixel"] .pan-tete{padding:9px 7px 15px 12px}
+  :root[data-apparence="pixel"] .pan-titre{font-size:18px}
+  :root[data-apparence="pixel"] .rond.contour,:root[data-apparence="pixel"] .rond.plein{width:33px;height:33px;margin:3px 6px}
+  :root[data-apparence="pixel"] .rond.plein svg.i{width:20px;height:20px}
+  :root[data-apparence="pixel"] .bloc{padding:0 6px}
+  :root[data-apparence="pixel"] .encart-tete .etiq{font-size:10px;padding:8px 10px}
+  :root[data-apparence="pixel"] .pt.plus-e,:root[data-apparence="pixel"] .pt.plus-e:hover{width:28px;height:28px;margin:0 4px;background:var(--px-rose);color:#fff;
+    box-shadow:0 -3px 0 #f8b4d0,0 3px 0 var(--px-rose-f),-3px 0 0 #f8b4d0,3px 0 0 var(--px-rose-f)}
+  :root[data-apparence="pixel"] .pt.plus-e::after{inset:-8px}
+  :root[data-apparence="pixel"] dialog.feuille{padding:0 14px calc(14px + env(safe-area-inset-bottom));border-bottom-width:0;border-image-width:15px 15px 0}
+  /* Menu « ⋯ » d'une tâche : il tient toujours entier dans un écran de 360 × 640, « Fermer » compris (règle R15). */
+  :root[data-apparence="pixel"] #tacheDlg{padding:0 8px calc(8px + env(safe-area-inset-bottom));letter-spacing:-.3px}
+  :root[data-apparence="pixel"] #tacheDlg .poignee-f{height:21px;margin:0 -8px 4px;background:linear-gradient(#f8b4d0,#f8b4d0) center 9px/42px 3px no-repeat,var(--px-haut-reflet),var(--px-haut-coins),linear-gradient(to top,#f7dcc4 0 3px,#3a2016 3px 6px,var(--px-rose) 6px) 0 3px/100% calc(100% - 3px) no-repeat}
+  :root[data-apparence="pixel"] #tacheChamp{margin-bottom:6px}
+  :root[data-apparence="pixel"] #tacheDlg .btns,:root[data-apparence="pixel"] #impDlg .btns{background:var(--px-creme)}
+  :root[data-apparence="pixel"] #tacheDlg .btns{margin:6px -8px calc(-8px - env(safe-area-inset-bottom));padding:0 8px calc(8px + env(safe-area-inset-bottom))}
+  :root[data-apparence="pixel"] #tacheDlg .btn{font-size:19px;line-height:1;padding:0 6px}
+  :root[data-apparence="pixel"] #tacheRegl .menu-bloc{margin-bottom:6px}
+  :root[data-apparence="pixel"] #tacheRegl .menu-bloc > span{font-size:19px;max-width:4.4em;line-height:.95}
+  :root[data-apparence="pixel"] #tacheRegl .menu-bloc.case-pause > span{max-width:none}
+  :root[data-apparence="pixel"] #tacheRegl .seg{padding:3px;gap:3px;margin:0 3px}
+  :root[data-apparence="pixel"] #tacheRegl .heure-champ{margin:0 3px}
+  :root[data-apparence="pixel"] #tacheTexte{padding:7px 9px;margin:3px 3px 0}
+  :root[data-apparence="pixel"] #tacheRegl .seg button{font-size:19px;padding:0 5px}
+  :root[data-apparence="pixel"] #tacheRegl .jours-choix,:root[data-apparence="pixel"] #tacheRegl .couleurs{gap:6px;padding:0 3px}
+  :root[data-apparence="pixel"] #tacheRegl .jours-choix button{font-size:17px}
+  :root[data-apparence="pixel"] #tacheActions{column-gap:6px}
+  :root[data-apparence="pixel"] #tacheActions .act{font-size:19px;line-height:.9;gap:4px}
+  :root[data-apparence="pixel"] #tacheActions .act svg.i{width:15px;height:15px}
+  :root[data-apparence="pixel"] #impDlg .btns{border-top:3px dotted var(--filet-pale)}
+}
+
+/* Ordinateur */
+@media (min-width:1000px){
+  :root[data-apparence="pixel"] body::before{background-image:url(apparence/fond-ordinateur.png);background-size:var(--fond-l,1920px) var(--fond-h,1080px)}
+  :root[data-apparence="pixel"] body{font-size:19px}
+  /* Menu de gauche : crème jusqu'à 70 % de la hauteur, puis fondu jusqu'à 80 % qui laisse voir le fond */
+  :root[data-apparence="pixel"] .menu{background:linear-gradient(180deg,rgba(255,246,232,.95) 0,rgba(255,246,232,.95) 70%,rgba(255,246,232,.55) 74%,rgba(255,246,232,0) 80%);
+    border-right:4px solid #6e4a34;box-shadow:4px 0 0 var(--px-ombre);position:relative;z-index:1}
+  :root[data-apparence="pixel"] .menu-nom{font-family:var(--f-titre);font-weight:400;font-size:11px;line-height:1.6;color:#b84a2a;text-shadow:2px 2px 0 #ffd3a8;
+    display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:6px 8px 14px}
+  :root[data-apparence="pixel"] .menu-nom::before{content:"";flex:none;width:64px;height:64px;background:url(apparence/logo-pixel.png) center/64px 64px no-repeat;image-rendering:pixelated}
+  :root[data-apparence="pixel"] .nav{font-family:var(--f-ui);font-weight:400;font-size:20px;color:#6a5348;border-radius:0}
+  :root[data-apparence="pixel"] .nav.on{background:var(--px-rose);color:#fff;margin:4px 3px;box-shadow:0 -3px 0 #f8b4d0,0 3px 0 var(--px-rose-f),-3px 0 0 #f8b4d0,3px 0 0 var(--px-rose-f)}
+  :root[data-apparence="pixel"] .nav:not(.on):hover{background:#f6e6d2}
+  :root[data-apparence="pixel"] .menu h3{font-family:var(--f-titre);font-weight:400;font-size:8px;color:#8a6a52;letter-spacing:0;text-transform:uppercase;margin:18px 8px 8px}
+  :root[data-apparence="pixel"] .menu label{font-family:var(--f-ui);font-weight:400;font-size:18px;line-height:17px;color:var(--texte);min-height:22px;gap:9px;align-items:flex-start;padding-top:3px}
+  :root[data-apparence="pixel"] .menu label input{width:12px;height:12px;margin:2px}
+  /* Haut de la page : titre en blanc à contour, boutons en pixels */
+  :root[data-apparence="pixel"] .outils{padding-top:16px;padding-bottom:8px}
+  :root[data-apparence="pixel"] .outils h1{font-family:var(--f-titre);font-weight:400;font-size:22px;color:#fff;
+    text-shadow:4px 4px 0 #8a2a1e,-2px -2px 0 #8a2a1e,2px -2px 0 #8a2a1e,-2px 2px 0 #8a2a1e,0 4px 0 #8a2a1e}
+  :root[data-apparence="pixel"] .outils .btn{font-family:var(--f-titre);font-size:9px;color:#fff;min-height:36px;margin:4px 8px 10px}
+  :root[data-apparence="pixel"] .outils .btn[data-a="agenda"]{background:#3d6e5a;box-shadow:0 -4px 0 #8cc4a4,0 4px 0 #1e3a2e,-4px 0 0 #8cc4a4,4px 0 0 #1e3a2e,0 8px 0 var(--px-ombre)}
+  :root[data-apparence="pixel"] .outils .btn[data-a="repartir"]{background:#b4503c;box-shadow:0 -4px 0 #ffb08c,0 4px 0 #6e2418,-4px 0 0 #ffb08c,4px 0 0 #6e2418,0 8px 0 var(--px-ombre)}
+  :root[data-apparence="pixel"] .outils .btn[data-a="nouvelle-liste"]{background:#6e4a34;box-shadow:0 -4px 0 #b88a62,0 4px 0 var(--px-brun),-4px 0 0 #b88a62,4px 0 0 var(--px-brun),0 8px 0 var(--px-ombre)}
+  :root[data-apparence="pixel"] .outils .btn[data-a="nouvelle-liste"]::before{content:"+ "}
+  :root[data-apparence="pixel"] .rappel-lu{margin:6px 14px 0}
+  /* Les listes : même écart entre les cartes que le classique (six listes entières à 1600 points, sept à 1920) */
+  :root[data-apparence="pixel"] .piste{padding-top:14px;padding-bottom:26px}
+  :root[data-apparence="pixel"] .pan{padding:15px 15px 21px}
+  :root[data-apparence="pixel"] .pan-tete{padding:6px 4px 15px 10px}
+  :root[data-apparence="pixel"] .pan-corps{padding:4px 10px 8px 6px}
+  :root[data-apparence="pixel"] .pan.fige .pan-corps{padding:8px 8px 22px 10px}
+  :root[data-apparence="pixel"] .bloc{padding:0}
+  :root[data-apparence="pixel"] .tx,:root[data-apparence="pixel"] textarea.ed{font-size:17px;line-height:18px;letter-spacing:0}
+  :root[data-apparence="pixel"] li.t{gap:8px}
+  :root[data-apparence="pixel"] .coche{width:13px;height:13px;margin:3px 3px 0}
+  :root[data-apparence="pixel"] .coche::after{inset:-8px}
+  :root[data-apparence="pixel"] .coche svg{width:11px;height:11px;left:1px;top:1px}
+  :root[data-apparence="pixel"] .pastille{width:18px;height:18px;font-size:8px}
+  :root[data-apparence="pixel"] .etiq{font-size:8px}
+  :root[data-apparence="pixel"] .encart-tete{min-height:38px}
+  :root[data-apparence="pixel"] .ajout-ligne:hover{background:var(--gris)}
+  :root[data-apparence="pixel"] .pt.plus-e:hover{background:var(--gris)}
+  :root[data-apparence="pixel"] .faites-lien{font-size:19px}
+  :root[data-apparence="pixel"] .vide,:root[data-apparence="pixel"] .verrou-info{font-size:18px}
+  :root[data-apparence="pixel"] .ast-info{font-size:17px}
+  :root[data-apparence="pixel"] .pan-corps::-webkit-scrollbar-thumb,:root[data-apparence="pixel"] .pan-corps::-webkit-scrollbar-thumb:hover{background:#e6d3bd;border-radius:0}
+  :root[data-apparence="pixel"] .piste::-webkit-scrollbar-thumb{background:rgba(255,236,214,.75);border-radius:0}
+  @supports not selector(::-webkit-scrollbar){:root[data-apparence="pixel"] .pan-corps{scrollbar-color:#e6d3bd transparent}}
+  :root[data-apparence="pixel"] dialog.feuille{padding:0 14px 14px}
+  :root[data-apparence="pixel"] #tacheDlg::before{content:"";display:block;height:27px;margin:0 -14px 12px;background:var(--px-haut-reflet),var(--px-haut-coins),var(--px-haut-bas)}
+}
+/* Impression : jamais de fond pixel art sur le papier */
+@media print{
+  :root[data-apparence="pixel"] body::before{display:none}
+  :root[data-apparence="pixel"] body{background:#fff}
+}
+/* PIXEL-ART-FIN */
 </style>
 </head>
 <body>
@@ -556,6 +894,12 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
     <h3 class="regl-h">Rappel du matin</h3>
     <p class="regl-aide">Chacun règle le sien. À l'heure dite, une notification montre la liste du jour ; tant que « J'ai lu ma liste » n'est pas touché, elle revient.</p>
     <div id="reglRap"></div>
+    <h3 class="regl-h">Apparence de cet appareil</h3>
+    <p class="regl-aide">Ce choix ne vaut que pour cet appareil. Les autres gardent le leur.</p>
+    <div class="app-choix" id="appChoix" role="group" aria-label="Apparence de cet appareil">
+      <button type="button" class="app-b" data-apparence-choix="classique" aria-pressed="true"><img src="apparence/vignette-classique.png" alt="" width="150" height="90" loading="lazy"><span><i class="app-coche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></i>Classique</span></button>
+      <button type="button" class="app-b" data-apparence-choix="pixel" aria-pressed="false"><img src="apparence/vignette-pixel.png" alt="" width="150" height="90" loading="lazy"><span><i class="app-coche" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></i>Pixel art</span></button>
+    </div>
     <h3 class="regl-h">Papier de secours</h3>
     <p class="regl-aide" id="reglImpAide">Toutes les listes en entier, sur papier ou en PDF, même sans réseau.</p>
     <button type="button" class="btn outil enc-aj" id="reglImp">Imprimer…</button>
@@ -1841,10 +2185,25 @@ function ouvrirReglages(){
   resumeEncartsJours();
   var donnees = IX.listes.length > 0;
   $('#reglImp').disabled = !donnees;
+  majApparenceRegl();
   $('#reglImpAide').textContent = donnees ? 'Toutes les listes en entier, sur papier ou en PDF, même sans réseau.' : 'Pas encore de données sur cet appareil.';
   var d = $('#reglDlg'); if(!d.open) d.showModal();
 }
 $('#reglImp').onclick = function(){ if(IX.listes.length) ouvrirImpression(''); };
+/* Apparence de cet appareil (étape 53) : effet immédiat, gardée sur l'appareil seulement (taches.apparence), jamais
+   écrite dans la base ; « Annuler » et « Enregistrer » des Réglages ne la concernent pas. Rien d'autre ne change. */
+function apparenceActuelle(){ return document.documentElement.getAttribute('data-apparence') === 'pixel' ? 'pixel' : 'classique'; }
+function majApparenceRegl(){
+  var a = apparenceActuelle();
+  Array.prototype.forEach.call(document.querySelectorAll('#appChoix .app-b'), function(b){ b.setAttribute('aria-pressed', b.dataset.apparenceChoix === a ? 'true' : 'false'); });
+}
+$('#appChoix').addEventListener('click', function(e){
+  var b = e.target.closest('.app-b'); if(!b) return;
+  var a = b.dataset.apparenceChoix === 'pixel' ? 'pixel' : 'classique';
+  ls('taches.apparence', a); apparencePoser(a); majApparenceRegl();
+});
+// Choix fait dans un autre onglet du même appareil : suivi ici aussi.
+addEventListener('storage', function(e){ if(e.key === 'taches.apparence'){ apparencePoser(ls('taches.apparence') === 'pixel' ? 'pixel' : 'classique'); majApparenceRegl(); } });
 $('#versReglages').onclick = function(){ $('#compteDlg').close(); ouvrirReglages(); };
 $('#reglAjPers').onclick = function(){
   var pris = personnes().map(function(p){ return p.couleur; }), libre = Object.keys(PALETTE).filter(function(k){ return pris.indexOf(k) < 0; })[0] || 'gris';

@@ -12,6 +12,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium, devices } = require('playwright');
 const fauxFirebase = require('./faux-firebase.cjs');
+const { sautePixel, PIXEL } = require('./apparence-env.cjs'); // APPARENCE=pixel : le même test dans l'apparence pixel art (étape 53)
 
 const RACINE = path.join(__dirname, '..');
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
@@ -195,7 +196,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   verifie(anim.length === 5 && anim[0][0] === 'Plantation endive' && /coche-ligne/.test(anim[0][1]), 'cocher : animation comme dans le Cumul (la tâche et ses sous-tâches restent un instant, en vert)');
   await pause(1200);
   const vert = await A.evaluate((L) => { const li = document.querySelector(`.pan[data-l="${L}"] li.t.vient-coche`); return li && getComputedStyle(li).backgroundColor; }, LJ);
-  verifie(vert === 'rgb(11, 105, 77)', 'pendant l\'animation : fond vert plein');
+  verifie(vert === (PIXEL ? 'rgb(61, 110, 90)' : 'rgb(11, 105, 77)'), 'pendant l\'animation : fond vert plein (vert #3d6e5a en pixel art)');
   verifie(await attendreQue(async () => !(await textes(A, LJ)).includes('Plantation endive') && !(await A.evaluate(() => document.querySelector('li.vient-coche'))), 4000), 'puis la tâche et ses sous-tâches disparaissent (environ 3 secondes)');
   verifie(await A.evaluate(() => !document.getElementById('bandeau').hidden && document.getElementById('bandeau').textContent.includes('Faite : Plantation endive')), 'bandeau « Faite : … » avec « Annuler »');
   verifie(await attendreQue(() => !parTexte(base, 'Plantation endive') && Object.values(base.lire('taches/faites') || {}).some((f) => f.texte === 'Plantation endive' && Object.keys(f.t).length === 5)), 'dans la base : retirée des tâches, gardée dans « faites » avec ses 4 sous-tâches');
@@ -350,7 +351,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const erreursP = []; P.on('pageerror', (e) => erreursP.push(String(e)));
   await connecter(P, 'aurore');
   await P.waitForSelector(`.pan[data-l="${LJ}"] li.t`);
-  verifie(await P.evaluate(() => { const m = document.querySelector('.menu'); return getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().width === 152 && getComputedStyle(m).backgroundColor === 'rgb(231, 241, 238)'; }), 'ordinateur : menu à gauche vert très pâle (Planning, Astreintes, Réglages)');
+  verifie(await P.evaluate((P) => { const m = document.querySelector('.menu'); return getComputedStyle(m).display !== 'none' && m.getBoundingClientRect().width === 152 && (P ? /linear-gradient/.test(getComputedStyle(m).backgroundImage) : getComputedStyle(m).backgroundColor === 'rgb(231, 241, 238)'); }, PIXEL), 'ordinateur : menu à gauche vert très pâle (Planning, Astreintes, Réglages ; en pixel art, crème en fondu)');
   verifie(await P.evaluate(() => { const p = Array.from(document.querySelectorAll('#piste .pan')).slice(0, 3).map((x) => x.getBoundingClientRect()); return p[0].top === p[1].top && p[1].left > p[0].right; }), 'les listes en colonnes côte à côte');
   verifie(await P.evaluate(() => getComputedStyle(document.querySelector('.bande')).display === 'none'), 'pas de bande du bas sur l\'ordinateur');
   // Écran de 1920 px (celui de François, 20/11) : menu resserré, les sept listes des jours entières sans défiler de côté ;
@@ -367,7 +368,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
         entieres: pans.filter((p) => { const b = p.getBoundingClientRect(); return b.left >= r.left - 0.5 && b.right <= r.right + 0.5; }).map((p) => p.querySelector('.pan-titre').textContent),
         tx: getComputedStyle(document.querySelector('#piste .tx')).fontSize,
         cote: pans.filter((p) => { const c = p.querySelector('.pan-corps'); return c.scrollWidth > c.clientWidth || getComputedStyle(c).overflowX !== 'hidden'; }).map((p) => p.querySelector('.pan-titre').textContent + ' +' + (p.querySelector('.pan-corps').scrollWidth - p.querySelector('.pan-corps').clientWidth)) }; });
-    verifie(m.menu === 152 && m.tx === '10.5px' && m.entieres.length === attendu && m.entieres.join() === JOURS.slice(0, attendu).join() && m.larg >= 230 && m.larg <= 300 && m.cote.length === 0,
+    verifie(m.menu === 152 && m.tx === (PIXEL ? '17px' : '10.5px') && m.entieres.length === attendu && m.entieres.join() === JOURS.slice(0, attendu).join() && m.larg >= 230 && m.larg <= 300 && m.cote.length === 0,
       `ordinateur ${w} px : ${attendu} listes entières (${m.entieres.join(', ')}), colonnes de ${Math.round(m.larg)} px, menu de ${m.menu} px, tâches à ${m.tx}, aucun ascenseur de côté dans les listes${m.cote.length ? ' (sauf ' + m.cote.join(', ') + ')' : ''}`);
     if (CAPTURES) await G.screenshot({ path: path.join(CAPTURES, `ordinateur-${w}.png`) });
     if (w === 1920) {
@@ -381,7 +382,8 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
       const [pouce, piste] = await G.evaluate(async ([png, x, y1, y2]) => { const im = new Image(); im.src = 'data:image/png;base64,' + png; await im.decode();
         const cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0);
         return [y1, y2].map((y) => Array.from(cx.getImageData(Math.round(x), Math.round(y), 1, 1).data.slice(0, 3))); }, [png, a.x, a.haut, a.bas]);
-      verifie(a.deborde && a.larg === 8 && pouce.every((v, i) => Math.abs(v - [211, 216, 214][i]) <= 3) && piste.every((v) => v >= 250),
+      // En pixel art : poignée crème foncé #e6d3bd, carrée, sur l'intérieur crème #fff4e4 de la carte.
+      verifie(a.deborde && a.larg === 8 && pouce.every((v, i) => Math.abs(v - (PIXEL ? [230, 211, 189] : [211, 216, 214])[i]) <= 3) && (PIXEL ? piste.every((v, i) => Math.abs(v - [255, 244, 228][i]) <= 3) : piste.every((v) => v >= 250)),
         `ordinateur : l'ascenseur d'une liste trop longue fait ${a.larg} px (8 attendus ; 15 à 17 avant, selon l'ordinateur), poignée gris clair rgb(${pouce}), sans fond rgb(${piste})`);
       const regles = await G.evaluate(() => { const r = []; const voir = (liste, parent) => { for (const x of liste) { if (x.cssRules && !x.selectorText) voir(x.cssRules, x); else if (/pan-corps::-webkit-scrollbar/.test(x.selectorText || '')) r.push({ sel: x.selectorText, media: parent && parent.conditionText }); } };
         for (const f of document.styleSheets) voir(f.cssRules, null);
@@ -419,7 +421,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const fondAvant = await fondDe(mere);
   await P.hover(`${mere} .tx`); await pause(150);
   const survol = { mere: await fondDe(mere), fille: await fondDe(fille), curseurTexte: await P.locator(`${mere} .tx`).first().evaluate((el) => getComputedStyle(el).cursor), curseurLigne: await P.locator(mere).first().evaluate((el) => getComputedStyle(el).cursor) };
-  verifie(fondAvant === 'rgba(0, 0, 0, 0)' && survol.mere === 'rgb(242, 242, 245)' && survol.fille === 'rgba(0, 0, 0, 0)', 'ordinateur : la tâche survolée est en surbrillance, ses sous-tâches non (' + JSON.stringify(survol) + ')');
+  verifie(fondAvant === 'rgba(0, 0, 0, 0)' && survol.mere === (PIXEL ? 'rgb(246, 230, 210)' : 'rgb(242, 242, 245)') && survol.fille === 'rgba(0, 0, 0, 0)', 'ordinateur : la tâche survolée est en surbrillance, ses sous-tâches non (' + JSON.stringify(survol) + ')');
   verifie(survol.curseurTexte === 'default' && survol.curseurLigne === 'default', 'ordinateur : sur une tâche, le curseur reste une flèche (pas la barre de texte)');
   // Pendant un glisser, pas de surbrillance sous la souris.
   const pm = await centre(P, `${mere} .tx`), pf = await centre(P, `${fille} .tx`);
@@ -434,14 +436,14 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   const tailles = await P.evaluate(() => { const ta = getComputedStyle(document.querySelector('textarea.ed')), tx = getComputedStyle(document.querySelector('li.t .tx')); return { ta: ta.fontSize + '/' + ta.lineHeight + '/' + ta.fontWeight, tx: tx.fontSize + '/' + tx.lineHeight + '/' + tx.fontWeight }; });
   verifie(tailles.ta === tailles.tx, 'ordinateur : pendant la saisie, le texte a la même taille qu\'une fois enregistré (' + JSON.stringify(tailles) + ')');
   const tailleTel = await A.evaluate(() => { const li = document.querySelector('li.t'), t = document.createElement('textarea'); t.className = 'ed'; li.appendChild(t); const f = getComputedStyle(t).fontSize; t.remove(); return f; });
-  verifie(tailleTel === '16px', 'téléphone : la saisie reste en 16 px (sinon l\'iPhone zoome la page)');
+  verifie(PIXEL ? parseFloat(tailleTel) >= 16 : tailleTel === '16px', 'téléphone : la saisie reste en 16 px (sinon l\'iPhone zoome la page ; en pixel art, au moins 16 px : ' + tailleTel + ')');
   // Taille des tâches calée sur Google Tasks (capture de François du 19/11) : ordinateur seulement.
   const tailleTache = (page) => page.evaluate(() => { const tx = getComputedStyle(document.querySelector('#piste li.t[data-id] .tx')), c = document.querySelector('#piste li.t[data-id] .coche').getBoundingClientRect(); return tx.fontSize + '/' + tx.fontWeight + '/' + tx.lineHeight + '/' + Math.round(c.width); });
   const tPC = await tailleTache(P), tTel = await tailleTache(A);
-  verifie(tPC === '10.5px/400/16px/14', 'ordinateur : tâches comme Google Tasks, texte 10,5 px en graisse normale, lignes de 16 px, case de 14 px (' + tPC + ')');
-  verifie(tTel === '16px/400/24px/22', 'téléphone : tâches comme Google Tasks, texte 16 px en graisse normale, lignes de 24 px, case de 22 px (' + tTel + ')');
+  verifie(tPC === (PIXEL ? '17px/400/18px/13' : '10.5px/400/16px/14'), 'ordinateur : tâches comme Google Tasks, texte 10,5 px en graisse normale, lignes de 16 px, case de 14 px (' + tPC + ')');
+  verifie(tTel === (PIXEL ? '23px/400/24px/18' : '16px/400/24px/22'), 'téléphone : tâches comme Google Tasks, texte 16 px en graisse normale, lignes de 24 px, case de 22 px (' + tTel + ')');
   const saisieTel = await A.evaluate(() => { const li = document.querySelector('li.t'), t = document.createElement('textarea'); t.className = 'ed'; li.appendChild(t); const c = getComputedStyle(t), r = c.fontSize + '/' + c.fontWeight + '/' + c.lineHeight; t.remove(); return r; });
-  verifie(saisieTel === '16px/400/24px', 'téléphone : la saisie a la même taille que la tâche enregistrée (' + saisieTel + ')');
+  verifie(saisieTel === (PIXEL ? '23px/400/24px' : '16px/400/24px'), 'téléphone : la saisie a la même taille que la tâche enregistrée (' + saisieTel + ')');
   await P.keyboard.press('Escape');
   // Clic droit : le menu de la tâche.
   await P.click(`.pan[data-l="${autre}"] ${ligneDe('Écrite sans réseau')} .tx`, { button: 'right' });
@@ -563,11 +565,14 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
       polices: document.fonts ? Array.from(document.fonts).filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')) : [],
     };
   });
-  verifie(charte.fond === 'rgb(248, 248, 248)' && charte.barre === 'rgb(55, 55, 55)' && charte.haut === 36, 'charte : feuille #f8f8f8, barre du haut anthracite de 36 px');
-  verifie(/Bricolage Grotesque/.test(charte.titre) && /\/300$/.test(charte.titre) && /Open Sans/.test(charte.tache) && parseFloat(charte.tache.split('/')[1]) >= 13 && /DM Sans/.test(charte.pil), 'charte : titres Bricolage Grotesque 300, tâches en Open Sans d\'au moins 13 px, interface en DM Sans');
-  verifie(charte.plus === 'rgb(11, 105, 77)' && charte.coche === '6px/22px' && /^9\.75px\/.*rgba\(0, 0, 0, 0\.06\).*\/none$/.test(charte.bloc), 'charte : « + » vert plein, cases carrées de 22 px, blocs blancs sans bordure à ombre douce');
-  verifie(!charte.bleu.length, 'charte : jamais de bleu sur un bouton');
-  verifie(['Bricolage Grotesque', 'Open Sans', 'DM Sans'].every((f) => charte.polices.includes(f)), 'les trois polices du dépôt sont chargées');
+  // La charte d'origine (apparence classique) ; son équivalent pixel art est vérifié dans tests/apparence.cjs.
+  if (!sautePixel('taches : charte d\'origine (feuille, barre anthracite de 36 px, polices, « + » vert, cases, blocs, trois polices chargées)')) {
+    verifie(charte.fond === 'rgb(248, 248, 248)' && charte.barre === 'rgb(55, 55, 55)' && charte.haut === 36, 'charte : feuille #f8f8f8, barre du haut anthracite de 36 px');
+    verifie(/Bricolage Grotesque/.test(charte.titre) && /\/300$/.test(charte.titre) && /Open Sans/.test(charte.tache) && parseFloat(charte.tache.split('/')[1]) >= 13 && /DM Sans/.test(charte.pil), 'charte : titres Bricolage Grotesque 300, tâches en Open Sans d\'au moins 13 px, interface en DM Sans');
+    verifie(charte.plus === 'rgb(11, 105, 77)' && charte.coche === '6px/22px' && /^9\.75px\/.*rgba\(0, 0, 0, 0\.06\).*\/none$/.test(charte.bloc), 'charte : « + » vert plein, cases carrées de 22 px, blocs blancs sans bordure à ombre douce');
+    verifie(!charte.bleu.length, 'charte : jamais de bleu sur un bouton');
+    verifie(['Bricolage Grotesque', 'Open Sans', 'DM Sans'].every((f) => charte.polices.includes(f)), 'les trois polices du dépôt sont chargées');
+  }
   if (CAPTURES) {
     fs.mkdirSync(CAPTURES, { recursive: true });
     await A.click(`#bande .pil[data-l="${LS}"]`); await pause(500);

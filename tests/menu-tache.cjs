@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium, devices } = require('playwright');
 const fauxFirebase = require('./faux-firebase.cjs');
+const { sautePixel } = require('./apparence-env.cjs'); // APPARENCE=pixel : le même test dans l'apparence pixel art (étape 53)
 
 const RACINE = path.join(__dirname, '..');
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2' };
@@ -134,8 +135,8 @@ async function essaiTelephone(navigateur, base, nom, options) {
     return { l: Math.round(r.width), centre: Math.abs((r.left + r.right) / 2 - innerWidth / 2) < 2, pad: cs.paddingTop, act, btn, seg, coul, poignee: getComputedStyle(d.querySelector('.poignee-f')).display };
   });
   console.log('      ordinateur :', JSON.stringify(pc));
-  verifie(pc.l === 420 && pc.centre && pc.pad === '18px' && pc.poignee === 'none', 'ordinateur : fenêtre de 420 px au milieu, marges de 18 px, sans poignée (inchangé)');
-  verifie(pc.act === 44 && pc.btn === 44 && pc.seg === 40 && pc.coul === 44, 'ordinateur : lignes et boutons à leur taille d\'avant (44, 44, 40, 44 px)');
+  verifie(pc.l === 420 && pc.centre && (sautePixel('menu-tache : marges de 18 px de la fenêtre sur l\'ordinateur') || pc.pad === '18px') && pc.poignee === 'none', 'ordinateur : fenêtre de 420 px au milieu, marges de 18 px, sans poignée (inchangé)');
+  if (!sautePixel('menu-tache : tailles des lignes et boutons du menu sur l\'ordinateur (44, 44, 40, 44 px)')) verifie(pc.act === 44 && pc.btn === 44 && pc.seg === 40 && pc.coul === 44, 'ordinateur : lignes et boutons à leur taille d\'avant (44, 44, 40, 44 px)');
   if (CAPTURES) await P.screenshot({ path: path.join(CAPTURES, 'ordinateur.png') });
   await ctxP.close();
 
