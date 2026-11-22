@@ -2,7 +2,7 @@
 
 ## 2026-11-22
 
-- **Contrat : choisir l'apparence, classique ou pixel art** (étape 53, demande de François du 22/11). Documentation seulement, **aucun code** : `docs/CONTRAT_APPARENCE_PIXEL_ART.md` (règles, charte pixel art en annexe, tests à prévoir) ; ROADMAP (étape 53), DECISIONS, ETAT_DU_PROJET, AGENTS. Quatre points à confirmer par François.
+- **Contrat : choisir l'apparence, classique ou pixel art** (étape 53, demande de François du 22/11). Documentation seulement, **aucun code** : `docs/CONTRAT_APPARENCE_PIXEL_ART.md` (règles, charte pixel art en annexe, tests à prévoir) ; ROADMAP (étape 53), DECISIONS, ETAT_DU_PROJET, AGENTS. Quatre points confirmés par François le 22/11, tous selon la recommandation.
 
 ## 2026-11-21
 
