@@ -99,7 +99,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
 
   // ---------- « + » du haut : hors des encarts, au-dessus de RDV (19/11) ; « + » d'un encart : dans cet encart ----------
   await A.click(`.pan[data-l="${LJ}"] .plus`);
-  await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]'); // téléphone : panneau « Nouvelle tâche » (étape 54)
   await A.keyboard.type('Désherber carottes'); await A.keyboard.press('Enter');
   await A.keyboard.type('Commander terreau'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   verifie(await attendreQue(() => { const a = parTexte(base, 'Désherber carottes'), b = parTexte(base, 'Commander terreau'); return a && b && a[1].encart === '' && b[1].encart === ''; }), '« + » du haut : les tâches vont hors des encarts (en rafale)');
@@ -116,7 +116,8 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   await A.click('#tacheDlg [data-zone="p1"]'); await A.click('#tacheDlg [data-a="fermer"]'); await pause(200);
   verifie(await attendreQue(() => parTexte(base, 'Commander terreau')[1].encart === 'p1'), 'ou rangée par « Zone du jour » (menu de la tâche) : P1');
   await A.click(`.pan[data-l="${LJ}"] .encart-tete [data-a="ajouter"][data-e="rdv"]`);
-  await A.waitForSelector(`.pan[data-l="${LJ}"] .encart[data-e="rdv"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]');
+  verifie(await A.evaluate(() => document.getElementById('nouvOu').textContent.endsWith(' · RDV')), '« + » de l\'encart RDV : le panneau dit « … · RDV »');
   await A.keyboard.type('Véto'); await A.keyboard.press('Enter');
   await A.keyboard.type('Banque'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   verifie(await attendreQue(() => { const a = parTexte(base, 'Véto'), b = parTexte(base, 'Banque'); return a && b && a[1].encart === 'rdv' && b[1].encart === 'rdv'; }), '« + » de l\'encart RDV : les tâches vont dans RDV');
@@ -160,7 +161,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   // ---------- Sous-tâche : reste dans l'encart de sa mère ----------
   await menu('Désherber carottes');
   await A.click('#tacheDlg [data-a="sous-tache"]');
-  await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]');
   await A.keyboard.type('Rang nord'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   verifie(await attendreQue(async () => /p1: Désherber carottes, Rang nord \|/.test(await encarts(A, LJ))), 'une sous-tâche reste dans l\'encart de sa tâche mère');
 

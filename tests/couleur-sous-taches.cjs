@@ -134,7 +134,7 @@ async function choisir(page, L, texte, coul) { await menu(page, L, texte); await
   await choisir(A, LJ, 'Mère', 'rouge');
   await attendCouleurs(base, 'm:rouge s1:rouge');
   await menu(A, LJ, 'Mère'); await A.click('#tacheDlg [data-a="sous-tache"]');
-  await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]'); // téléphone : panneau « Nouvelle tâche » (étape 54)
   await A.keyboard.type('Nouvelle A'); await A.keyboard.press('Enter');
   await A.keyboard.type('Nouvelle B'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   verifie(await attendreQue(() => { const a = parTexte(base, 'Nouvelle A'), b = parTexte(base, 'Nouvelle B'); return a && b && a[1].parent === 'm' && b[1].parent === 'm' && a[1].couleur === 'rouge' && b[1].couleur === 'rouge'; }), '5. sous-tâches créées sous la mère rouge (menu, puis Entrée enchaînée) : rouges dès leur création');
@@ -147,9 +147,9 @@ async function choisir(page, L, texte, coul) { await menu(page, L, texte); await
   verifie(await attendreQue(() => { const c = parTexte(base, 'Nouvelle C'); return c && c[1].parent === 'm' && c[1].couleur === 'rouge'; }), '5. Entrée après une sœur bleue : la nouvelle prend la couleur de la mère (rouge), pas celle de la sœur');
   // Sous une mère noire : aucun champ. Tâche de premier niveau : aucun champ.
   await menu(A, LJ, 'Témoin'); await A.click('#tacheDlg [data-a="sous-tache"]');
-  await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]'); // téléphone : panneau « Nouvelle tâche » (étape 54)
   await A.keyboard.type('Sous témoin'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
-  await A.click(`.pan[data-l="${LJ}"] .plus`); await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
+  await A.click(`.pan[data-l="${LJ}"] .plus`); await A.waitForSelector('#nouvDlg[open]');
   await A.keyboard.type('Racine neuve'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   verifie(await attendreQue(() => { const s = parTexte(base, 'Sous témoin'), r = parTexte(base, 'Racine neuve'); return s && r && s[1].parent === 'temoin' && !('couleur' in s[1]) && r[1].parent === '' && !('couleur' in r[1]); }), '5. sous une mère noire : aucun champ couleur ; tâche de premier niveau : aucun champ couleur');
 
