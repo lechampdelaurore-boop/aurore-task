@@ -83,12 +83,12 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
 
   // Une tâche déjà là le lundi en P1 : la copie de l'astreinte doit venir après.
   await A.click('#bande .pil[data-l="lundi"]'); await pause(400);
-  await A.click('.pan[data-l="lundi"] .encart-tete [data-a="ajouter"][data-e="p1"]'); await A.waitForSelector('.pan[data-l="lundi"] textarea.ed');
+  await A.click('.pan[data-l="lundi"] .encart-tete [data-a="ajouter"][data-e="p1"]'); await A.waitForSelector('#nouvDlg[open]'); // téléphone : panneau « Nouvelle tâche » (étape 54)
   await A.keyboard.type('Déjà là'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
 
   // ---------- Les modèles dans la liste Astreintes ----------
   await A.click(`#bande .pil[data-l="${AST}"]`); await pause(400);
-  await A.click(`.pan[data-l="${AST}"] .plus`); await A.waitForSelector(`.pan[data-l="${AST}"] textarea.ed`);
+  await A.click(`.pan[data-l="${AST}"] .plus`); await A.waitForSelector('#nouvDlg[open]');
   for (const t of ['Irrig serre', 'Contrôle endives', 'Compta', 'Sans jour']) { await A.keyboard.type(t); await A.keyboard.press('Enter'); }
   await A.keyboard.press('Escape');
   verifie(await attendreQue(() => ['Irrig serre', 'Contrôle endives', 'Compta', 'Sans jour'].every((t) => parTexte(base, t))), 'quatre astreintes écrites dans la liste Astreintes');
@@ -100,7 +100,7 @@ const centre = async (page, sel) => { const b = await page.locator(sel).first().
   for (const j of [0, 2, 4]) { await A.click(`#tacheDlg [data-jour="${j}"]`); await pause(80); }
   await A.click('#tacheDlg [data-pour="aurore"]');
   await A.click('#tacheDlg [data-a="sous-tache"]');
-  await A.waitForSelector(`.pan[data-l="${AST}"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]');
   await A.keyboard.type('Vanne 1'); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   verifie(await attendreQue(() => { const t = parTexte(base, 'Irrig serre')[1]; return t.jours === '024' && t.pour === 'aurore'; }), 'jours lundi, mercredi, vendredi enregistrés (« 024 »), pour Aurore');
   verifie(await attendreQue(() => A.evaluate((s) => { const i = document.querySelector(s + ' .ast-info'); return i && i.textContent === 'LunMerVenP1'; }, `li.t[data-id="${parTexte(base, 'Irrig serre')[0]}"]`)), 'sous l\'astreinte : ses jours en pastilles et sa zone');

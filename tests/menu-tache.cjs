@@ -72,10 +72,10 @@ async function essaiTelephone(navigateur, base, nom, options) {
   ];
   // Une tâche dans l'encart RDV du lundi, une astreinte passée en RDV.
   await A.click('#bande .pil[data-l="lundi"]'); await pause(400);
-  await A.click('.pan[data-l="lundi"] .encart-tete [data-a="ajouter"][data-e="rdv"]'); await A.waitForSelector('.pan[data-l="lundi"] textarea.ed');
+  await A.click('.pan[data-l="lundi"] .encart-tete [data-a="ajouter"][data-e="rdv"]'); await A.waitForSelector('#nouvDlg[open]'); // panneau « Nouvelle tâche » (étape 54)
   await A.keyboard.type(cas[0][1]); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   await A.click('#bande .pil[data-l="astreintes"]'); await pause(400);
-  await A.click('.pan[data-l="astreintes"] .plus'); await A.waitForSelector('.pan[data-l="astreintes"] textarea.ed');
+  await A.click('.pan[data-l="astreintes"] .plus'); await A.waitForSelector('#nouvDlg[open]');
   await A.keyboard.type(cas[1][1]); await A.keyboard.press('Enter'); await A.keyboard.press('Escape');
   await attendreQue(() => parTexte(base, cas[0][1]) && parTexte(base, cas[1][1]));
   await A.click(`${ligne('astreintes', cas[1][1])} .pt`); await A.waitForSelector('#tacheDlg[open]');

@@ -112,16 +112,16 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   verifie(await A.evaluate(() => JSON.parse(localStorage.getItem('taches.compte')).id === 'francois'), 'compte gardé sur l\'appareil (clé taches.compte)');
   verifie(await attendreQue(() => A.evaluate(() => document.querySelector('#statut').textContent.includes('Partagé'))), 'statut « Partagé »');
 
-  // ---------- « + » puis Entrée en rafale ----------
+  // ---------- « + » puis Entrée en rafale (téléphone : dans le panneau « Nouvelle tâche », étape 54) ----------
   await A.click(`.pan[data-l="${LJ}"] .plus`);
-  await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
-  verifie(await A.evaluate(() => document.activeElement && document.activeElement.matches('textarea.ed')), 'un appui sur « + » : la ligne s\'ouvre, on écrit tout de suite');
+  await A.waitForSelector('#nouvDlg[open]');
+  verifie(await A.evaluate(() => document.activeElement && document.activeElement.id === 'nouvTexte'), 'un appui sur « + » : le panneau s\'ouvre, on écrit tout de suite');
   await A.keyboard.type('Plantation endive'); await A.keyboard.press('Enter');
-  verifie(await A.evaluate(() => document.activeElement && document.activeElement.matches('textarea.ed') && document.activeElement.value === ''), 'Entrée enregistre et ouvre la ligne suivante (saisie en rafale)');
+  verifie(await A.evaluate(() => document.activeElement && document.activeElement.id === 'nouvTexte' && document.activeElement.value === ''), 'Entrée enregistre, le panneau reste ouvert pour la suivante (saisie en rafale)');
   await A.keyboard.type('Irrig plants'); await A.keyboard.press('Enter');
   await A.keyboard.type('Contrôle et irrig Endives'); await A.keyboard.press('Enter');
   await A.keyboard.press('Enter');
-  verifie(await A.evaluate(() => !document.querySelector('textarea.ed')), 'Entrée sur une ligne vide : la saisie se ferme');
+  verifie(await A.evaluate(() => !document.querySelector('textarea.ed') && !document.getElementById('nouvDlg').open), 'Entrée sur un champ vide : la saisie se ferme');
   verifie((await textes(A, LJ)) === 'Plantation endive | Irrig plants | Contrôle et irrig Endives', 'trois tâches, dans l\'ordre tapé');
   verifie(await attendreQue(() => Object.values(tachesBase(base)).length === 3 && Object.values(tachesBase(base)).every((t) => t.liste === LJ && t.by === 'francois' && t.parent === '')), 'enregistrées dans la base (taches/t), avec qui et quand');
 
@@ -155,7 +155,7 @@ const ligneDe = (texte) => `li.t:has(> .tx:text-is("${texte}"))`;
   await menuTache(A, LJ, 'Plantation endive');
   verifie(await A.evaluate(() => ['Ajouter une sous-tâche', 'Décaler à droite', 'Décaler à gauche', 'Déplacer vers une autre liste', 'Ajouter un séparateur en dessous', 'Supprimer la tâche'].every((t) => document.querySelector('#tacheDlg').textContent.includes(t))), 'menu de la tâche : sous-tâche, décaler, déplacer, séparateur, supprimer');
   await A.click('#tacheDlg [data-a="sous-tache"]');
-  await A.waitForSelector(`.pan[data-l="${LJ}"] textarea.ed`);
+  await A.waitForSelector('#nouvDlg[open]');
   await A.keyboard.type('Rang 1'); await A.keyboard.press('Enter');
   await A.keyboard.type('Rang 2'); await A.keyboard.press('Enter'); await A.keyboard.press('Enter');
   await menuTache(A, LJ, 'Rang 2');
