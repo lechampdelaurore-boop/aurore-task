@@ -1,5 +1,9 @@
 # Historique des changements
 
+## 2026-11-25
+
+- **Fiche au registre des projets Ouvre ta ferme** (demande de François du 25/11). Documentation seulement, **aucun code** : `AGENTS.md` demande de proposer à François, à chaque étape importante, la mise à jour de la fiche de Farm tasks au registre communautaire (demande n° 4 déposée par François ; rien n'est envoyé sans son accord).
+
 ## 2026-11-24
 
 - **Nouvelle tâche avec « Enregistrer », comme Google Tasks** (étape 54, demande de François du 24/11 ; fonctionnement et maquette validés le 24/11). Téléphone : tout « + » (liste, encarts) et « Ajouter une sous-tâche » ouvrent un panneau en bas (`#nouvDlg`), posé juste au-dessus du clavier (mesuré par `visualViewport`) : ligne « où ira la tâche », champ « Nouvelle tâche », icônes « Pour qui ? », « Couleur du texte », « Heure » (encart de l'agenda seulement), « Enregistrer » grisé tant que le champ est vide. « Enregistrer » enregistre et ferme ; Entrée enregistre et garde le panneau ouvert, vide, pour la suivante ; Entrée sur vide, toucher à côté, Échap, retour : ferme sans rien écrire, le texte revient au prochain « + » de la même liste. Une seule écriture par tâche, réglages compris (`creer(…, plus)`). Entrée après la modification d'une tâche ouvre aussi le panneau. Ordinateur inchangé. Habillage pixel art dans le bloc `PIXEL-ART-DEBUT` … `PIXEL-ART-FIN`. `CACHE` `aurore-task-v27`. Nouveau test `tests/nouvelle-tache.cjs` ; tests du téléphone (`taches`, `taches-encarts`, `taches-astreintes`, `menu-tache`, `couleur-sous-taches`) passés au panneau. **Non vérifié** : de vrais téléphones (Android, iPhone : place du panneau au-dessus du vrai clavier).
