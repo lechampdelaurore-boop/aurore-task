@@ -1,5 +1,9 @@
 # Historique des changements
 
+## 2026-11-26
+
+- **Idée notée : chronomètre des tâches et vrai historique** (étape 55, demande de François du 26/11). Documentation seulement, **aucun code, aucun contrat** (François l'a demandé ainsi) : `docs/ROADMAP.md` (étape 55, questions ouvertes, modèle · effort proposé sans engagement) et `docs/ETAT_DU_PROJET.md`.
+
 ## 2026-11-25
 
 - **Fiche au registre des projets Ouvre ta ferme** (demande de François du 25/11). Documentation seulement, **aucun code** : `AGENTS.md` demande de proposer à François, à chaque étape importante, la mise à jour de la fiche de Farm tasks au registre communautaire (demande n° 4 déposée par François ; rien n'est envoyé sans son accord).
