@@ -2,7 +2,7 @@
 
 ## 2026-11-26
 
-- **Idée notée : chronomètre des tâches et vrai historique** (étape 55, demande de François du 26/11). Documentation seulement, **aucun code, aucun contrat** (François l'a demandé ainsi) : `docs/ROADMAP.md` (étape 55, questions ouvertes, modèle · effort proposé sans engagement) et `docs/ETAT_DU_PROJET.md`. Ajout de François : historique facile à extraire (tableur) pour la productivité horaire. Ajout de François : piste de liaison avec Ouvre ta ferme.
+- **Idée notée : chronomètre des tâches et vrai historique** (étape 55, demande de François du 26/11). Documentation seulement, **aucun code, aucun contrat** (François l'a demandé ainsi) : `docs/ROADMAP.md` (étape 55, questions ouvertes, modèle · effort proposé sans engagement) et `docs/ETAT_DU_PROJET.md`. Ajout de François : historique facile à extraire (tableur) pour la productivité horaire. Ajout de François : piste de liaison avec Ouvre ta ferme (temps rattaché à une série de légumes).
 
 ## 2026-11-25
 
