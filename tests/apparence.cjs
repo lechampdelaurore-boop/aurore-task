@@ -390,7 +390,9 @@ async function pointsDifferents(page, a, b) {
           // Attendre les vignettes de la rubrique (sur la branche) avant de la masquer : une image qui arrive pendant la capture
           // fait redessiner la page, et les coins arrondis du menu peuvent alors changer de quelques points.
           await P.waitForFunction(() => Array.from(document.querySelectorAll('#appChoix img')).every((i) => i.complete)); await pause(300);
-          await P.evaluate(() => { const g = document.getElementById('appChoix'); if (g) { g.previousElementSibling.previousElementSibling.style.display = 'none'; g.previousElementSibling.style.display = 'none'; g.style.display = 'none'; } }); }],
+          await P.evaluate(() => { const g = document.getElementById('appChoix'); if (g) { g.previousElementSibling.previousElementSibling.style.display = 'none'; g.previousElementSibling.style.display = 'none'; g.style.display = 'none'; }
+            // Rubrique « Chronomètre » et « Historique » (étape 55) : nouvelle, masquée comme « Apparence ».
+            const c = document.getElementById('reglChronoBloc'); if (c) c.style.display = 'none'; }); }],
         ['liste verrouillée', async (P, pc) => { if (pc) await P.evaluate(() => { const pi = document.getElementById('piste'), p = document.querySelector('.pan[data-l="archives"]'); pi.scrollLeft = p.offsetLeft - pi.offsetLeft; }); else { await P.click('#bande .pil[data-l="archives"]'); } }],
       ];
       for (const [nomEcran, opts] of [['ordinateur 1920 × 1080', PC], ['téléphone 390 × 844', { ...TEL, deviceScaleFactor: 1 }]]) {
@@ -412,7 +414,7 @@ async function pointsDifferents(page, a, b) {
           }
           const { ctx: cc, page: C } = await appareil(nav, PC, null, SITE); await C.goto(SITE + '/');
           const n = await pointsDifferents(C, caps[0], caps[1]); await cc.close();
-          verifie(n === 0, `T2. classique, ${nomEcran}, ${nomVue} : ${n} point différent de ${REF}${nomVue === 'Réglages' ? ' (rubrique « Apparence » masquée : seule différence permise)' : ''}`);
+          verifie(n === 0, `T2. classique, ${nomEcran}, ${nomVue} : ${n} point différent de ${REF}${nomVue === 'Réglages' ? ' (rubriques « Apparence » et « Chronomètre » masquées : seules différences permises)' : ''}`);
           if (n !== 0 && CAPTURES) { fs.mkdirSync(CAPTURES, { recursive: true }); fs.writeFileSync(path.join(CAPTURES, `T2-${pc ? 'pc' : 'tel'}-${nomVue.replace(/\W+/g, '-')}-branche.png`), caps[0]); fs.writeFileSync(path.join(CAPTURES, `T2-${pc ? 'pc' : 'tel'}-${nomVue.replace(/\W+/g, '-')}-ref.png`), caps[1]); }
         }
       }

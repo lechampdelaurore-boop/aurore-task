@@ -469,6 +469,81 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 .app-coche{display:none;width:18px;height:18px;border-radius:50%;background:var(--vert);color:#fff;align-items:center;justify-content:center}
 .app-coche svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3}
 .app-b[aria-pressed="true"] .app-coche{display:inline-flex}
+/* Étape 55 (docs/CONTRAT_CHRONOMETRE.md) : chronomètre (téléphone seulement) et historique des tâches réalisées.
+   Boutons de magnétoscope en formes pleines (▶ vert, ⏸ orange, ■ rouge), ronds à contour, zone à toucher de 44 points. */
+.chr-b{display:flex;gap:8px;flex-shrink:0;margin:-5px 4px -5px 2px;position:relative;z-index:1}
+.chr-btn{width:36px;height:36px;border-radius:50%;border:2px solid var(--vert);background:#fff;color:var(--vert);display:inline-flex;align-items:center;justify-content:center;padding:0;position:relative;flex-shrink:0}
+.chr-btn::after{content:"";position:absolute;inset:-6px}
+.chr-btn svg{width:16px;height:16px;fill:currentColor}
+.chr-btn .px{display:none}
+.chr-btn.chr-pause{border-color:#b86e00;color:#b86e00}
+.chr-btn.chr-stop{border-color:#c8283a;color:#c8283a}
+li.t.chr-on{flex-wrap:wrap;row-gap:2px;margin:2px -8px;padding-right:8px;padding-left:calc(8px + min(var(--n),5) * var(--decal));border-radius:var(--r-bloc);border-bottom-color:transparent}
+li.t.chr-on > .tx,li.t.chr-on > textarea.ed{flex-basis:0}
+li.t.chr-marche{background:#e4f1ea}
+li.t.chr-pause{background:#fcefdd}
+.chr-etat{flex:0 0 calc(100% - 32px);margin-left:32px;font-family:var(--f-ui);font-weight:700;font-size:13px;color:var(--vert);font-variant-numeric:tabular-nums}
+li.t.chr-pause .chr-etat{color:var(--orange-txt)}
+/* Bandeau « en cours » sous la barre du haut : ⏸ ■, la tâche et son temps (toucher le texte mène à la tâche). */
+.chr-bande{flex-shrink:0;display:flex;align-items:center;gap:10px;background:var(--vert);color:#fff;padding:6px 12px}
+.chr-bande .chr-btn{border-width:2px;background:#fff}
+.chr-aller{flex:1;min-width:0;min-height:44px;border:0;background:transparent;color:#fff;text-align:left;display:flex;flex-direction:column;justify-content:center;padding:0 0 0 2px;font-family:var(--f-ui)}
+.chr-aller span{font-weight:600;font-size:14px;line-height:1.25;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.chr-aller b{font-weight:700;font-size:18px;line-height:1.2;font-variant-numeric:tabular-nums}
+/* Réglages : case « Mode chronomètre » */
+.regl-case{display:flex;align-items:flex-start;gap:12px;min-height:44px;margin:2px 0 6px;font-size:12px;color:var(--sec)}
+.regl-case input{width:22px;height:22px;accent-color:var(--vert);margin:2px 0 0;flex-shrink:0}
+.regl-case b{display:block;font-family:var(--f-ui);font-weight:500;font-size:15px;color:var(--texte);margin-bottom:2px}
+.regl-case small{display:block;margin-top:4px;font-size:12px}
+.ic-m{width:11px;height:11px;fill:currentColor;vertical-align:-1px}
+/* Historique : filtres en pastilles, résumé, cartes (téléphone) ou tableau (ordinateur) */
+#histDlg{max-height:94dvh}
+.hist-filtres{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px}
+.hist-filtres select{min-height:44px;max-width:100%;border:1px solid var(--filet);border-radius:99px;padding:0 32px 0 14px;font-family:var(--f-ui);font-weight:500;font-size:14px;color:var(--texte);-webkit-appearance:none;appearance:none;
+  background-color:#fff;background-image:linear-gradient(45deg,transparent 50%,#111 50%),linear-gradient(-45deg,transparent 50%,#111 50%);background-repeat:no-repeat;background-size:5px 5px;background-position:right 18px center,right 13px center}
+.hist-dates{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 8px;font-family:var(--f-ui);font-size:14px}
+.hist-dates label{display:flex;align-items:center;gap:6px}
+.hist-dates input{min-height:44px;border:1px solid rgba(0,0,0,.13);border-radius:var(--r-bloc);padding:0 8px;font-size:16px;background:#fff}
+.hist-resume{margin:0 0 10px;font-family:var(--f-ui);font-size:14px;color:var(--sec)}
+.hist-resume b{color:var(--vert)}
+.hist-per{color:var(--texte);font-weight:500}
+.hist-cartes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.hl{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;border:1px solid var(--filet);border-radius:var(--r-bloc);background:#fff;padding:10px 12px;font-family:var(--f-ui);color:var(--texte)}
+.hl-h{display:flex;align-items:baseline;gap:10px}
+.hl-t{flex:1;min-width:0;font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.hl-d{flex-shrink:0;color:var(--vert);font-weight:700;font-size:14px}
+.hl-d.sans{color:#8a5a2b;font-weight:600}
+.hl-m{font-size:13px;color:var(--sec)}
+.hist-vide{color:var(--sec);margin:8px 0}
+.hist-suite{width:100%;margin-top:10px}
+.hist-note{margin-top:10px}
+#histExport:disabled{opacity:.45;cursor:default}
+.hist-duree{font-family:var(--f-ui);font-weight:600;color:var(--vert);min-height:1.5em}
+.corr-suppr{width:100%;margin-top:4px}
+.oubli-btns{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.oubli-btns .btn{flex:0 0 auto;min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px}
+.oubli-btns svg{width:14px;height:14px;fill:currentColor;flex-shrink:0}
+#oubliDlg b{font-weight:700}
+@media (max-width:999.98px){
+  #histDlg .btns{position:sticky;bottom:calc(-16px - env(safe-area-inset-bottom));margin:12px -14px calc(-16px - env(safe-area-inset-bottom));padding:10px 14px calc(16px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--filet-pale);flex-direction:column}
+  #histDlg .btns .btn{flex:0 0 auto}
+}
+@media (min-width:1000px){
+  .chr-bande,.chr-b,.chr-etat{display:none!important}
+  #histDlg{max-width:min(1200px,94vw);width:100%;padding:24px 28px}
+  #histDlg h2{font-size:28px;margin-bottom:12px}
+  .hist-tab{width:100%;border-collapse:collapse;font-family:var(--f-ui);font-size:14px}
+  .hist-tab th{text-align:left;font-weight:600;padding:10px 12px;background:var(--menu);border-bottom:2px solid var(--vert)}
+  .hist-tab td{padding:9px 12px;border-bottom:1px solid var(--filet-pale);vertical-align:top}
+  .hist-tab .hd{text-align:right;white-space:nowrap}
+  .hist-tab i{color:#8a5a2b;font-weight:600}
+  .hist-tab small{color:var(--sec)}
+  .hist-tab .hl-corr{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left}
+  .hist-tab .hl-corr:hover{text-decoration:underline;color:var(--vert)}
+  #histDlg .btns{justify-content:flex-start;position:sticky;bottom:-24px;margin:16px -28px -24px;padding:12px 28px 24px;background:#fff;border-top:1px solid var(--filet-pale)}
+  #histDlg .btns .btn{flex:0 0 auto;min-width:140px}
+  .hist-suite{width:auto}
+}
 /* PIXEL-ART-DEBUT
    Apparence pixel art (étape 53, docs/CONTRAT_APPARENCE_PIXEL_ART.md ; maquette farm-tasks-v3 validée le 21/11/2026).
    Choisie dans Réglages → « Apparence de cet appareil » (clé taches.apparence de cet appareil, jamais dans la base).
@@ -788,6 +863,62 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
 :root[data-apparence="pixel"] .nouv-ok{font-family:var(--f-texte);font-size:23px;font-weight:400;background:var(--px-rose-f);color:#fff;margin:3px 3px 9px auto;padding:0 12px;
   box-shadow:0 -3px 0 var(--px-rose),0 3px 0 #6a1e44,-3px 0 0 var(--px-rose),3px 0 0 #6a1e44,0 6px 0 var(--px-ombre)}
 :root[data-apparence="pixel"] .nouv-ok:disabled{background:#e6d3bd;color:#8a7866;box-shadow:0 -3px 0 #f6e6d2,0 3px 0 #b8a494,-3px 0 0 #f6e6d2,3px 0 0 #b8a494}
+/* Étape 55 : chronomètre et historique. Boutons ▶ ⏸ ■ en carrés à cadre brun (triangle en marches), lignes en cours ou
+   en pause sur fond pâle, bandeau brun à filet orange, cartes et filtres de l'historique à cadre de pixels. */
+:root[data-apparence="pixel"] .chr-b{gap:9px;margin:-2px 3px}
+:root[data-apparence="pixel"] .chr-btn{border:0;border-radius:0;width:32px;height:32px;margin:3px;background:var(--px-creme);
+  box-shadow:0 -3px 0 var(--px-brun),0 3px 0 var(--px-brun),-3px 0 0 var(--px-brun),3px 0 0 var(--px-brun),inset 0 -3px 0 #f2cfa8}
+:root[data-apparence="pixel"] .chr-btn::after{inset:-9px}
+:root[data-apparence="pixel"] .chr-btn svg{width:18px;height:18px;shape-rendering:crispEdges}
+:root[data-apparence="pixel"] .chr-btn .lisse{display:none}
+:root[data-apparence="pixel"] .chr-btn .px{display:inline}
+:root[data-apparence="pixel"] .chr-btn.chr-start{color:#3d6e5a}
+:root[data-apparence="pixel"] .chr-btn.chr-pause{color:#b8661a}
+:root[data-apparence="pixel"] .chr-btn.chr-stop{color:#c0402c}
+:root[data-apparence="pixel"] li.t.chr-on{border-radius:0;border-bottom:3px dotted var(--filet-pale)}
+:root[data-apparence="pixel"] li.t.chr-marche{background:#dcebd9}
+:root[data-apparence="pixel"] li.t.chr-pause{background:#fbe6cf}
+:root[data-apparence="pixel"] .chr-etat{font-family:var(--f-ui);font-weight:400;font-size:19px;color:#1e5a44}
+:root[data-apparence="pixel"] li.t.chr-pause .chr-etat{color:#8a4302}
+:root[data-apparence="pixel"] .chr-bande{background:var(--px-brun);border-bottom:4px solid #f08a3c;box-shadow:0 4px 0 var(--px-ombre);position:relative;z-index:2;padding:6px 14px}
+:root[data-apparence="pixel"] .chr-bande .chr-btn{background:var(--px-creme);
+  box-shadow:0 -3px 0 #c9875a,0 3px 0 #c9875a,-3px 0 0 #c9875a,3px 0 0 #c9875a,inset 0 -3px 0 #f2cfa8}
+:root[data-apparence="pixel"] .chr-aller span{font-family:var(--f-ui);font-weight:400;font-size:20px;color:#fff3e0}
+:root[data-apparence="pixel"] .chr-aller b{font-family:var(--f-titre);font-weight:400;font-size:13px;line-height:1.6;color:#8fe0a4}
+:root[data-apparence="pixel"] .regl-case{font-size:19px;line-height:1.2;color:var(--sec)}
+:root[data-apparence="pixel"] .regl-case b{font-family:var(--f-ui);font-weight:400;font-size:22px}
+:root[data-apparence="pixel"] .regl-case small{font-size:19px}
+:root[data-apparence="pixel"] .ic-m{width:14px;height:14px;shape-rendering:crispEdges}
+:root[data-apparence="pixel"] .hist-filtres{gap:12px;padding:3px}
+:root[data-apparence="pixel"] .hist-filtres select,:root[data-apparence="pixel"] .hist-dates input{border:0;border-radius:0;background-color:#fff;font-family:var(--f-ui);font-weight:400;font-size:20px;color:var(--texte);margin:3px;
+  box-shadow:0 -3px 0 var(--px-brun),0 3px 0 var(--px-brun),-3px 0 0 var(--px-brun),3px 0 0 var(--px-brun)}
+:root[data-apparence="pixel"] .hist-dates{font-family:var(--f-ui);font-size:20px}
+:root[data-apparence="pixel"] .hist-resume{font-family:var(--f-ui);font-size:20px}
+:root[data-apparence="pixel"] .hist-resume b{font-weight:400;color:#1e5a44}
+:root[data-apparence="pixel"] .hist-cartes{gap:14px;padding:3px}
+:root[data-apparence="pixel"] .hl{border:0;border-radius:0;background:#fff;font-family:var(--f-ui);padding:10px 12px;
+  box-shadow:0 -3px 0 #c9875a,0 3px 0 #c9875a,-3px 0 0 #c9875a,3px 0 0 #c9875a}
+:root[data-apparence="pixel"] .hl-t{font-weight:400;font-size:21px}
+:root[data-apparence="pixel"] .hl-d{font-weight:400;font-size:19px;color:#1e5a44}
+:root[data-apparence="pixel"] .hl-d.sans{color:#8a5a2b}
+:root[data-apparence="pixel"] .hl-m{font-size:19px}
+:root[data-apparence="pixel"] .hist-vide,:root[data-apparence="pixel"] .hist-duree{font-family:var(--f-ui);font-weight:400;font-size:20px}
+:root[data-apparence="pixel"] .hist-duree{color:#1e5a44}
+:root[data-apparence="pixel"] .oubli-btns{gap:14px}
+:root[data-apparence="pixel"] .oubli-btns .btn{font-size:20px}
+:root[data-apparence="pixel"] .oubli-btns svg{shape-rendering:crispEdges}
+@media (max-width:999.98px){
+  :root[data-apparence="pixel"] #histDlg .btns{background:var(--px-creme);border-top:3px dotted var(--filet-pale)}
+}
+@media (min-width:1000px){
+  :root[data-apparence="pixel"] #histDlg{padding:0 22px 20px}
+  :root[data-apparence="pixel"] #histDlg .btns{bottom:-20px;margin:16px -22px -20px;padding:12px 22px 20px;background:var(--px-creme);border-top:3px dotted var(--filet-pale)}
+  :root[data-apparence="pixel"] #histDlg h2{font-size:18px;margin:0 -22px 14px;padding:14px 22px 20px}
+  :root[data-apparence="pixel"] .hist-tab{font-family:var(--f-ui);font-size:20px}
+  :root[data-apparence="pixel"] .hist-tab th{font-family:var(--f-titre);font-weight:400;font-size:9px;background:#f6e6d2;border-bottom:3px solid var(--px-rose-f)}
+  :root[data-apparence="pixel"] .hist-tab td{border-bottom:3px dotted var(--filet-pale)}
+  :root[data-apparence="pixel"] .hist-tab .hl-corr:hover{color:var(--px-rose-f)}
+}
 /* PIXEL-ART-FIN */
 </style>
 </head>
@@ -800,6 +931,7 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
     <button class="avatar" id="avatar" type="button" aria-label="Compte" hidden></button>
   </div>
 </header>
+<div class="chr-bande" id="chrBande" role="status" hidden></div>
 
 <div class="app">
   <nav class="menu" aria-label="Menu">
@@ -937,6 +1069,13 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
     <h3 class="regl-h">Rappel du matin</h3>
     <p class="regl-aide">Chacun règle le sien. À l'heure dite, une notification montre la liste du jour ; tant que « J'ai lu ma liste » n'est pas touché, elle revient.</p>
     <div id="reglRap"></div>
+    <div id="reglChronoBloc">
+      <h3 class="regl-h">Chronomètre</h3>
+      <label class="regl-case"><input type="checkbox" id="reglChrono"><span><b>Mode chronomètre</b>Éteint par défaut. Allumé, sur le téléphone, chaque tâche a <svg class="ic-m" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15L19.5 12z"/></svg> Démarrer, <svg class="ic-m" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4.5v14H6zM13.5 5H18v14h-4.5z"/></svg> Pause et <svg class="ic-m" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg> Terminer, en plus de la case à cocher. Le choix vaut pour toute la ferme.<small id="reglChronoQui" hidden>Réglé par un compte de la ferme.</small></span></label>
+      <h3 class="regl-h">Historique des tâches réalisées</h3>
+      <p class="regl-aide">Rempli dans tous les cas, chronomètre allumé ou non. Gardé sans limite de durée.</p>
+      <button type="button" class="btn outil enc-aj" id="reglHist">Ouvrir l'historique…</button>
+    </div>
     <h3 class="regl-h">Apparence de cet appareil</h3>
     <p class="regl-aide">Ce choix ne vaut que pour cet appareil. Les autres gardent le leur.</p>
     <div class="app-choix" id="appChoix" role="group" aria-label="Apparence de cet appareil">
@@ -971,6 +1110,53 @@ dialog.feuille{margin:auto 0 0;max-width:100%;border-radius:var(--r-feuille) var
   <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="button" class="btn principal" id="impOk">Imprimer</button></div>
 </dialog>
 
+<dialog id="histDlg" class="feuille" aria-label="Historique des tâches réalisées">
+  <div class="poignee-f"></div>
+  <h2>Historique des tâches réalisées</h2>
+  <div class="hist-filtres">
+    <select id="histQui" aria-label="Personne"></select>
+    <select id="histPer" aria-label="Période">
+      <option value="semaine">Cette semaine</option>
+      <option value="semaine-1">La semaine passée</option>
+      <option value="mois">Ce mois</option>
+      <option value="mois-1">Le mois passé</option>
+      <option value="choix">Dates au choix</option>
+    </select>
+    <select id="histListe" aria-label="Liste"></select>
+    <select id="histChr" aria-label="Avec ou sans chronomètre"><option value="">Avec ou sans chrono</option><option value="oui">Avec chrono</option><option value="non">Sans chrono</option></select>
+  </div>
+  <div class="hist-dates" id="histDates" hidden><label>Du <input type="date" id="histDu"></label><label>au <input type="date" id="histAu"></label></div>
+  <p class="hist-resume" id="histResume" role="status"></p>
+  <div class="hist-l" id="histLignes"></div>
+  <button type="button" class="btn outil hist-suite" id="histSuite" hidden>Afficher la suite</button>
+  <p class="regl-aide hist-note" id="histNote"></p>
+  <div class="btns"><button type="button" class="btn principal" id="histExport">Exporter pour un tableur (.csv)</button><button type="button" class="btn outil" data-a="fermer">Fermer</button></div>
+</dialog>
+
+<dialog id="corrDlg" aria-label="Corriger une ligne de l'historique">
+  <h2>Corriger</h2>
+  <p id="corrQuoi"></p>
+  <form id="corrForm">
+    <label class="champ"><span>Début (vide : sans chrono)</span><input type="datetime-local" id="corrDeb" step="60"></label>
+    <label class="champ"><span>Fin</span><input type="datetime-local" id="corrFin" step="60" required></label>
+    <label class="champ"><span>Pause (minutes)</span><input type="number" id="corrPause" min="0" step="1" inputmode="numeric"></label>
+    <p class="hist-duree" id="corrDuree"></p>
+    <p class="err" id="corrErr" role="alert" hidden></p>
+    <button type="button" class="btn danger corr-suppr" id="corrSuppr">Supprimer la ligne</button>
+    <div class="btns"><button type="button" class="btn outil" data-a="fermer">Annuler</button><button type="submit" class="btn principal">Enregistrer</button></div>
+  </form>
+</dialog>
+
+<dialog id="oubliDlg" aria-label="Chronomètre resté en marche">
+  <h2>Un chronomètre est resté en marche</h2>
+  <p id="oubliTexte"></p>
+  <div class="oubli-btns">
+    <button type="button" class="btn principal" id="oubliVu"></button>
+    <button type="button" class="btn secondaire" id="oubliMaint">Arrêter maintenant</button>
+    <button type="button" class="btn secondaire" id="oubliLaisser">Laisser en marche</button>
+  </div>
+</dialog>
+
 <script src="cle-web.js"></script>
 <script>
 // Clé web absente de ce dépôt : on reprend celle déjà en ligne sur le site du Cumul (même base Firebase).
@@ -993,6 +1179,11 @@ if (!String(window.RECOLTE_CLE_WEB || '').trim()) document.write('<script src="'
      taches/faites/<id>  {at, by, liste, texte, t: {<id>: tâche, …}} : tâche cochée (ou supprimée) et ses sous-tâches,
                          gardée 7 jours dans « Faites récemment », puis effacée par le premier appareil qui l'ouvre.
      taches/agenda/<k>   {t, date, titre, heure, at} : rendez-vous de Google Agenda déjà posé (étape 36D), oublié après 8 jours.
+     taches/chrono/<personne>/<tâche>  {by, texte, liste, debut, cumul, depuis, etat ('marche' | 'pause'), vu} : chronomètre
+                         (étape 55, docs/CONTRAT_CHRONOMETRE.md) ; une personne a au plus UN chrono en marche, les autres en pause.
+   Hors de taches/ (étape 55, choix de la ferme du 27/11 : un dossier à part, que le flux en direct ne recharge pas) :
+     taches-historique/<clé horodatée>  une ligne par tâche réalisée {liste, listeNom, tache, texte, by, fin, chrono, debut,
+                         duree, pause, corr} ; lue par période seulement, jamais en entier ; gardée sans limite de durée.
    Un seul flux en direct pour tout taches/. Chaque action part dans l'ordre (gardée sur l'appareil sans réseau) :
    la dernière action gagne. Rien de propre à une ferme dans le code : listes de départ = les sept jours et Astreintes.
    ========================================================================================================== */
@@ -1005,6 +1196,8 @@ var PROFILS_OK = ['ferme', 'equipe'];
 var JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 var IDS_JOURS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 var LONG = 450, SLOP = 10, DECAL = 24, NIVEAUX_VUS = 5, GARDE_FAITES = 7 * 864e5;
+// Étape 55 : l'historique des tâches réalisées vit hors de taches/ (nœud à part de la base, lu par période).
+var HIST = 'taches-historique';
 var PC = window.matchMedia ? matchMedia('(min-width: 1000px)') : {matches:false};
 var SEP = /^\s*-{3,}\s*$/;
 // Étape 36B : encarts, personnes, couleur du texte, verrou. Noms des encarts, personnes et nom affiché : réglages
@@ -1068,6 +1261,7 @@ var rendu = false, aRendre = false, sales = {};
 var annulable = null, bandeauMinuteur = 0;
 var ignoreClic = 0;
 var rapEdit = {}, rapPour = '';          // Réglages : rappels en cours de modification (par personne), personne affichée
+var histRefusDit = false;               // étape 55 : bandeau « historique resté sur l'appareil » montré une fois
 var COCHE_MS = 2800, coches = {};       // tâches qu'on vient de cocher, montrées le temps de l'animation : {id: {t, taches}}
 
 function setAt(o, chemin, v){
@@ -1080,6 +1274,10 @@ function setAt(o, chemin, v){
   return o;
 }
 function appliquer(o, c){ Object.keys(c).forEach(function(k){ o = setAt(o, k, c[k]); }); return o; }
+// Une écriture groupée peut toucher, en plus de taches/, un autre nœud de la base : sa clé commence alors par « / »
+// (« /taches-historique/<clé> », étape 55). relatifs : la part sous taches/ ; absolus : vrai s'il y a autre chose.
+function relatifs(c){ var r = {}; Object.keys(c).forEach(function(k){ if(k.charAt(0) !== '/') r[k] = c[k]; }); return r; }
+function absolus(c){ return Object.keys(c).some(function(k){ return k.charAt(0) === '/'; }); }
 var garderMinuteur = 0;
 function garderCopie(){ clearTimeout(garderMinuteur); garderMinuteur = setTimeout(function(){ ls('taches.copie', S); }, 300); }
 // Impression (étape 52) : heure à laquelle la copie de l'appareil était à jour pour la dernière fois (flux en direct ouvert
@@ -1088,7 +1286,7 @@ function marquerFrais(){ ls('taches.copieLe', Date.now()); }
 function recalculer(){
   CATALOGUE = null; ENC_LISTES = {};
   D = copie(S);
-  pending.forEach(function(p){ D = appliquer(D, p.c); });
+  pending.forEach(function(p){ D = appliquer(D, relatifs(p.c)); });
   if(!D.listes) D.listes = {};
   if(!D.t) D.t = {};
   if(!D.faites) D.faites = {};
@@ -1477,11 +1675,25 @@ function modifierTexte(id, texte){
   ecrire(c);
 }
 // Cocher (ou supprimer) : la tâche et ses sous-tâches partent dans « Faites récemment » (7 jours), d'où on peut les remettre.
-function retirer(id, mot){
+// Étape 55 : une tâche faite (cochée, ou ■) écrit dans la même écriture groupée sa ligne d'historique, et une pour chaque
+// chronomètre lancé sur elle ou ses sous-tâches (le chrono est alors effacé) ; une tâche supprimée n'écrit rien dans
+// l'historique et efface ses chronos. fins (facultatif) : {'<personne>/<tâche>': heure de fin} d'un chrono oublié (R9).
+function retirer(id, mot, fins){
   var t = D.t[id]; if(!t || verrou(t.liste)) return;
-  var ids = [id].concat(descendants(id)), rec = {at:Date.now(), by:qui(), liste:t.liste, texte:t.sep ? '------' : String(t.texte || ''), t:{}}, c = {};
+  var maintenant = Date.now(), ids = [id].concat(descendants(id)), rec = {at:maintenant, by:qui(), liste:t.liste, texte:t.sep ? '------' : String(t.texte || ''), t:{}}, c = {};
   if(mot !== 'Faite') rec.supprime = true;
   ids.forEach(function(x){ rec.t[x] = copie(D.t[x]); c['t/' + x] = null; });
+  var h = {}, chs = chronosSur(ids);
+  chs.forEach(function(o){
+    c['chrono/' + o.P + '/' + o.tid] = null;
+    if(mot !== 'Faite' || rec.t[o.tid].sep) return;
+    var fin = fins && fins[o.P + '/' + o.tid] || maintenant, k = cleHist(fin);
+    c['/' + HIST + '/' + k] = ligneHist(o.tid, rec.t[o.tid], o.x.by || o.P, o.x, fin); h[k] = true;
+  });
+  if(mot === 'Faite' && !t.sep && !chs.some(function(o){ return o.tid === id; })){
+    var k0 = cleHist(maintenant); c['/' + HIST + '/' + k0] = ligneHist(id, t, qui(), null, maintenant); h[k0] = true;
+  }
+  if(Object.keys(h).length) rec.h = h;
   c['faites/' + id] = rec;
   if(mot === 'Faite'){ coches[id] = {t:Date.now(), taches:copie(rec.t)}; setTimeout(function(){ recalculer(); rendre(); }, COCHE_MS + 40); }
   if(ed && ids.indexOf(ed.id || ed.apres || ed.parent) >= 0) ed = null;
@@ -1494,6 +1706,8 @@ function remettre(fid){
   var L = IX.ok[rec.liste] ? rec.liste : (courante && IX.ok[courante] ? courante : listeDuJour()), c = {};
   Object.keys(rec.t).forEach(function(x){ var t = copie(rec.t[x]); if(t.liste !== L){ t.liste = L; } if(x === fid && !IX.ok[rec.liste]) t.parent = ''; c['t/' + x] = t; });
   c['faites/' + fid] = null;
+  // Étape 55 (R8) : une tâche remise n'est pas réalisée, sa ligne d'historique (et celles de ses chronos) est retirée.
+  Object.keys(rec.h || {}).forEach(function(k){ c['/' + HIST + '/' + k] = null; });
   ecrire(c);
   cacherBandeau();
 }
@@ -1573,7 +1787,9 @@ function nouvelleListe(nom, encarts){
 function renommerListe(L, nom){ var c = {}; c['listes/' + L + '/nom'] = nom; ecrire(c); }
 function supprimerListe(L){
   var c = {}; c['listes/' + L] = null;
-  Object.keys(D.t).forEach(function(id){ if(D.t[id] && D.t[id].liste === L) c['t/' + id] = null; });
+  var ids = Object.keys(D.t).filter(function(id){ return D.t[id] && D.t[id].liste === L; });
+  ids.forEach(function(id){ c['t/' + id] = null; });
+  chronosSur(ids).forEach(function(o){ c['chrono/' + o.P + '/' + o.tid] = null; });
   ecrire(c);
 }
 function deplacerListe(L, avant){
@@ -1712,22 +1928,42 @@ function apresPremier(){
   Object.keys(D.faites).forEach(function(id){ var f = D.faites[id]; if(!f || !(Number(f.at) > lim)) c['faites/' + id] = null; });
   var vieux = dateLocale(new Date(Date.now() - 8 * 864e5));
   Object.keys(D.lu || {}).forEach(function(pid){ Object.keys(D.lu[pid] || {}).forEach(function(j){ if(j < vieux) c['lu/' + pid + '/' + j] = null; }); });
+  // Étape 55 : mes chronos dont la tâche n'existe plus (liste supprimée ailleurs, rendez-vous retiré) sont effacés.
+  var P = cleP(qui()), mes = chronosDe(qui());
+  Object.keys(mes).forEach(function(k){ if(!D.t[k]) c['chrono/' + P + '/' + k] = null; });
   if(Object.keys(c).length) ecrire(c);
   if(!courante || !IX.ok[courante]) { courante = listeDuJour(); placerPiste(); }
+  renvoyerHist();
+  verifierOublis();
 }
 function flush(){
   if(!dbPret() || !profil || flushing || !pending.length) return majStatut();
   flushing = true; majStatut();
-  var p = pending[0];
-  dbFetch('/taches', {method:'PATCH', body:JSON.stringify(p.c)}).then(function(r){ if(!r.ok) throw r.status; })
+  var p = pending[0], chemin = '/taches', corps = p.c;
+  // Étape 55 : une écriture qui touche aussi l'historique part en une seule fois depuis la racine de la base (chaque chemin
+  // y est vérifié par sa propre règle, et tout est écrit ou rien).
+  if(absolus(p.c)){ chemin = '/'; corps = {}; Object.keys(p.c).forEach(function(k){ corps[k.charAt(0) === '/' ? k.slice(1) : 'taches/' + k] = p.c[k]; }); }
+  dbFetch(chemin, {method:'PATCH', body:JSON.stringify(corps)}).then(function(r){ if(!r.ok) throw r.status; })
     .then(function(){
-      S = appliquer(S, p.c); garderCopie();
+      S = appliquer(S, relatifs(p.c)); garderCopie();
+      if(absolus(p.c)) appliquerHist(p.c);
       pending = pending.filter(function(x){ return x !== p; }); ls('taches.pending', pending);
       flushing = false; enLigne = true; recalculer(); rendre(); flush();
     }, function(s){
       flushing = false;
       if(s === 401 || s === 403){
         if(!p.essai){ p.essai = 1; compte.fin = 0; ls('taches.pending', pending); renouveler().then(flush, function(){ majStatut(); }); return; }
+        // Étape 55 : l'historique refusé (règle de la base pas encore publiée) ne fait pas perdre la tâche cochée : la part
+        // « tâches » repart seule, la ligne d'historique reste sur l'appareil (taches.histAttente) et sera renvoyée plus tard.
+        if(absolus(p.c)){
+          var abs = {}, rel = relatifs(p.c);
+          Object.keys(p.c).forEach(function(k){ if(k.charAt(0) === '/') abs[k] = p.c[k]; });
+          var att = ls('taches.histAttente') || []; att.push({c:abs, at:p.at}); ls('taches.histAttente', att);
+          if(Object.keys(rel).length){ p.c = rel; delete p.essai; } else pending = pending.filter(function(x){ return x !== p; });
+          ls('taches.pending', pending); recalculer(); rendre();
+          if(!histRefusDit){ histRefusDit = true; montrerBandeau('L\'historique n\'a pas pu être enregistré dans la base : il reste sur cet appareil.', null); }
+          flush(); return;
+        }
         pending = pending.filter(function(x){ return x !== p; }); ls('taches.pending', pending);
         var cote = ls('taches.refusees') || []; cote.push(p); ls('taches.refusees', cote);
         recalculer(); rendre();
@@ -1785,8 +2021,16 @@ function ligneHtml(x){
   var orig = t.origine ? '<span class="origine" title="' + (/^a:/.test(t.origine) ? 'Astreinte' : 'Agenda') + '" aria-label="' + (/^a:/.test(t.origine) ? 'Venue d\'une astreinte' : 'Venue de l\'agenda') + '">' + (/^a:/.test(t.origine) ? ICO.astreinte : ICO.agenda) + '</span>' : '';
   var ast = estAstreinte(x.id), info = ast ? astInfoHtml(t) : '', cl = ast ? ' ast' + (t.pause ? ' en-pause' : '') : '';
   if(fige) return '<li class="t fige' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '>' + corps + orig + pas + info + '</li>';
-  return '<li class="t' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '><button class="coche" type="button" data-a="cocher" aria-label="Cocher « ' + esc(texte) + ' »"></button>' + corps + orig + pas +
-    '<button class="pt" type="button" data-a="menu-tache" aria-label="Menu de la tâche « ' + esc(texte) + ' »">' + ICO.pt + '</button>' + info + '</li>';
+  // Étape 55 : mode chronomètre allumé, sur le téléphone seulement (R2) : ▶ (ou ⏸ en marche) et ■ devant le « ⋯ »,
+  // et sous le texte « En cours · 00:12:34 » ou « En pause · … ». Sur l'ordinateur, la ligne ne change pas.
+  var chb = '', che = '';
+  if(chronoVisible()){
+    var ch = monChrono(x.id), dit = esc(texte);
+    chb = '<span class="chr-b">' + (ch && ch.etat === 'marche' ? boutonChrono('pause', x.id, dit) : boutonChrono('start', x.id, dit, !!ch)) + (ch ? boutonChrono('stop', x.id, dit) : '') + '</span>';
+    if(ch){ cl += ' chr-on ' + (ch.etat === 'marche' ? 'chr-marche' : 'chr-pause'); che = '<span class="chr-etat">' + (ch.etat === 'marche' ? 'En cours' : 'En pause') + ' · <b class="chr-temps" data-t="' + id + '">' + hms(tempsDe(ch)) + '</b></span>'; }
+  }
+  return '<li class="t' + cl + '" data-id="' + id + '" data-n="' + n + '"' + st + '><button class="coche" type="button" data-a="cocher" aria-label="Cocher « ' + esc(texte) + ' »"></button>' + corps + orig + pas + chb +
+    '<button class="pt" type="button" data-a="menu-tache" aria-label="Menu de la tâche « ' + esc(texte) + ' »">' + ICO.pt + '</button>' + che + info + '</li>';
 }
 function panneauHtml(l){
   var L = l.id, fige = !!verrou(L);
@@ -1881,7 +2125,7 @@ function rendre(force){
   }
   voulu.forEach(function(l){ rendrePanneau(l, force); });
   if(!courante || !IX.ok[courante]) courante = voulu.length ? listeDuJour() : null;
-  rendreBande(); rendreMenu(); majRappelLu();
+  rendreBande(); rendreMenu(); majRappelLu(); rendreChronoBande();
   if(change) placerPiste();
   refocaliser();
 }
@@ -2248,6 +2492,7 @@ function ouvrirMenuListe(L){
   var nf = nbFaites(L), a = [];
   a.push('<button class="act" type="button" data-a="renommer">' + ICO.crayon + 'Renommer la liste</button>');
   a.push('<button class="act" type="button" data-a="faites"' + (nf ? '' : ' disabled') + '>' + ICO.retour + 'Faites récemment<small>' + nf + '</small></button>');
+  a.push('<button class="act" type="button" data-a="historique">' + ICO.horloge + 'Historique de cette liste</button>');
   if(l.type === 'astreintes') a.push('<button class="act" type="button" data-a="repartir">' + ICO.astreinte + 'Répartir les astreintes dans les jours</button>');
   var v = verrou(L);
   // Encarts (21/11) : une liste a les siens (« Encarts de cette liste… ») ; les jours suivent le modèle des Réglages,
@@ -2280,6 +2525,7 @@ $('#listeDlg').addEventListener('click', function(e){
   else if(a === 'deverrouiller') verrouiller(L, false);
   else if(a === 'renommer') demanderNom('Renommer la liste', IX.ok[L].nom, function(n){ renommerListe(L, n); });
   else if(a === 'faites') ouvrirFaites(L);
+  else if(a === 'historique') ouvrirHistorique(L);
   else if(a === 'imprimer-liste') ouvrirImpression(L);
   else if(a === 'supprimer-liste'){
     var n = Object.keys(D.t).filter(function(id){ return D.t[id] && D.t[id].liste === L; }).length;
@@ -2373,6 +2619,9 @@ function ouvrirReglages(){
   var donnees = IX.listes.length > 0;
   $('#reglImp').disabled = !donnees;
   majApparenceRegl();
+  // Étape 55 (R1) : le mode chronomètre vaut pour toute la ferme ; seul un compte de la ferme le change.
+  var rc = $('#reglChrono'); rc.checked = chronoOn(); rc.disabled = profil !== 'ferme';
+  $('#reglChronoQui').hidden = profil === 'ferme';
   $('#reglImpAide').textContent = donnees ? 'Toutes les listes en entier, sur papier ou en PDF, même sans réseau.' : 'Pas encore de données sur cet appareil.';
   var d = $('#reglDlg'); if(!d.open) d.showModal();
 }
@@ -2416,6 +2665,7 @@ $('#reglForm').addEventListener('submit', function(e){
   var c = {'reglages/nom':$('#reglNom').value.trim(), 'reglages/personnes':pers, 'reglages/by':qui(), 'reglages/at':Date.now()};
   lireRappelRegl();
   Object.keys(rapEdit).forEach(function(pid){ var a = rappelDe(pid), n = rapEdit[pid]; if(['actif', 'heure', 'jours', 'repete', 'jusqua'].some(function(k){ return a[k] !== n[k]; }) || !(D.rappels || {})[pid] && n.actif) c['rappels/' + pid] = Object.assign({}, n, {by:qui(), at:Date.now()}); });
+  if(profil === 'ferme' && $('#reglChrono').checked !== chronoOn()) c['reglages/chronometre'] = $('#reglChrono').checked ? true : null;
   ecrire(c);
   $('#reglDlg').close();
   montrerBandeau('Réglages enregistrés', null);
@@ -2932,6 +3182,364 @@ addEventListener('afterprint', function(){
   impMinuteur = setTimeout(retirerImpression, IMP_GARDE_MS);
 });
 
+/* ---------- Chronomètre et historique des tâches réalisées (étape 55, contrat docs/CONTRAT_CHRONOMETRE.md) ----------
+   Mode chronomètre (Réglages, pour toute la ferme, éteint par défaut) : sur le téléphone seulement, ▶ démarrer ou reprendre,
+   ⏸ pause, ■ terminer (= cocher). Chaque chrono est dans la base sous taches/chrono/<personne>/<tâche>, donc partagé entre
+   les appareils de la personne ; une personne a au plus un chrono en marche (en démarrer un autre met le premier en pause).
+   Le temps affiché se calcule toujours depuis les heures enregistrées (cumul + maintenant − depuis), jamais en comptant.
+   L'historique (taches-historique/, hors du flux en direct) reçoit une ligne par tâche faite, chrono ou pas (R5, R7) ;
+   on le lit par période (requête sur la clé horodatée), on le corrige (R10), on l'exporte en tableur (R12). */
+var VU_MS = 10 * 60000, OUBLI_MS = 12 * 3600000, OUBLI_AUTRE_MS = 24 * 3600000, HIST_PAGE = 50, HIST_MARGE = 3 * 864e5, HIST_CACHE_JOURS = 62;
+// Formes pleines, sans texte (R3) ; le triangle a aussi sa version en marches pour le pixel art (R18).
+var ICO_CHR = {
+  start:'<svg viewBox="0 0 24 24" aria-hidden="true"><path class="lisse" d="M8 5.2v13.6L19 12z"/><path class="px" d="M8 5h2v1h2v1h2v1h2v1h2v1h2v1h1v2h-1v1h-2v1h-2v1h-2v1h-2v1h-2v1h-2z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg>',
+  stop:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v12H6z"/></svg>'
+};
+// Clé d'une personne dans la base (un identifiant de connexion peut contenir un point).
+function cleP(by){ return String(by || '').replace(/[.#$\/\[\]]/g, '_') || '_'; }
+function chronoOn(){ return !!(D.reglages && D.reglages.chronometre === true); }
+function chronoVisible(){ return chronoOn() && !PC.matches && !!compte && !refuse; }
+function chronosDe(by){ var x = (D.chrono || {})[cleP(by)]; return x && typeof x === 'object' ? x : {}; }
+function monChrono(tid){ var c = chronosDe(qui())[tid]; return c && typeof c === 'object' ? c : null; }
+// Tous les chronos, de toutes les personnes, posés sur ces tâches : [{P, tid, x}].
+function chronosSur(ids){
+  var r = [], ch = D.chrono || {};
+  Object.keys(ch).forEach(function(P){
+    var m = ch[P]; if(!m || typeof m !== 'object') return;
+    ids.forEach(function(tid){ var x = m[tid]; if(x && typeof x === 'object') r.push({P:P, tid:tid, x:x}); });
+  });
+  return r;
+}
+function tempsDe(c, a){ var t = Math.max(0, Number(c.cumul) || 0); if(c.etat === 'marche' && Number(c.depuis)) t += Math.max(0, (a || Date.now()) - Number(c.depuis)); return t; }
+function hms(ms){ var s = Math.floor(Math.max(0, ms) / 1000); return deux(Math.floor(s / 3600)) + ':' + deux(Math.floor(s / 60) % 60) + ':' + deux(s % 60); }
+function boutonChrono(k, tid, dit, reprise){
+  var lab = k === 'start' ? (reprise ? 'Reprendre le chronomètre de « ' : 'Démarrer le chronomètre de « ') : k === 'pause' ? 'Mettre en pause « ' : 'Terminer « ';
+  return '<button class="chr-btn chr-' + k + '" type="button" data-a="chr-' + k + '" data-t="' + esc(tid) + '" aria-label="' + lab + dit + ' »">' + ICO_CHR[k] + '</button>';
+}
+function cheminsPause(P, tid, x, a){ var b = 'chrono/' + P + '/' + tid + '/', c = {}; c[b + 'cumul'] = tempsDe(x, a); c[b + 'depuis'] = null; c[b + 'etat'] = 'pause'; c[b + 'vu'] = a; return c; }
+// ▶ : démarrer (ou reprendre) ; mon autre chrono en marche passe en pause dans la même écriture (R4).
+function chronoDemarrer(tid){
+  var t = D.t[tid]; if(!t || t.sep || verrou(t.liste) || !qui()) return;
+  var P = cleP(qui()), a = Date.now(), mes = chronosDe(qui()), x = mes[tid], c = {};
+  if(x && x.etat === 'marche') return;
+  Object.keys(mes).forEach(function(k){ var y = mes[k]; if(k !== tid && y && y.etat === 'marche') Object.assign(c, cheminsPause(P, k, y, a)); });
+  var b = 'chrono/' + P + '/' + tid;
+  if(x){ c[b + '/etat'] = 'marche'; c[b + '/depuis'] = a; c[b + '/vu'] = a; }
+  else c[b] = {by:qui(), texte:String(t.texte || ''), liste:t.liste, debut:a, cumul:0, depuis:a, etat:'marche', vu:a};
+  ecrire(c);
+}
+function chronoPause(tid){ var x = monChrono(tid); if(!x || x.etat !== 'marche') return; ecrire(cheminsPause(cleP(qui()), tid, x, Date.now())); }
+// Clé horodatée d'une ligne d'historique : l'heure de fin en base 36 sur 9 caractères (l'ordre des clés est l'ordre des
+// heures), puis 5 caractères au hasard. La base se lit par période sur cette clé.
+function cleTemps(at){ var s = Math.max(0, Math.floor(at)).toString(36); while(s.length < 9) s = '0' + s; return s; }
+function cleHist(at){ var r = Math.random().toString(36).slice(2, 7); while(r.length < 5) r += '0'; return cleTemps(at) + r; }
+// Une ligne (R7) : texte et nom de la liste tels qu'ils sont à la fin ; sans chrono, ni début ni durée (R5).
+function ligneHist(tid, t, by, x, fin){
+  var l = {liste:t.liste || '', listeNom:nomListe(t.liste) || '', tache:tid, texte:String(t.texte || ''), by:String(by || ''), fin:fin, chrono:!!x};
+  if(x){
+    var d = tempsDe(x, fin), deb = Number(x.debut) || fin - d;
+    if(deb > fin) deb = fin;
+    l.debut = deb; l.duree = Math.min(d, fin - deb); l.pause = Math.max(0, fin - deb - l.duree);
+  }
+  return l;
+}
+// Bandeau « en cours » sous la barre du haut (téléphone) : le chrono en marche de la personne connectée.
+function rendreChronoBande(){
+  var b = $('#chrBande'), x = null, tid = '';
+  if(chronoVisible()){
+    var mes = chronosDe(qui());
+    Object.keys(mes).forEach(function(k){ var y = mes[k]; if(!x && y && y.etat === 'marche' && D.t[k]){ x = y; tid = k; } });
+  }
+  var html = '';
+  if(x){
+    var txt = String(D.t[tid].texte || x.texte || ''), dit = esc(txt);
+    html = boutonChrono('pause', tid, dit) + boutonChrono('stop', tid, dit) +
+      '<button class="chr-aller" type="button" data-a="chr-aller" data-t="' + esc(tid) + '" aria-label="Aller à « ' + dit + ' »"><span>' + dit + '</span><b class="chr-temps" data-t="' + esc(tid) + '">' + hms(tempsDe(x)) + '</b></button>';
+  }
+  if(b._html !== html){ b.innerHTML = html; b._html = html; }
+  if(b.hidden === !!x) b.hidden = !x;
+}
+// Chaque seconde : les temps affichés ; toutes les 10 minutes, « vu » de mes chronos en marche (R9), téléphone visible
+// seulement, et jamais pour un chrono qui attend la question « resté en marche » (son dernier geste doit rester juste).
+setInterval(function(){
+  if(!IX || !compte) return;
+  var a = Date.now();
+  Array.prototype.forEach.call(document.querySelectorAll('.chr-temps[data-t]'), function(e){ var x = monChrono(e.dataset.t); if(x){ var v = hms(tempsDe(x, a)); if(e.textContent !== v) e.textContent = v; } });
+  if(PC.matches || document.hidden || !qui() || !premier) return;
+  var P = cleP(qui()), mes = chronosDe(qui()), c = {};
+  Object.keys(mes).forEach(function(k){ var y = mes[k]; if(y && y.etat === 'marche' && a - (Number(y.vu) || 0) >= VU_MS && (!estOubli(y, true, a) || oubliLaisses[P + '/' + k + '/' + y.depuis])) c['chrono/' + P + '/' + k + '/vu'] = a; });
+  if(Object.keys(c).length) ecrire(c);
+}, 1000);
+
+/* Chrono oublié (R9) : à l'ouverture, un chrono en marche depuis plus de 12 heures (ou depuis la veille) pour soi, ou
+   depuis plus de 24 heures pour celui d'un autre : une fenêtre propose d'arrêter à son dernier geste, maintenant, ou de
+   le laisser. Rien ne s'arrête tout seul. Arrêter = terminer (■) : la tâche est faite, sa ligne d'historique est écrite. */
+var oubliLaisses = {}, oubliFile = [], oubliCour = null;
+function estOubli(x, mien, a){
+  if(!x || x.etat !== 'marche' || !Number(x.depuis)) return false;
+  var d = a - Number(x.depuis);
+  if(mien) return d > OUBLI_MS || dateLocale(new Date(Number(x.depuis))) < dateLocale(new Date(a));
+  return d > OUBLI_AUTRE_MS;
+}
+function nomDe(by){ var p = personne(by); return p ? p.nom : String(by || ''); }
+function jourHeure(ms){
+  var d = new Date(ms), a = new Date(), j = dateLocale(d), h = deux(d.getHours()) + ':' + deux(d.getMinutes());
+  if(j === dateLocale(a)) return 'aujourd\'hui à ' + h;
+  if(j === dateLocale(new Date(a.getFullYear(), a.getMonth(), a.getDate() - 1))) return 'hier à ' + h;
+  return 'le ' + jourCourt(d) + ' à ' + h;
+}
+function verifierOublis(){
+  if(!compte || !qui() || refuse || !IX) return;
+  var a = Date.now(), moi = cleP(qui()), ch = D.chrono || {}, f = [];
+  Object.keys(ch).forEach(function(P){
+    var m = ch[P]; if(!m || typeof m !== 'object') return;
+    Object.keys(m).forEach(function(tid){
+      var x = m[tid]; if(!x || !D.t[tid] || verrou(D.t[tid].liste) || oubliLaisses[P + '/' + tid + '/' + x.depuis]) return;
+      if(estOubli(x, P === moi, a)) f.push({P:P, tid:tid, x:x, mien:P === moi});
+    });
+  });
+  oubliFile = f.sort(function(u, v){ return (v.mien ? 1 : 0) - (u.mien ? 1 : 0); });
+  montrerOubli();
+}
+function montrerOubli(){
+  var d = $('#oubliDlg');
+  if(d.open || $('#authDlg').open) return;
+  var o = oubliFile.shift(); oubliCour = o || null; if(!o) return;
+  var x = o.x, a = Date.now(), t = D.t[o.tid], qui2 = o.mien ? 'vous' : nomDe(x.by || o.P), vu = Number(x.vu) || 0;
+  $('#oubliTexte').innerHTML = '« ' + esc(t.texte || x.texte || '') + ' », lancé par ' + esc(qui2) + ' <b>' + esc(jourHeure(Number(x.depuis))) + '</b>, tourne encore (<b>' + esc(dureeFr(tempsDe(x, a))) + '</b>).';
+  var bv = $('#oubliVu'), utile = vu > Number(x.depuis) + 60000 && vu < a - 5 * 60000;
+  bv.hidden = !utile;
+  if(utile){ var dv = new Date(vu), hv = deux(dv.getHours()) + ':' + deux(dv.getMinutes()); bv.innerHTML = ICO_CHR.stop + '<span>Arrêter à ' + (dateLocale(dv) === dateLocale(new Date(a)) ? '' : (jourHeure(vu).indexOf('hier') === 0 ? 'hier ' : jourCourt(dv) + ' ')) + hv + ' (dernier geste ' + (o.mien ? 'sur l\'appli' : 'de ' + esc(qui2)) + ')</span>'; }
+  d.showModal();
+}
+function finOubli(fin){
+  var o = oubliCour; oubliCour = null; $('#oubliDlg').close();
+  if(o && fin && D.t[o.tid]){ var f = {}; f[o.P + '/' + o.tid] = fin; retirer(o.tid, 'Faite', f); }
+  else if(o) oubliLaisses[o.P + '/' + o.tid + '/' + o.x.depuis] = true;
+  montrerOubli();
+}
+$('#oubliVu').onclick = function(){ var o = oubliCour; finOubli(o ? Number(o.x.vu) : 0); };
+$('#oubliMaint').onclick = function(){ finOubli(Date.now()); };
+$('#oubliLaisser').onclick = function(){ finOubli(0); };
+$('#oubliDlg').addEventListener('cancel', function(e){ e.preventDefault(); });
+document.addEventListener('visibilitychange', function(){ if(!document.hidden && premier) verifierOublis(); });
+
+// Lignes d'historique refusées par la base (règle pas encore publiée) : renvoyées une fois à chaque ouverture.
+function renvoyerHist(){
+  var att = ls('taches.histAttente') || []; if(!att.length) return;
+  ls('taches.histAttente', []);
+  att.forEach(function(x){ if(x && x.c) pending.push({c:x.c, at:x.at || Date.now()}); });
+  ls('taches.pending', pending); flush();
+}
+
+/* ---------- Historique : écran (R11), correction (R10), export (R12) ---------- */
+// Lignes déjà reçues, gardées sur l'appareil (62 derniers jours) pour consulter et exporter hors ligne.
+var histCache = null, histVue = null, corrId = null;
+function cacheHist(){ if(!histCache){ var c = ls('taches.histo'); histCache = c && typeof c === 'object' && c.l && typeof c.l === 'object' ? c : {l:{}}; } return histCache; }
+function garderCacheHist(){
+  var c = cacheHist(), lim = Date.now() - HIST_CACHE_JOURS * 864e5;
+  Object.keys(c.l).forEach(function(k){ if(!(c.l[k] && Number(c.l[k].fin) >= lim)) delete c.l[k]; });
+  ls('taches.histo', c);
+}
+// Une écriture d'historique partie dans la base : reportée sur les lignes reçues (l'écran reste juste sans relire).
+function appliquerHist(c){
+  var pre = '/' + HIST + '/', touche = false;
+  Object.keys(c).forEach(function(k){
+    if(k.indexOf(pre) !== 0) return;
+    touche = true;
+    cacheHist().l = setAt(cacheHist().l, k.slice(pre.length), c[k]);
+    if(histVue && histVue.recu) histVue.recu = setAt(histVue.recu, k.slice(pre.length), c[k]);
+  });
+  if(touche){ garderCacheHist(); if(histVue && $('#histDlg').open) rendreHist(); }
+}
+var JOURS_ABR = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
+function jourCourt(d){ return JOURS_ABR[d.getDay()] + ' ' + deux(d.getDate()) + '/' + deux(d.getMonth() + 1); }
+function heureMin(ms){ var d = new Date(ms); return deux(d.getHours()) + ':' + deux(d.getMinutes()); }
+function dureeFr(ms){ var m = Math.round(Math.max(0, Number(ms) || 0) / 60000); return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + deux(m % 60); }
+function semaineIso(d){ var x = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), j = x.getUTCDay() || 7; x.setUTCDate(x.getUTCDate() + 4 - j); return Math.ceil(((x - Date.UTC(x.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); }
+function lundiDe(d){ var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; }
+function jourDe(v){ var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(v || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; }
+// La période choisie : {de, au (exclu), titre}.
+function periodeHist(){
+  var v = $('#histPer').value, a = new Date(), de, au, titre, ddmm = function(d){ return deux(d.getDate()) + '/' + deux(d.getMonth() + 1); };
+  if(v === 'mois' || v === 'mois-1'){
+    de = new Date(a.getFullYear(), a.getMonth() - (v === 'mois-1' ? 1 : 0), 1); au = new Date(de.getFullYear(), de.getMonth() + 1, 1);
+    titre = de.toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+  } else if(v === 'choix'){
+    de = jourDe($('#histDu').value) || new Date(a.getFullYear(), a.getMonth(), a.getDate() - 29);
+    var f = jourDe($('#histAu').value) || new Date(a.getFullYear(), a.getMonth(), a.getDate());
+    if(f < de){ var z = f; f = de; de = z; }
+    au = new Date(f.getFullYear(), f.getMonth(), f.getDate() + 1);
+    titre = 'Du ' + ddmm(de) + ' au ' + ddmm(f);
+  } else {
+    de = lundiDe(a); if(v === 'semaine-1') de.setDate(de.getDate() - 7);
+    au = new Date(de.getFullYear(), de.getMonth(), de.getDate() + 7);
+    titre = 'Semaine ' + semaineIso(de) + ' · du ' + ddmm(de) + ' au ' + ddmm(new Date(au.getTime() - 864e5));
+  }
+  return {de:de.getTime(), au:au.getTime(), titre:titre};
+}
+function ouvrirHistorique(L){
+  if(ed){ validerEd(); fermerEd(); }
+  histVue = {recu:null, etat:'lecture', n:HIST_PAGE};
+  var pers = personnes(), ids = pers.map(function(p){ return p.id; });
+  $('#histQui').innerHTML = '<option value="">Toutes les personnes</option>' + pers.map(function(p){ return '<option value="' + esc(p.id) + '">' + esc(p.nom) + '</option>'; }).join('') +
+    (qui() && ids.indexOf(qui()) < 0 ? '<option value="' + esc(qui()) + '">' + esc(qui()) + '</option>' : '');
+  $('#histListe').innerHTML = '<option value="">Toutes les listes</option>' + IX.listes.map(function(l){ return '<option value="' + esc(l.id) + '">' + esc(l.nom) + '</option>'; }).join('');
+  $('#histListe').value = L && IX.ok[L] ? L : '';
+  $('#histQui').value = ''; $('#histChr').value = ''; $('#histPer').value = 'semaine';
+  var a = new Date();
+  $('#histAu').value = dateLocale(a); $('#histDu').value = dateLocale(new Date(a.getFullYear(), a.getMonth(), a.getDate() - 29));
+  $('#histDates').hidden = true;
+  var d = $('#histDlg'); if(!d.open) d.showModal();
+  chargerHist();
+}
+// Lecture de la période (avec une marge de 3 jours : une ligne corrigée garde sa clé), jamais de l'historique entier.
+function chargerHist(){
+  var v = histVue; if(!v) return;
+  var per = periodeHist(), jeton = {};
+  v.per = per; v.n = HIST_PAGE; v.etat = 'lecture'; v.jeton = jeton;
+  rendreHist();
+  var lo = cleTemps(per.de - HIST_MARGE), hi = cleTemps(per.au + HIST_MARGE) + '~';
+  var q = 'orderBy=' + encodeURIComponent('"$key"') + '&startAt=' + encodeURIComponent('"' + lo + '"') + '&endAt=' + encodeURIComponent('"' + hi + '"');
+  (dbPret() || compte ? dbFetch('/' + HIST, undefined, q).then(function(r){ if(!r.ok) throw r.status; return r.json(); }) : Promise.reject('hors'))
+    .then(function(j){
+      if(v.jeton !== jeton) return;
+      v.recu = j && typeof j === 'object' ? j : {}; v.etat = 'ok';
+      var c = cacheHist();
+      Object.keys(c.l).forEach(function(k){ if(k >= lo && k <= hi) delete c.l[k]; });
+      Object.keys(v.recu).forEach(function(k){ c.l[k] = v.recu[k]; });
+      garderCacheHist(); rendreHist();
+    }, function(e){ if(v.jeton !== jeton) return; v.recu = null; v.etat = e === 401 || e === 403 ? 'refus' : 'hors'; rendreHist(); });
+}
+// Les lignes de la période : reçues (ou gardées sur l'appareil), plus les écritures pas encore parties.
+function lignesPeriode(){
+  var v = histVue, pre = '/' + HIST + '/', b = copie(v.recu || cacheHist().l);
+  pending.concat(ls('taches.histAttente') || []).forEach(function(p){ Object.keys(p.c || {}).forEach(function(k){ if(k.indexOf(pre) === 0) b = setAt(b, k.slice(pre.length), p.c[k]); }); });
+  return Object.keys(b).map(function(k){ var l = b[k]; return l && typeof l === 'object' ? Object.assign({}, l, {id:k}) : null; })
+    .filter(function(l){ return l && Number(l.fin) >= v.per.de && Number(l.fin) < v.per.au; });
+}
+function aDuree(l){ return l.debut != null && l.duree != null && isFinite(Number(l.duree)); }
+function lignesFiltrees(){
+  var q = $('#histQui').value, L = $('#histListe').value, ch = $('#histChr').value;
+  return lignesPeriode().filter(function(l){
+    return (!q || String(l.by) === q) && (!L || l.liste === L) && (!ch || (ch === 'oui') === aDuree(l));
+  }).sort(function(a, b){ return Number(b.fin) - Number(a.fin) || (a.id < b.id ? 1 : -1); });
+}
+function peutCorriger(l){ return profil === 'ferme' || String(l.by) === qui(); }
+function listeNomDe(l){ return l.listeNom || nomListe(l.liste) || ''; }
+function quandHtml(l){
+  var f = new Date(Number(l.fin));
+  if(!aDuree(l)) return {deb:jourCourt(f) + ' · cochée à ' + heureMin(l.fin), fin:'—'};
+  var d = new Date(Number(l.debut)), meme = dateLocale(d) === dateLocale(f);
+  return {deb:jourCourt(d) + ' · ' + heureMin(l.debut), fin:(meme ? '' : jourCourt(f) + ' · ') + heureMin(l.fin)};
+}
+function rendreHist(){
+  var v = histVue; if(!v || !v.per) return;
+  var L = lignesFiltrees(), n = L.length, avec = L.filter(aDuree), tot = avec.reduce(function(s, l){ return s + Number(l.duree); }, 0), sans = n - avec.length;
+  $('#histResume').innerHTML = '<span class="hist-per">' + esc(v.per.titre) + '</span><br><b>' + n + ' tâche' + (n > 1 ? 's' : '') + '</b> · ' + dureeFr(tot) + ' chronométrée' + (tot >= 120000 ? 's' : '') + ' · ' + sans + ' sans chrono';
+  var vus = L.slice(0, v.n), html;
+  if(!n) html = '<p class="hist-vide">' + (v.etat === 'lecture' ? 'Lecture…' : 'Aucune tâche réalisée sur cette période.') + '</p>';
+  else if(PC.matches){
+    html = '<table class="hist-tab"><thead><tr><th>Tâche</th><th>Qui</th><th>Liste</th><th>Début</th><th>Fin</th><th class="hd">Durée</th></tr></thead><tbody>' + vus.map(function(l){
+      var w = quandHtml(l), ok = peutCorriger(l), dur = aDuree(l) ? '<b>' + dureeFr(l.duree) + '</b>' : '<i>sans chrono</i>';
+      return '<tr data-h="' + esc(l.id) + '"><td>' + (ok ? '<button type="button" class="hl-corr" data-h="' + esc(l.id) + '" title="Corriger">' + esc(l.texte) + '</button>' : esc(l.texte)) + (l.corr ? ' <small class="hl-c">corrigée</small>' : '') + '</td><td>' + esc(nomDe(l.by)) + '</td><td>' + esc(listeNomDe(l)) + '</td><td>' + esc(w.deb.replace(' · ', ' ')) + '</td><td>' + esc(w.fin) + (aDuree(l) && Number(l.pause) >= 60000 ? ' <small>(pause ' + dureeFr(l.pause) + ')</small>' : '') + '</td><td class="hd">' + dur + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  } else {
+    html = '<ol class="hist-cartes">' + vus.map(function(l){
+      var w = quandHtml(l), dur = aDuree(l) ? '<b class="hl-d">' + dureeFr(l.duree) + '</b>' : '<i class="hl-d sans">sans chrono</i>';
+      var corps = '<span class="hl-h"><span class="hl-t">' + esc(l.texte) + '</span>' + dur + '</span><span class="hl-m">' + esc(nomDe(l.by)) + ' · ' + esc(listeNomDe(l)) + (l.corr ? ' · corrigée' : '') + '</span>' +
+        '<span class="hl-m">' + esc(w.deb) + (aDuree(l) ? ' → ' + esc(w.fin) + (Number(l.pause) >= 60000 ? ' (pause ' + dureeFr(l.pause) + ')' : '') : '') + '</span>';
+      return '<li>' + (peutCorriger(l) ? '<button type="button" class="hl hl-corr" data-h="' + esc(l.id) + '" aria-label="Corriger « ' + esc(l.texte) + ' »">' + corps + '</button>' : '<div class="hl">' + corps + '</div>') + '</li>';
+    }).join('') + '</ol>';
+  }
+  var box = $('#histLignes'); if(box._html !== html){ box.innerHTML = html; box._html = html; }
+  $('#histSuite').hidden = n <= v.n;
+  $('#histSuite').textContent = 'Afficher la suite (' + Math.min(HIST_PAGE, n - v.n) + ' de plus sur ' + (n - v.n) + ')';
+  $('#histExport').disabled = !n;
+  $('#histNote').textContent = v.etat === 'hors' ? 'Hors ligne : seules les lignes déjà reçues sur cet appareil (62 derniers jours) sont montrées.'
+    : v.etat === 'refus' ? 'La base refuse la lecture de l\'historique. Seules les lignes de cet appareil sont montrées.'
+    : 'L\'historique commence à sa mise en service : rien avant. Il est gardé sans limite de durée. Toucher une ligne pour la corriger.';
+}
+$('#histPer').addEventListener('change', function(){ $('#histDates').hidden = this.value !== 'choix'; chargerHist(); });
+$('#histDu').addEventListener('change', chargerHist);
+$('#histAu').addEventListener('change', chargerHist);
+['#histQui', '#histListe', '#histChr'].forEach(function(s){ $(s).addEventListener('change', function(){ if(histVue){ histVue.n = HIST_PAGE; rendreHist(); } }); });
+$('#histSuite').onclick = function(){ if(histVue){ histVue.n += HIST_PAGE; rendreHist(); } };
+$('#histLignes').addEventListener('click', function(e){ var b = e.target.closest('.hl-corr'); if(b) ouvrirCorr(b.dataset.h); });
+$('#reglHist').onclick = function(){ if(IX) ouvrirHistorique(''); };
+if(PC.addEventListener) PC.addEventListener('change', function(){ if(histVue && $('#histDlg').open){ histVue.n = Math.max(histVue.n, HIST_PAGE); $('#histLignes')._html = ''; rendreHist(); } });
+
+// Export (R12) : la période et les filtres affichés, toutes les lignes ; UTF-8 avec marque d'ordre, « ; », dates
+// AAAA-MM-JJ HH:MM, durées en minutes à virgule. Rien n'est écrit dans la base ni envoyé.
+function dateCsv(ms){ var d = new Date(Number(ms)); return d.getFullYear() + '-' + deux(d.getMonth() + 1) + '-' + deux(d.getDate()) + ' ' + deux(d.getHours()) + ':' + deux(d.getMinutes()); }
+function minCsv(ms){ return String(Math.round(Number(ms) / 6000) / 10).replace('.', ','); }
+function champCsv(s){ s = String(s == null ? '' : s); return /[;"\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function csvHist(){
+  var L = lignesFiltrees().slice().reverse();
+  var r = ['liste;tâche;personne;début;fin;pause_min;durée_min;chronomètre'];
+  L.forEach(function(l){
+    var d = aDuree(l);
+    r.push([listeNomDe(l), l.texte, nomDe(l.by), d ? dateCsv(l.debut) : '', dateCsv(l.fin), d ? minCsv(Number(l.pause) || 0) : '', d ? minCsv(l.duree) : '', l.chrono ? 'oui' : 'non'].map(champCsv).join(';'));
+  });
+  return '﻿' + r.join('\r\n') + '\r\n';
+}
+$('#histExport').onclick = function(){
+  if(!histVue || !histVue.per) return;
+  var p = histVue.per, nom = 'historique-taches-' + dateLocale(new Date(p.de)) + '_' + dateLocale(new Date(p.au - 864e5)) + '.csv';
+  var u = URL.createObjectURL(new Blob([csvHist()], {type:'text/csv;charset=utf-8'})), a = document.createElement('a');
+  a.href = u; a.download = nom; a.hidden = true; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); }, 2000);
+};
+
+// Correction d'une ligne (R10) : début, fin, pause ; la durée se recalcule ; ou suppression. Chacun ses lignes, un compte
+// de la ferme toutes. Le champ corr garde qui a corrigé et quand.
+function ligneVue(id){ return histVue ? lignesPeriode().filter(function(l){ return l.id === id; })[0] : null; }
+function versLocal(ms){ if(ms == null || !isFinite(Number(ms))) return ''; var d = new Date(Number(ms)); return dateLocale(d) + 'T' + deux(d.getHours()) + ':' + deux(d.getMinutes()); }
+function deLocal(s){ var m = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]).getTime() : null; }
+// Valeurs du formulaire ; un champ laissé tel quel garde sa valeur exacte (à la seconde près).
+function lireCorr(l){
+  var dv = $('#corrDeb').value, fv = $('#corrFin').value, pv = $('#corrPause').value;
+  var deb = dv === versLocal(l.debut) ? (l.debut == null ? null : Number(l.debut)) : deLocal(dv);
+  var fin = fv === versLocal(l.fin) ? Number(l.fin) : deLocal(fv);
+  var p0 = Number(l.pause) || 0, pause = pv === String(Math.round(p0 / 60000)) ? p0 : Math.max(0, Math.round(Number(pv) || 0)) * 60000;
+  var err = '';
+  if(fin == null) err = 'Indiquer l\'heure de fin.';
+  else if(deb != null && deb > fin) err = 'Le début doit venir avant la fin.';
+  else if(deb != null && pause > fin - deb) err = 'La pause est plus longue que le temps entre le début et la fin.';
+  return {deb:deb, fin:fin, pause:deb == null ? null : pause, duree:deb == null || err ? null : fin - deb - pause, err:err};
+}
+function majCorr(){
+  var l = ligneVue(corrId); if(!l) return;
+  var x = lireCorr(l);
+  $('#corrDuree').textContent = x.err ? '' : x.deb == null ? 'Sans chrono : pas de durée.' : 'Durée : ' + dureeFr(x.duree);
+  $('#corrErr').textContent = x.err; $('#corrErr').hidden = !x.err;
+}
+function ouvrirCorr(id){
+  var l = ligneVue(id); if(!l || !peutCorriger(l)) return;
+  corrId = id;
+  $('#corrQuoi').textContent = '« ' + l.texte + ' » · ' + nomDe(l.by) + ' · ' + listeNomDe(l);
+  $('#corrDeb').value = versLocal(l.debut); $('#corrFin').value = versLocal(l.fin); $('#corrPause').value = String(Math.round((Number(l.pause) || 0) / 60000));
+  majCorr();
+  $('#corrDlg').showModal();
+}
+$('#corrForm').addEventListener('input', majCorr);
+$('#corrForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var l = ligneVue(corrId); if(!l) return;
+  var x = lireCorr(l); if(x.err){ majCorr(); return; }
+  var b = '/' + HIST + '/' + corrId + '/', c = {};
+  c[b + 'debut'] = x.deb; c[b + 'fin'] = x.fin; c[b + 'pause'] = x.pause; c[b + 'duree'] = x.duree; c[b + 'corr'] = {by:qui(), at:Date.now()};
+  $('#corrDlg').close(); corrId = null;
+  ecrire(c); rendreHist();
+  montrerBandeau('Ligne corrigée', null);
+});
+$('#corrSuppr').onclick = function(){
+  var l = ligneVue(corrId), id = corrId; if(!l) return;
+  $('#corrDlg').close(); corrId = null;
+  confirmer('Supprimer cette ligne ?', '« ' + l.texte + ' » disparaîtra de l\'historique pour tout le monde.', function(){ var c = {}; c['/' + HIST + '/' + id] = null; ecrire(c); rendreHist(); });
+};
+
 /* ---------- Clics ---------- */
 document.addEventListener('click', function(e){
   // Le clic qui suit la fin d'un glisser (sur ce qu'on vient de lâcher) ne compte pas.
@@ -2939,6 +3547,10 @@ document.addEventListener('click', function(e){
   var b = e.target.closest('[data-a]'); if(!b || b.closest('dialog')) return;
   var a = b.dataset.a, li = b.closest('li.t[data-id]'), pan = b.closest('.pan'), L = pan && pan.dataset.l;
   if(a === 'cocher' && li){ retirer(li.dataset.id, 'Faite'); }
+  else if(a === 'chr-start' && (li || b.dataset.t)){ chronoDemarrer(li ? li.dataset.id : b.dataset.t); }
+  else if(a === 'chr-pause' && (li || b.dataset.t)){ chronoPause(li ? li.dataset.id : b.dataset.t); }
+  else if(a === 'chr-stop' && (li || b.dataset.t)){ retirer(li ? li.dataset.id : b.dataset.t, 'Faite'); }
+  else if(a === 'chr-aller'){ var tt = D.t[b.dataset.t]; if(tt){ allerA(tt.liste, true); flash(b.dataset.t); } }
   else if(a === 'decocher'){ var la = b.closest('li[data-anim]'); if(la) remettre(la.dataset.anim); }
   else if(a === 'modifier' && li){ ouvrirModif(li.dataset.id); }
   else if(a === 'menu-tache' && li){ ouvrirMenuTache(li.dataset.id); }
@@ -2976,7 +3588,7 @@ document.addEventListener('contextmenu', function(e){
    Ordinateur : on attrape la tâche à la souris (dès 5 px) ; le titre d'une colonne la déplace. Un trait vert montre où ça tombe. */
 var press = null, drag = null;
 function cibleDepart(el){
-  if(!el || !el.closest || el.closest('textarea, .coche, .pt, dialog')) return null;
+  if(!el || !el.closest || el.closest('textarea, .coche, .pt, .chr-b, dialog')) return null;
   var li = el.closest('li.t[data-id]');
   if(li) return verrouDe(li.dataset.id) ? null : {type:'tache', el:li, id:li.dataset.id};
   var pil = el.closest('.pil[data-l]');
