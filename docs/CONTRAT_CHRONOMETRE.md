@@ -2,7 +2,7 @@
 
 *Étape 55 de la feuille de route. Rédigé le 27/11/2026 (Sonnet 5.5 · Moyen), **avant tout code**. Demande de François (26/11 et 27/11) : un chronomètre par tâche avec les boutons d'un magnétoscope (▶ démarrer, ⏸ pause, ■ terminer), en option (éteint par défaut, la case à cocher reste le fonctionnement normal), et un historique des tâches réalisées qui fonctionne **dans tous les cas**, chronomètre allumé ou non, facile à sortir en tableur.*
 
-**État : maquettes montrées à François le 27/11/2026, qui les trouve « correctes » avec une précision : le chronomètre servira uniquement sur téléphone (voir R2). **Les cinq points de la partie 4 ont été confirmés par François le 27/11/2026 (quatre selon la recommandation de Claude ; le cinquième, la conservation, autrement : 2 ans).** Aucun code, aucune écriture dans la base, aucune règle publiée.**
+**État : maquettes montrées à François le 27/11/2026, qui les trouve « correctes » avec une précision : le chronomètre servira uniquement sur téléphone (voir R2). Les cinq points de la partie 4 ont été confirmés par François le 27/11/2026 ; le 27/11 à 12 h 44, il est revenu sur le cinquième : l'historique est gardé **sans limite de durée** (la recommandation de Claude). Code écrit le 27/11/2026 (Opus 5.5 · Élevé), « vas-y » de François du 27/11 ; l'historique est rangé dans un **dossier à part de la base**, `taches-historique/` (choix de François du 27/11, voir partie 3). La règle de ce dossier est à publier par François (ou par Claude sur son « vas-y » écrit), après une sauvegarde de la base.**
 
 Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maquette/` des fichiers du projet (classique et pixel art, téléphone et ordinateur) et `NOTE-MAQUETTES.md`.
 
@@ -22,13 +22,13 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 
 **R3. Boutons façon magnétoscope.** ▶ triangle vers la droite = démarrer ou reprendre ; ⏸ deux barres verticales = pause ; ■ carré = terminer. Dessinés en formes pleines, sans texte, zone à toucher d'au moins 44 points, couleurs de la charte (classique : vert, orange, rouge ; pixel art : carrés à cadre brun, sans coins arrondis). Le temps s'écrit « 00:12:34 », « En pause · 00:41:08 ».
 
-**R4. Une personne, un chrono.** Chaque personne a **au plus un chronomètre** (en marche ou en pause). Démarrer une autre tâche **met la première en pause** (pas de perte). La personne est celle du compte connecté (`by`). Le chrono est **gardé dans la base**, donc partagé entre les appareils de cette personne : démarré sur un téléphone, il apparaît sur un autre ; ■ depuis n'importe lequel le termine. Une personne ne touche pas au chrono d'une autre (sauf l'arrêt d'un chrono oublié, R9).
+**R4. Une personne, un chrono.** Chaque personne a **au plus un chronomètre en marche**. Démarrer une autre tâche **met la première en pause** (pas de perte) : la première garde son temps en pause et peut être reprise ou terminée plus tard (au codage : un chrono par personne **et par tâche**, `taches/chrono/<by>/<tâche>`, sinon la pause aurait perdu le temps de la première tâche). La personne est celle du compte connecté (`by`). Le chrono est **gardé dans la base**, donc partagé entre les appareils de cette personne : démarré sur un téléphone, il apparaît sur un autre ; ■ depuis n'importe lequel le termine. Une personne ne touche pas au chrono d'une autre (sauf l'arrêt d'un chrono oublié, R9).
 
 **R5. Cocher n'est pas chronométrer.** La case à cocher garde son rôle : cocher une tâche sans chrono l'inscrit à l'historique **sans début ni durée** (« sans chrono », fin = heure du toucher). Ce n'est pas une erreur : c'est ce qui permet à l'historique de fonctionner chronomètre éteint.
 
 **R6. Terminer (■ ou case).** En **une seule écriture groupée** : la tâche est cochée comme aujourd'hui (elle part dans « Faites récemment », avec son bouton « Remettre »), la ligne d'historique est écrite (R7), le chrono est effacé. Cocher la case d'une tâche dont le chrono tourne ou est en pause fait la même chose que ■. Cocher une tâche mère coche ses sous-tâches comme aujourd'hui ; **une seule ligne** d'historique pour la mère, plus une ligne pour chaque sous-tâche dont le chrono était lancé. Supprimer une tâche (≠ la réaliser) **n'écrit rien** dans l'historique et efface son chrono éventuel.
 
-**R7. Historique : une ligne par tâche réalisée.** Nœud `taches/historique/<id>` : `{liste (id), listeNom (nom au moment), tache (id), texte, by (qui), debut (ms, absent si sans chrono), fin (ms), duree (ms de travail, pauses déduites, absent si sans chrono), pause (ms), chrono (true/false), corr ({by, at} si corrigée à la main)}`, plus un champ facultatif `rattachement` (R12, vide aujourd'hui). La ligne garde le **texte** et le **nom de la liste** tels qu'ils étaient : renommer ou supprimer la tâche ou la liste plus tard ne change pas l'historique. La clé `<id>` est horodatée (ordre chronologique, comme `faites`).
+**R7. Historique : une ligne par tâche réalisée.** Nœud `taches-historique/<id>` (**à la racine de la base, hors de `taches/`**, partie 3) : `{liste (id), listeNom (nom au moment), tache (id), texte, by (qui), debut (ms, absent si sans chrono), fin (ms), duree (ms de travail, pauses déduites, absent si sans chrono), pause (ms), chrono (true/false), corr ({by, at} si corrigée à la main)}`, plus un champ facultatif `rattachement` (R12, vide aujourd'hui). La ligne garde le **texte** et le **nom de la liste** tels qu'ils étaient : renommer ou supprimer la tâche ou la liste plus tard ne change pas l'historique. La clé `<id>` est horodatée (ordre chronologique) : l'heure de fin en base 36 sur 9 caractères, puis 5 caractères au hasard. Elle est écrite **dans la même écriture groupée** que la tâche cochée (mise à jour à plusieurs chemins depuis la racine).
 
 **R8. Remettre une tâche faite.** « Remettre » (menu « ⋯ » → Faites récemment) **retire la ligne d'historique** de cette réalisation (lien par le champ `h` de l'enregistrement `faites`) : une tâche remise n'est pas réalisée. Le temps chronométré est perdu (la tâche repart sans chrono). Si « Faites récemment » a déjà effacé l'enregistrement (7 jours), la ligne d'historique reste, c'est le but de l'historique.
 
@@ -46,7 +46,9 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 
 **R15. Hors ligne et plusieurs appareils.** Démarrer, pause, reprise, ■ sont des écritures comme les autres : elles passent par la file d'attente hors ligne existante (`taches.pending`) et gardent l'heure du **toucher**, pas celle de l'envoi. Le temps affiché se calcule à partir des heures enregistrées (jamais un compteur qui s'incrémente), donc il reste juste appli fermée ou téléphone éteint. Deux appareils qui modifient le même chrono : la dernière écriture gagne, sans perte de ligne d'historique (qui n'est écrite qu'à ■).
 
-**R15bis. Conservation de 2 ans.** Au démarrage, le premier appareil qui ouvre l'appli efface les lignes d'historique dont `fin` a plus de 2 ans (même mécanisme que « Faites récemment »). Cet effacement est prévu et voulu par François ; aucun autre effacement n'existe.
+**R15bis. Conservation sans limite.** Aucune ligne d'historique n'est jamais effacée par l'appli (choix de François du 27/11, 12 h 44). Les seules suppressions sont celles d'une personne : « Remettre » (R8) et « Supprimer la ligne » dans « Corriger » (R10, après confirmation).
+
+**R15ter. Règle de la base pas encore publiée.** Si la base refuse l'écriture dans `taches-historique/` (règle pas encore publiée), la tâche est quand même cochée : la ligne d'historique est gardée sur l'appareil (clé `taches.histAttente`), un bandeau le dit une fois, et elle est renvoyée à chaque ouverture jusqu'à ce que la base l'accepte.
 
 **R16. Impression et « Faites récemment ».** « Faites récemment » (7 jours, bouton « Remettre ») **reste tel quel**. L'impression des listes ne change pas ; l'historique n'est pas imprimé dans cette étape.
 
@@ -59,12 +61,14 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 | Nœud | Contenu | Écrit par |
 |---|---|---|
 | `taches/reglages/chronometre` | `true` si le mode est allumé | profil ferme |
-| `taches/chrono/<by>` | `{tache, texte, liste, debut, cumul, depuis, etat ("marche"/"pause"), vu}` ; durée = `cumul` + (maintenant − `depuis`) si en marche | la personne |
-| `taches/historique/<id>` | ligne de R7 | la personne (et corrections, R10) |
+| `taches/chrono/<by>/<tâche>` | `{by, texte, liste, debut, cumul, depuis, etat ("marche"/"pause"), vu}` ; durée = `cumul` + (maintenant − `depuis`) si en marche | la personne |
+| `taches-historique/<id>` | ligne de R7, **hors de `taches/`** | la personne (et corrections, R10) |
+
+- **Pourquoi un dossier à part** (choix de François, 27/11) : l'appli suit `taches/` en direct et le relit en entier à chaque ouverture. Un historique sans limite rangé dedans grossirait cette lecture d'année en année. Dans `taches-historique/`, il n'est lu que pour la période affichée (requête sur la clé, ±3 jours de marge), et l'appareil garde une copie des 62 derniers jours pour l'hors-ligne (`taches.histo`).
 
 - **Aucune migration** : les tâches et « Faites récemment » existants ne bougent pas ; l'historique commence le jour de la mise en service (avant : vide, dit clairement à l'écran).
-- **Taille** : une ligne ≈ 250 octets ; 15 tâches réalisées par jour ≈ 1,4 Mo par an pour la ferme ; **conservation de 2 ans** (choix de François, 27/11) : toute ligne de plus de 2 ans (d'après `fin`) est effacée par le premier appareil qui ouvre l'appli, comme « Faites récemment » aujourd'hui ; l'écran de l'historique et l'export le disent (« L'historique garde 2 ans ») ; l'export est le moyen de garder plus longtemps. Taille maximale d'environ 3 Mo pour 15 tâches par jour.
-- **Règles de la base** : elles vivent dans le dépôt `liste-recolte` (`docs/regles-base/`). Si la règle actuelle de `taches/` n'accepte pas ces nouveaux sous-nœuds, il faudra une règle à republier : **demande le « vas-y » exprès de François, avec export JSON de la base avant**. *Non vérifié à ce jour.* Le compte « équipe » (Martin) doit pouvoir écrire son chrono et son historique.
+- **Taille** : une ligne ≈ 250 octets ; 15 tâches réalisées par jour ≈ 1,4 Mo par an pour la ferme ; **conservation sans limite** (choix de François, 27/11, 12 h 44) : rien n'est effacé, l'écran de l'historique le dit (« gardé sans limite de durée »).
+- **Règles de la base** : elles vivent dans le dépôt `liste-recolte` (`docs/regles-base/fermees.json`). La règle actuelle de `taches/` accepte déjà `taches/chrono` et `taches/reglages/chronometre` (vérifié le 27/11). Le dossier `taches-historique/` demande une **règle nouvelle** (lecture : ferme, équipe, sauvegarde ; écriture : ferme, équipe), ajoutée par une PR dans `liste-recolte` et à publier avec le **« vas-y » exprès de François, après une sauvegarde de la base**. La règle vérifie le profil, pas la personne : « chacun corrige ses lignes » (R10) est tenu par l'appli. Le dossier est ajouté à la **sauvegarde de nuit** (`outils-de-la-ferme`, `sauvegarde/reglages.json`).
 
 ## 4. Points confirmés par François (27/11/2026)
 
@@ -72,7 +76,7 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 2. **Un seul chrono par personne**, le suivant met le précédent en pause (selon la recommandation).
 3. **Chrono oublié** : fenêtre à l'ouverture après 12 h, jamais d'arrêt automatique (selon la recommandation).
 4. **Corrections** : chacun corrige ses lignes, François toutes (selon la recommandation).
-5. **Conservation : 2 ans, puis effacement automatique** (François a choisi cette option, la recommandation de Claude était « sans limite »). Ajouté au code : effacement par le premier appareil qui ouvre l'appli, mention à l'écran, test dédié ; les lignes effacées ne reviennent pas.
+5. **Conservation : sans limite de durée.** François avait d'abord choisi « 2 ans, puis effacement automatique », puis est revenu sur ce choix le 27/11 à 12 h 44 (« OK pour sans limite. »), avant tout code. Aucun effacement automatique n'est codé.
 
 ## 5. Tests à prévoir (au codage)
 
@@ -80,4 +84,4 @@ Faux Firebase, heure figée, données inventées, téléphone et ordinateur, cla
 
 ## 6. Hors périmètre
 
-Code ; règle de base ; liaison à Ouvre ta ferme ; chronomètre de la Récolte du Cumul ; rappel « vous avez un chrono en marche » par notification ; tableaux de productivité (graphiques) ; impression de l'historique.
+Publication de la règle de base (à faire par François ou sur son « vas-y ») ; liaison à Ouvre ta ferme ; chronomètre de la Récolte du Cumul ; rappel « vous avez un chrono en marche » par notification ; tableaux de productivité (graphiques) ; impression de l'historique.

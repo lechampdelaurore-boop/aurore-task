@@ -15,6 +15,8 @@
 // une seule fois (jamais réécrite ni effacée) ; reglesAvantAgent : les règles d'avant l'étape 31 (ce chemin refusé).
 // Requête « orderBy="w"&startAt="<lundi>" » comprise.
 // Étape 45B (Aurore Task, rappel du matin) : profil « rappel » ; reglesAvantRappel : les règles d'avant (refusé).
+// Étape 55 (Farm tasks, historique des tâches réalisées) : taches-historique/ lu et écrit par les profils « ferme » et
+// « equipe » ; reglesAvantHistorique : les règles d'avant (refusé). Requêtes « orderBy="$key"&startAt=…&endAt=… » comprises.
 const http = require('http');
 const crypto = require('crypto');
 
@@ -42,6 +44,8 @@ module.exports = function fauxFirebase(port, options = {}) {
       if (profil === 'rappel' && !serveur.reglesAvantRappel) return m === 'GET' || p[1] === 'lu' || p[1] === 'abonnements';
       return false;
     }
+    // Étape 55 : taches-historique/ lu et écrit par les profils « ferme » et « equipe ».
+    if (p[0] === 'taches-historique') return !serveur.reglesAvantHistorique && (profil === 'ferme' || profil === 'equipe');
     // Étape 45B : rappel/ (clés d'envoi, envois du jour) lu et écrit par le seul profil « rappel ».
     if (p[0] === 'rappel') return !serveur.reglesAvantRappel && profil === 'rappel';
     if (serveur.reglesAvant13C) return false; // règles de l'étape 5 seules (avant la publication des nouvelles)
@@ -96,6 +100,13 @@ module.exports = function fauxFirebase(port, options = {}) {
     if (url.searchParams.get('orderBy') === '"w"' && v && typeof v === 'object') {
       const depuis = JSON.parse(url.searchParams.get('startAt') || 'null');
       return Object.fromEntries(Object.entries(v).filter(([, x]) => x && typeof x.w === 'string' && (depuis === null || x.w >= depuis)));
+    }
+    // « orderBy="$key"&startAt="a"&endAt="b" » (étape 55) : les enfants dont la clé est entre a et b (compris).
+    if (url.searchParams.get('orderBy') === '"$key"' && (url.searchParams.has('startAt') || url.searchParams.has('endAt')) && v && typeof v === 'object') {
+      const de = url.searchParams.has('startAt') ? JSON.parse(url.searchParams.get('startAt')) : null;
+      const a = url.searchParams.has('endAt') ? JSON.parse(url.searchParams.get('endAt')) : null;
+      serveur.requetes.push(url.searchParams.toString());
+      v = Object.fromEntries(Object.keys(v).sort().filter((k) => (de === null || k >= de) && (a === null || k <= a)).map((k) => [k, v[k]]));
     }
     const n = Number(url.searchParams.get('limitToLast'));
     if (!n || url.searchParams.get('orderBy') !== '"$key"' || !v || typeof v !== 'object') return v;
@@ -152,6 +163,7 @@ module.exports = function fauxFirebase(port, options = {}) {
     {
       const v = q.method === 'DELETE' ? null : JSON.parse(corpsLu);
       if (q.method === 'PATCH') {
+        serveur.patchs.push({ p: p.join('/'), cles: Object.keys(v) });
         for (const [k, x] of Object.entries(v)) ecrire(p.concat(k.split('/').filter(Boolean)), x);
         for (const s of abonnes) {
           if (p.join('/').startsWith(s.p.join('/'))) {
@@ -179,6 +191,8 @@ module.exports = function fauxFirebase(port, options = {}) {
   serveur.couperFlux = () => { for (const a of abonnes.splice(0)) a.r.destroy(); };
   // Comptes (option comptes) : créer, donner un profil, faire expirer tous les jetons, supprimer.
   serveur.renouvellements = 0;
+  serveur.patchs = []; // étape 55 : chaque écriture groupée (PATCH) : { p: chemin, cles: [chemins écrits] }
+  serveur.requetes = []; // étape 55 : chaque lecture par intervalle de clés (paramètres de la requête)
   serveur.lectures = []; // chaque lecture simple (hors flux) : « chemin » ou « chemin?shallow »
   serveur.journal = journal;
   serveur.creerCompte = (email, mdp) => { const uid = 'u' + hasard().slice(0, 10); utilisateurs[email.toLowerCase()] = { mdp, uid }; return uid; };

@@ -156,6 +156,9 @@ const plusEncart = (L, e) => `.pan[data-l="${L}"] .encart-tete [data-a="ajouter"
   verifie(!(await etat(A)).ouvert, 'Entrée sur un champ vide : le panneau se ferme');
   o = await ordre(A, 'mardi');
   verifie(o[0] === 'Première [-]' && o[1] === 'Deuxième [-]' && o[2].startsWith('13:00'), 'rafale : dans l\'ordre tapé, en haut de la liste, au-dessus de RDV ' + JSON.stringify(o.slice(0, 3)));
+  // Les écritures partent l'une après l'autre (file d'attente) : attendre que la seconde soit arrivée, puis un temps de plus
+  // pour qu'une troisième, s'il y en avait une, soit vue.
+  await attendreQue(() => ecritures(base) - n0 >= 2); await pause(500);
   verifie(ecritures(base) - n0 === 2, 'deux tâches, deux écritures (' + (ecritures(base) - n0) + ')');
 
   // 3. Fermer sans enregistrer : toucher à côté, Échap ; le texte revient au prochain « + » de la même liste.
