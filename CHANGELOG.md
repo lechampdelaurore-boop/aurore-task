@@ -1,5 +1,9 @@
 # Historique des changements
 
+## 2026-11-27
+
+- **Contrat du chronomètre et de l'historique** (étape 55, demande de François du 26/11 et 27/11 ; maquettes vues le 27/11, chronomètre sur téléphone seulement). Documentation seulement, **aucun code** : `docs/CONTRAT_CHRONOMETRE.md`, `docs/ROADMAP.md`, `docs/ETAT_DU_PROJET.md`, `docs/DECISIONS.md`.
+
 ## 2026-11-26
 
 - **Idée notée : chronomètre des tâches et vrai historique** (étape 55, demande de François du 26/11). Documentation seulement, **aucun code, aucun contrat** (François l'a demandé ainsi) : `docs/ROADMAP.md` (étape 55, questions ouvertes, modèle · effort proposé sans engagement) et `docs/ETAT_DU_PROJET.md`. Ajout de François : historique facile à extraire (tableur) pour la productivité horaire. Ajout de François : piste de liaison avec Ouvre ta ferme (temps rattaché à une série de légumes).
