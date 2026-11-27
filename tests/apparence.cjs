@@ -392,7 +392,10 @@ async function pointsDifferents(page, a, b) {
           await P.waitForFunction(() => Array.from(document.querySelectorAll('#appChoix img')).every((i) => i.complete)); await pause(300);
           await P.evaluate(() => { const g = document.getElementById('appChoix'); if (g) { g.previousElementSibling.previousElementSibling.style.display = 'none'; g.previousElementSibling.style.display = 'none'; g.style.display = 'none'; }
             // Rubrique « Chronomètre » et « Historique » (étape 55) : nouvelle, masquée comme « Apparence ».
-            const c = document.getElementById('reglChronoBloc'); if (c) c.style.display = 'none'; }); }],
+            const c = document.getElementById('reglChronoBloc'); if (c) c.style.display = 'none';
+            // 27/11 : la branche ne met plus le focus sur « Nom affiché en haut » à l'ouverture (tests/reglages-clavier.cjs) ;
+            // la référence le fait encore : son contour de focus est retiré pour ne comparer que l'aspect.
+            const nom = document.getElementById('reglNom'); if (nom && document.activeElement === nom) nom.blur(); }); }],
         ['liste verrouillée', async (P, pc) => { if (pc) await P.evaluate(() => { const pi = document.getElementById('piste'), p = document.querySelector('.pan[data-l="archives"]'); pi.scrollLeft = p.offsetLeft - pi.offsetLeft; }); else { await P.click('#bande .pil[data-l="archives"]'); } }],
       ];
       for (const [nomEcran, opts] of [['ordinateur 1920 × 1080', PC], ['téléphone 390 × 844', { ...TEL, deviceScaleFactor: 1 }]]) {
