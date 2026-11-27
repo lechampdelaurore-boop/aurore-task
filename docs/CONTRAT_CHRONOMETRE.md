@@ -2,7 +2,7 @@
 
 *Étape 55 de la feuille de route. Rédigé le 27/11/2026 (Sonnet 5.5 · Moyen), **avant tout code**. Demande de François (26/11 et 27/11) : un chronomètre par tâche avec les boutons d'un magnétoscope (▶ démarrer, ⏸ pause, ■ terminer), en option (éteint par défaut, la case à cocher reste le fonctionnement normal), et un historique des tâches réalisées qui fonctionne **dans tous les cas**, chronomètre allumé ou non, facile à sortir en tableur.*
 
-**État : maquettes montrées à François le 27/11/2026, qui les trouve « correctes » avec une précision : le chronomètre servira uniquement sur téléphone (voir R2). Les points marqués « à confirmer » (partie 4) restent à valider avant le code. Aucun code, aucune écriture dans la base, aucune règle publiée.**
+**État : maquettes montrées à François le 27/11/2026, qui les trouve « correctes » avec une précision : le chronomètre servira uniquement sur téléphone (voir R2). **Les cinq points de la partie 4 ont été confirmés par François le 27/11/2026 (quatre selon la recommandation de Claude ; le cinquième, la conservation, autrement : 2 ans).** Aucun code, aucune écriture dans la base, aucune règle publiée.**
 
 Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maquette/` des fichiers du projet (classique et pixel art, téléphone et ordinateur) et `NOTE-MAQUETTES.md`.
 
@@ -18,7 +18,7 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 
 **R1. Option dans les Réglages.** Réglages → « Chronomètre » → case à cocher « Mode chronomètre », **décochée au départ**, avec une phrase d'aide (maquette). Le réglage vaut pour **toute la ferme** (clé `taches/reglages/chronometre`, `true` ou absent) : tout le monde voit les mêmes boutons. Sous la case, l'entrée « Ouvrir l'historique… ».
 
-**R2. Téléphone seulement.** Les boutons ▶ ⏸ ■ et le bandeau « en cours » n'existent que sur l'écran de téléphone (le même seuil que le panneau « Nouvelle tâche », moins de 1000 px). **Sur ordinateur : aucun bouton chronomètre, aucun changement de la liste** (demande de François du 27/11). Sur ordinateur, cocher une tâche dont le chrono tourne sur un téléphone la **termine** comme ■ (R6) : aucune donnée ne reste en suspens. La case du mode et l'historique (écran et export) restent accessibles sur ordinateur, car c'est là qu'un tableur s'ouvre le plus facilement. *À confirmer (partie 4, point 1).*
+**R2. Téléphone seulement.** Les boutons ▶ ⏸ ■ et le bandeau « en cours » n'existent que sur l'écran de téléphone (le même seuil que le panneau « Nouvelle tâche », moins de 1000 px). **Sur ordinateur : aucun bouton chronomètre, aucun changement de la liste** (demande de François du 27/11). Sur ordinateur, cocher une tâche dont le chrono tourne sur un téléphone la **termine** comme ■ (R6) : aucune donnée ne reste en suspens. La case du mode et l'historique (écran et export) restent accessibles sur ordinateur, car c'est là qu'un tableur s'ouvre le plus facilement. *Confirmé par François le 27/11.*
 
 **R3. Boutons façon magnétoscope.** ▶ triangle vers la droite = démarrer ou reprendre ; ⏸ deux barres verticales = pause ; ■ carré = terminer. Dessinés en formes pleines, sans texte, zone à toucher d'au moins 44 points, couleurs de la charte (classique : vert, orange, rouge ; pixel art : carrés à cadre brun, sans coins arrondis). Le temps s'écrit « 00:12:34 », « En pause · 00:41:08 ».
 
@@ -34,7 +34,7 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 
 **R9. Chrono oublié.** Tant que la personne a l'appli ouverte, l'appareil met à jour `vu` du chrono (au plus toutes les 10 minutes, une écriture de quelques octets). Si un chrono **en marche** a plus de **12 heures** (ou dure depuis la veille), la prochaine ouverture de l'appli par cette personne (ou, à défaut, par n'importe qui pour un chrono qui date de plus de 24 heures) montre la fenêtre de la maquette : « Arrêter à <dernier geste> », « Arrêter maintenant », « Laisser en marche ». Aucun arrêt automatique en silence.
 
-**R10. Correction d'un temps oublié.** Dans l'historique, toucher une ligne ouvre « Corriger » : début, fin et pause modifiables (la durée se recalcule), ou suppression de la ligne. Le champ `corr` garde qui a corrigé et quand. Chacun corrige **ses** lignes ; François (profil « ferme ») corrige toutes les lignes. *À confirmer (partie 4, point 4).*
+**R10. Correction d'un temps oublié.** Dans l'historique, toucher une ligne ouvre « Corriger » : début, fin et pause modifiables (la durée se recalcule), ou suppression de la ligne. Le champ `corr` garde qui a corrigé et quand. Chacun corrige **ses** lignes ; François (profil « ferme ») corrige toutes les lignes. *Confirmé par François le 27/11.*
 
 **R11. Consulter l'historique.** Écran (feuille sur téléphone, fenêtre sur ordinateur) ouvert par Réglages → « Ouvrir l'historique… » et par « ⋯ » d'une liste → « Historique de cette liste ». Filtres : personne, période (cette semaine par défaut, semaine passée, ce mois, dates au choix), liste, avec ou sans chrono. Il affiche le nombre de tâches et le total chronométré, les plus récentes en premier, par **pages de 50 lignes** (« Afficher la suite ») : la base n'est lue que pour la période demandée (requête sur la clé horodatée), jamais en entier. Numéros de semaine ISO si on affiche des semaines.
 
@@ -45,6 +45,8 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 **R14. Format commun avec le Cumul.** La Récolte du Cumul (étape 51) réutilisera la **même forme de ligne** (`liste`, `texte`, `by`, `debut`, `fin`, `duree`, `pause`, `chrono`, `rattachement`) dans son propre nœud, avec un champ `outil` ("taches" ou "recolte") : un export réunira les deux. Ce contrat ne code rien côté Cumul.
 
 **R15. Hors ligne et plusieurs appareils.** Démarrer, pause, reprise, ■ sont des écritures comme les autres : elles passent par la file d'attente hors ligne existante (`taches.pending`) et gardent l'heure du **toucher**, pas celle de l'envoi. Le temps affiché se calcule à partir des heures enregistrées (jamais un compteur qui s'incrémente), donc il reste juste appli fermée ou téléphone éteint. Deux appareils qui modifient le même chrono : la dernière écriture gagne, sans perte de ligne d'historique (qui n'est écrite qu'à ■).
+
+**R15bis. Conservation de 2 ans.** Au démarrage, le premier appareil qui ouvre l'appli efface les lignes d'historique dont `fin` a plus de 2 ans (même mécanisme que « Faites récemment »). Cet effacement est prévu et voulu par François ; aucun autre effacement n'existe.
 
 **R16. Impression et « Faites récemment ».** « Faites récemment » (7 jours, bouton « Remettre ») **reste tel quel**. L'impression des listes ne change pas ; l'historique n'est pas imprimé dans cette étape.
 
@@ -61,16 +63,16 @@ Maquettes (données inventées, autre ferme) : dossier `chronometre-taches/maque
 | `taches/historique/<id>` | ligne de R7 | la personne (et corrections, R10) |
 
 - **Aucune migration** : les tâches et « Faites récemment » existants ne bougent pas ; l'historique commence le jour de la mise en service (avant : vide, dit clairement à l'écran).
-- **Taille** : une ligne ≈ 250 octets ; 15 tâches réalisées par jour ≈ 1,4 Mo par an pour la ferme ; **conservation sans limite**, à revoir au-delà de 20 000 lignes (archivage par export, étape à part, jamais d'effacement sans « vas-y »).
+- **Taille** : une ligne ≈ 250 octets ; 15 tâches réalisées par jour ≈ 1,4 Mo par an pour la ferme ; **conservation de 2 ans** (choix de François, 27/11) : toute ligne de plus de 2 ans (d'après `fin`) est effacée par le premier appareil qui ouvre l'appli, comme « Faites récemment » aujourd'hui ; l'écran de l'historique et l'export le disent (« L'historique garde 2 ans ») ; l'export est le moyen de garder plus longtemps. Taille maximale d'environ 3 Mo pour 15 tâches par jour.
 - **Règles de la base** : elles vivent dans le dépôt `liste-recolte` (`docs/regles-base/`). Si la règle actuelle de `taches/` n'accepte pas ces nouveaux sous-nœuds, il faudra une règle à republier : **demande le « vas-y » exprès de François, avec export JSON de la base avant**. *Non vérifié à ce jour.* Le compte « équipe » (Martin) doit pouvoir écrire son chrono et son historique.
 
-## 4. Points à confirmer par François (avant le code)
+## 4. Points confirmés par François (27/11/2026)
 
-1. **Ordinateur** : confirmer « pas de boutons chrono sur ordinateur », mais **historique et export disponibles** sur ordinateur (recommandé, pour le tableur).
-2. **Un seul chrono par personne, le suivant met le précédent en pause** (recommandé).
-3. **Chrono oublié** : fenêtre à l'ouverture après 12 h, jamais d'arrêt automatique (recommandé).
-4. **Corrections** : chacun corrige ses lignes, François toutes (recommandé).
-5. **Conservation sans limite** de l'historique (recommandé).
+1. **Ordinateur** : pas de boutons chrono ; **historique et export disponibles** (selon la recommandation).
+2. **Un seul chrono par personne**, le suivant met le précédent en pause (selon la recommandation).
+3. **Chrono oublié** : fenêtre à l'ouverture après 12 h, jamais d'arrêt automatique (selon la recommandation).
+4. **Corrections** : chacun corrige ses lignes, François toutes (selon la recommandation).
+5. **Conservation : 2 ans, puis effacement automatique** (François a choisi cette option, la recommandation de Claude était « sans limite »). Ajouté au code : effacement par le premier appareil qui ouvre l'appli, mention à l'écran, test dédié ; les lignes effacées ne reviennent pas.
 
 ## 5. Tests à prévoir (au codage)
 
